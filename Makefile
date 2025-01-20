@@ -6,6 +6,7 @@ all:
 	@echo ""
 	@echo "  make                                      # Esta ayuda"
 	@echo "  make build                                # Construir las imágenes para desarrollo"
+	@echo "  make build-nc                             # Construir las imágenes para desarrollo sin el caché"
 	@echo "  make destroy                              # Detener los containers y borrar los volúmenes (borra la BBDD)"
 	@echo "  make run                                  # Ejecutar el proyecto [para desarrollar]"
 	@echo "  make down                                 # Detener los containers"
@@ -14,6 +15,14 @@ all:
 
 # Esto sólo construye para desarrollo
 build:
+	docker compose build \
+		--build-arg BUNDLE_PATH="/usr/local/bin/bundle" \
+		--build-arg BUNDLE_WITHOUT="" \
+		--build-arg RAILS_ENV="development" \
+		--build-arg RAILS_MASTER_KEY="config/master.key" \
+		cp_server
+
+build-nc:
 	docker compose build --no-cache \
 		--build-arg BUNDLE_PATH="/usr/local/bin/bundle" \
 		--build-arg BUNDLE_WITHOUT="" \
@@ -28,7 +37,7 @@ down:
 
 run:
 	rm -f ./app/tmp/pids/server.pid
-	docker compose run --service-ports cp_server
+	docker compose run -v $(PWD)/app:/rails --service-ports cp_server
 
 shell:
-	docker compose run --service-ports cp_server bash
+	docker compose run -v $(PWD)/app:/rails --service-ports cp_server bash

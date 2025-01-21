@@ -25,6 +25,7 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
   - [X] Filtrar lista de problemas
     - [X] Por dificultad
     - [X] Por tags
+    - [ ] Agregar unit tests
   - [ ] Verificar alguna forma de mostrar el problema (markdown? / Latex?)
 
 - [ ] Examples

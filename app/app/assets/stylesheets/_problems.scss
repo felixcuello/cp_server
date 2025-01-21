@@ -1,0 +1,143 @@
+.problem-back {
+  font-family: Arial, sans-serif;
+  font-size: 1.2em;
+  padding: 10px;
+  a:visited {
+    color: #A00000;
+  }
+  text-transform: uppercase; // All capitals
+}
+
+.problem-title {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 2em; // Equivalent to H1 size, which is typically around 2em or 32px in most browsers
+  color: #000090; // Very dark blue (Navy)
+}
+
+.problem-box {
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #d3d3d3; // Light gray border
+  border-radius: 10px; // Rounded corners
+}
+
+.problem-name {
+  font-family: Arial, sans-serif;
+  font-size: 1.7em; // Equivalent to H1 size, which is typically around 2em or 32px in most browsers
+  color: #000000; // Very dark blue (Navy)
+}
+
+.problem-description {
+  font-family: Arial, sans-serif;
+  font-size: 1.9em;
+  color: #000090;
+}
+
+.problem-description-text {
+  font-family: Arial, sans-serif;
+  font-size: 1.2em;
+  color: #000000;
+}
+
+.problem-examples {
+  font-family: Arial, sans-serif;
+  font-size: 1.9em;
+  color: #000090;
+}
+
+.problem-single-example {
+  font-family: Arial, sans-serif;
+  font-size: 1.5em;
+  color: #000090;
+}
+
+.problem-difficulty-easy {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: #e6ffe6; // Light green background
+  color: #006400; // Dark green text
+  border-radius: 20px; // Makes it pill-shaped
+  text-transform: uppercase; // All capitals
+  font-size: 14px;
+  font-weight: bold; // Optional for visibility at small sizes
+  line-height: 1; // Ensures text fits within the pill
+}
+
+.problem-difficulty-medium {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #fff0b3; // Light yellow background
+  color: #b38600; // Dark yellow text
+  border-radius: 20px; // Makes it pill-shaped
+  text-transform: uppercase; // All capitals
+  font-size: 14px;
+  font-weight: bold; // Optional for visibility at small sizes
+  line-height: 1; // Ensures text fits within the pill
+}
+
+.problem-difficulty-hard {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #ffcccc; // Light red background
+  color: #800000; // Dark red text
+  border-radius: 20px; // Makes it pill-shaped
+  text-transform: uppercase; // All capitals
+  font-size: 14px;
+  font-weight: bold; // Optional for visibility at small sizes
+  line-height: 1; // Ensures text fits within the pill
+}
+
+.problem-example-box {
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #d3d3d3; // Light gray border
+}
+
+.problem-constraints {
+  font-family: Arial, sans-serif;
+  font-size: 1.9em;
+  font-weight: bold;
+  color: #000090;
+}
+
+.pre-with-numbers {
+  font-family: monospace;
+  background-color: #f0f0f0; // Light gray background
+  padding: 10px;
+  overflow: auto;
+  counter-reset: line; // Reset the line counter
+
+  code {
+    display: block;
+
+    span {
+      display: block;
+
+      &::before {
+        counter-increment: line;
+        content: counter(line); // Display the line number
+        display: inline-block;
+        width: 2em; // Adjust for consistent spacing
+        margin-right: 1em;
+        padding-right: 1em;
+        text-align: right;
+        color: #999; // Line number color
+        border-right: 1px solid #ddd; // Divider between line numbers and code
+      }
+    }
+  }
+}
+
+.problem-tag {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  padding: 4px 10px;
+  background-color: #f0f0f0; // Light gray background
+  color: #000000;
+  border-radius: 20px; // Makes it pill-shaped
+  text-transform: uppercase; // All capitals
+  font-weight: bold; // Optional for visibility at small sizes
+  line-height: 1; // Ensures text fits within the pill
+  margin-right: 10px;
+}

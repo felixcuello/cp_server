@@ -20,6 +20,8 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
   - [X] Crear la tabla para los problemas
   - [X] Mostrar lista de problemas (#index)
   - [X] Mostrar un problema (#show)
+  - [X] (UI/UX) Agregar estilos para mostrar el problema
+  - [ ] (UI/UX) Agregar estilos para mostrar el listado de problemas
   - [ ] Filtrar lista de problems (por dificultad, por tags, por contest, sólo activos)
   - [ ] Ordenar lista de problems (por dificultad, por tags, fecha)
   - [ ] Verificar alguna forma de mostrar el problema (markdown? / Latex?)

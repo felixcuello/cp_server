@@ -1,44 +1,57 @@
-<html>
-  <head>
-    <title>Problem: Something</title>
-  </head>
-  <body>
-    <h1>Problem: Something</h1>
-    <h2>Difficulty: Easy</h2>
+<div class="problem-back">
+  <a href="/problems">Back</a>
+</div>
 
-    <h1>Description</h1>
-      <div>
-        <p>Given a string, return the first non-repeating character in it and return its index. If it does not exist, return -1.</p>
-        <p>Examples:</p>
-        <p>s = "leetcode"</p>
-        <p>return 0.</p>
-        <p>s = "loveleetcode"</p>
-        <p>return 2.</p>
+<div class="problem-box">
+  <div class="problem-title">
+    Problem 
+  </div>
+  <div class="problem-name">
+    <%= @problem.title %>
+    <div class="problem-tags">
+      <a class="problem-difficulty-<%= @problem.difficulty.downcase %>" href="/problems?difficulty=<%= @problem.difficulty %>">
+        <%= @problem.difficulty.camelize %>
+      </a>
+      <% @problem.tags.each do |tag| %>
+        <a class="problem-tag" href="/problems?tag=<%= tag.name %>"><%= tag.name %></a>
+      <% end %>
+    </div>
+  </div>
+
+  <h1 class="problem-description">Description</h1>
+  <div class="problem-description-text">
+    <%= @problem.description.gsub("\n", "<br />").html_safe %>
+  </div>
+
+  <h1 class="problem-examples">
+    Examples
+  </h1>
+
+  <% @problem.examples.where(is_hidden: false).each do |example| %>
+    <div class="problem-example-box">
+      <div class="problem-single-example">
+        Example <%= example.id %>
       </div>
 
-    <h1>Examples</h1>
-      <h2>Example 1</h2>
       <h3>Input</h3>
-        <div>
-          <p>s = "leetcode"</p>
-        </div>
-      <h3>Output</h3>
-        <div>
-          <p>0</p>
-        </div>
-      <h2>Example 2</h2>
-      <h3>Input</h3>
-        <div>
-          <p>s = "loveleetcode"</p>
-        </div>
-      <h3>Output</h3>
-        <div>
-          <p>2</p>
-        </div>
 
-    <h1>Constraints</h1>
-      <div>
-        <p>The input string contains only lowercase English letters.</p>
+      <div class="pre-with-numbers">
+        <%= example.input.gsub("\n", "<br />").html_safe %>
       </div>
-  </body>
-</html>
+
+      <h3>Output</h3>
+
+      <div class="pre-with-numbers">
+        <%= example.output.gsub("\n", "<br />").html_safe %>
+      </div>
+    </div>
+  <% end %>
+
+
+  <div class="problem-constraints">
+    Constraints
+  </div>
+  <div class="pre-with-numbers">
+    <p><%= @problem.constraints %></p>
+  </div>
+</div>

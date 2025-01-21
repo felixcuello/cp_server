@@ -1,6 +1,6 @@
 <div class="problem-list-box">
   <div class="problem-list-title">
-    Problems
+    <%= link_to 'Problems', problems_path %>
   </div>
 
   <% @problems.order(:id).each do |problem| %>
@@ -10,12 +10,13 @@
       <a class="problem-difficulty-<%= problem.difficulty %>" href="/problems?difficulty=<%= problem.difficulty %>">
         <%= problem.difficulty %>
       </a>
-      <a class="problem-tag" href="/problems?tag=<%= problem.tags.first.name %>">
+      <% if problem.tags.any? %>
         <% problem.tags.each_with_index do |tag, i| %>
-          <%= ', ' if i > 0 %>
-          <%= tag.name %>
+          <a class="problem-tag" href="/problems?tag=<%= problem.tags.first&.name %>">
+            #<%= tag.name %>
+          </a>
         <% end %>
-      </a>
+      <% end %>
     </div>
   <% end %>
 </div>

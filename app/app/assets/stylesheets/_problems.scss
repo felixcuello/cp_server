@@ -36,7 +36,7 @@
 
 .problem-description-text {
   font-family: Arial, sans-serif;
-  font-size: 1.2em;
+  font-size: 1.4em;
   color: #000000;
 }
 
@@ -147,6 +147,10 @@
   font-size: 1.9em;
   color: #000090;
   font-weight: bold;
+  a:visited {
+    color: #000000;
+    underline: none;
+  }
 }
 
 .problem-list-box {

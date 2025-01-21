@@ -12,9 +12,10 @@
 
 ActiveRecord::Schema[7.2].define(version: 2025_01_20_125905) do
   create_table "examples", charset: "utf8", force: :cascade do |t|
-    t.string "input"
-    t.string "output"
+    t.text "input"
+    t.text "output"
     t.integer "sort_order"
+    t.boolean "is_hidden", default: true, null: false
     t.bigint "problem_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -38,7 +39,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_20_125905) do
   end
 
   create_table "tags", charset: "utf8", force: :cascade do |t|
-    t.string "name"
+    t.string "name", null: false
   end
 
   create_table "users", charset: "utf8", force: :cascade do |t|

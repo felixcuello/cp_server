@@ -1,0 +1,15 @@
+<html>
+  <head>
+    <title>Problems</title>
+  </head>
+
+  <body>
+    <h1>Problems</h1>
+    <ul>
+      <% @problems.each do |problem| %>
+        <li><%= problem.title %></li>
+        <li><%= problem.difficulty %></li>
+      <% end %>
+    </ul>
+  </body>
+</html>

@@ -17,28 +17,33 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
 ## Pending
 
 - [ ] Problemas
-  - [ ] Mostrar lista de problemas (#index)
-  - [ ] Mostrar un problema (#show)
-    - [ ] Verificar alguna forma de mostrar el problema (markdown? / Latex?)
-  - [ ] Tener tests para los problemas
-    - [ ] Correr los tests
-    - [ ] Ver los resultados de los tests
+  - [X] Crear la tabla para los problemas
+  - [X] Mostrar lista de problemas (#index)
+  - [X] Mostrar un problema (#show)
+  - [ ] Filtrar lista de problems (por dificultad, por tags, por contest, sólo activos)
+  - [ ] Ordenar lista de problems (por dificultad, por tags, fecha)
+  - [ ] Verificar alguna forma de mostrar el problema (markdown? / Latex?)
+  - [ ] Ejecutar los examples para los problemas
+    - [ ] Agregar una tabla para cada lenguaje de programación disponible
+        - [ ] Nombre
+        - [ ] Forma de ejecución
+    - [ ] Agregar sidekiq (o algo por el estilo) para poder correr los tests en background
+        - [ ] Agregar redis
+        - [ ] Agregar sidekiq
+    - [ ] Chequear cómo verificar el output de una ejecución
+    - [ ] Ejecutar cada example
+    - [ ] Ver los resultados de la ejecución
       - [ ] Presentation Error
       - [ ] Wrong Answer
       - [ ] Time Limit Exceeded
       - [ ] Memory Limit Exceeded
       - [ ] Accepted
-
-- [ ] Submit form
-  - [ ] Agregar soporte para lenguaje (C / C++ / Ruby / ... etc.)
-  - [ ] Agregar sidekiq (o algo por el estilo) para poder correr los tests en background
-
-- [ ] Result table
-  - [ ] Actualización automática (hotwire?)
-  - [ ] Filtros
-    - [ ] Por usuario
-    - [ ] Por problema
-    - [ ] Por contest
+    - [ ] Result table
+        - [ ] Actualización automática (hotwire?)
+            - [ ] Filtros
+            - [ ] Por usuario
+            - [ ] Por problema
+            - [ ] Por contest
 
 - [ ] Contest
   - [ ] Crear contest (con fecha de inicio y fin)

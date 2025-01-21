@@ -11,4 +11,7 @@ Rails.application.routes.draw do
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
 
   get "submit" => "submit#index"
+
+  get "problems", to: "problem#index", as: "problems"
+  get "problems/:id", to: "problem#show", as: "problem"
 end

@@ -6,6 +6,12 @@ require "active_support/core_ext/integer/time"
 # and recreated between test runs. Don't rely on the data there!
 
 Rails.application.configure do
+  # warden required by devise
+  config.middleware.use Warden::Manager do |manager|
+    manager.default_strategies :password
+    manager.failure_app = ->(env) { SessionsController.action(:new).call(env) }
+  end
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # While tests run files are not watched, reloading is not necessary.

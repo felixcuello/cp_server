@@ -1,6 +1,12 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  # warden required by devise
+  config.middleware.use Warden::Manager do |manager|
+    manager.default_strategies :password
+    manager.failure_app = ->(env) { SessionsController.action(:new).call(env) }
+  end
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # In the development environment your application's code is reloaded any time

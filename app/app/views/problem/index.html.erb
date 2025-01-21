@@ -1,13 +1,21 @@
-<html>
-  <head>
-    <title>Problems</title>
-  </head>
+<div class="problem-list-box">
+  <div class="problem-list-title">
+    Problems
+  </div>
 
-  <body>
-    <h1>Problems</h1>
-
-    <% @problems.each do |problem| %>
-      <div> <%= link_to problem.title, problem_path(problem) %></div>
-    <% end %>
-  </body>
-</html>
+  <% @problems.order(:id).each do |problem| %>
+    <div class="problem-each">
+      <%= problem.id %>
+      <%= link_to problem.title, problem_path(problem), class: 'problem-each-title' %>
+      <a class="problem-difficulty-<%= problem.difficulty %>" href="/problems?difficulty=<%= problem.difficulty %>">
+        <%= problem.difficulty %>
+      </a>
+      <a class="problem-tag" href="/problems?tag=<%= problem.tags.first.name %>">
+        <% problem.tags.each_with_index do |tag, i| %>
+          <%= ', ' if i > 0 %>
+          <%= tag.name %>
+        <% end %>
+      </a>
+    </div>
+  <% end %>
+</div>

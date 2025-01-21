@@ -21,14 +21,18 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
   - [X] Mostrar lista de problemas (#index)
   - [X] Mostrar un problema (#show)
   - [X] (UI/UX) Agregar estilos para mostrar el problema
-  - [ ] (UI/UX) Agregar estilos para mostrar el listado de problemas
-  - [ ] Filtrar lista de problems (por dificultad, por tags, por contest, sólo activos)
-  - [ ] Ordenar lista de problems (por dificultad, por tags, fecha)
+  - [X] (UI/UX) Agregar estilos para mostrar el listado de problemas
+  - [ ] Filtrar lista de problemas
+    - [ ] Por dificultad
+    - [ ] Por tags
+    - [ ] Por nombre
   - [ ] Verificar alguna forma de mostrar el problema (markdown? / Latex?)
-  - [ ] Ejecutar los examples para los problemas
+
+- [ ] Ejecutar Problemas
     - [ ] Agregar una tabla para cada lenguaje de programación disponible
         - [ ] Nombre
         - [ ] Forma de ejecución
+    - [ ] Agregar un form de submission
     - [ ] Agregar sidekiq (o algo por el estilo) para poder correr los tests en background
         - [ ] Agregar redis
         - [ ] Agregar sidekiq

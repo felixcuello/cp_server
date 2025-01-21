@@ -141,3 +141,31 @@
   line-height: 1; // Ensures text fits within the pill
   margin-right: 10px;
 }
+
+.problem-list-title {
+  font-family: Arial, sans-serif;
+  font-size: 1.9em;
+  color: #000090;
+  font-weight: bold;
+}
+
+.problem-list-box {
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #d3d3d3; // Light gray border
+  border-radius: 10px; // Rounded corners
+}
+
+.problem-each-title {
+  font-family: Arial, sans-serif;
+  font-size: 1.0em;
+  color: #000000;
+  padding: 10px;
+}
+
+.problem-each {
+  font-family: Arial, sans-serif;
+  font-size: 1.2em;
+  color: #000000;
+  padding: 10px;
+}

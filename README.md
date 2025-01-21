@@ -22,11 +22,14 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
   - [X] Mostrar un problema (#show)
   - [X] (UI/UX) Agregar estilos para mostrar el problema
   - [X] (UI/UX) Agregar estilos para mostrar el listado de problemas
-  - [ ] Filtrar lista de problemas
-    - [ ] Por dificultad
-    - [ ] Por tags
-    - [ ] Por nombre
+  - [X] Filtrar lista de problemas
+    - [X] Por dificultad
+    - [X] Por tags
   - [ ] Verificar alguna forma de mostrar el problema (markdown? / Latex?)
+
+- [ ] Examples
+    - [ ] Create a rake task to add examples to the problems (with tags)
+    - [ ] Find examples to common problems
 
 - [ ] Ejecutar Problemas
     - [ ] Agregar una tabla para cada lenguaje de programación disponible

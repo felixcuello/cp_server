@@ -1,5 +1,5 @@
 <div class="problem-back">
-  <a href="/problems">Back</a>
+  <a href="/problems">Back to problem list</a>
 </div>
 
 <div class="problem-box">
@@ -51,7 +51,9 @@
   <div class="problem-constraints">
     Constraints
   </div>
-  <div class="pre-with-numbers">
-    <p><%= @problem.constraints %></p>
-  </div>
+  <ul>
+    <% @problem.constraints.split("\n").each do |constraint| %>
+      <li><%= constraint %></li><br />
+    <% end %>
+  </ul>
 </div>

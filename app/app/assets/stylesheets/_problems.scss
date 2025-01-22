@@ -208,3 +208,50 @@
   text-align: center;
   padding: 10px;
 }
+
+.submission-form-box {
+  padding: 5px;
+  margin: 20px 0;
+  border: 1px solid #d3d3d3; // Light gray border
+  border-radius: 10px; // Rounded corners
+  background-color: #f0f0f0; // Light gray background
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.submission-title {
+  font-family: Arial, sans-serif;
+  font-size: 0.9em;
+  color: #000090;
+  padding: 5px;
+  font-weight: bold;
+}
+
+.submission-language {
+  font-family: Arial, sans-serif;
+  font-size: 1.0em;
+  color: #000000;
+  padding: 10px;
+}
+
+.flash {
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+  font-size: 14px;
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase; // All capitals
+}
+.flash.notice {
+  font-face: Arial, sans-serif;
+  background-color: #d4edda;
+  color: #155724;
+  text-align: center;
+}
+.flash.alert {
+  font-face: Arial, sans-serif;
+  background-color: #f8d7da;
+  color: #721c24;
+  text-align: center;
+}

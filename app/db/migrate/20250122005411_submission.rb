@@ -12,6 +12,8 @@ class Submission < ActiveRecord::Migration[7.2]
       t.integer :memory_used
       t.integer :time_used
 
+      t.string :status, null: false, default: :queued
+
       t.timestamps
     end
   end

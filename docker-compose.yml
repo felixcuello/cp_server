@@ -12,6 +12,7 @@ services:
       - ./app:/app
     depends_on:
       - db
+      - redis
 
   db:
     platform: linux/amd64
@@ -19,6 +20,10 @@ services:
     env_file: .env.development
     volumes:
       - db_cp_server:/var/lib/mysql
+
+  redis:
+    platform: linux/amd64
+    image: redis:7.4.2
 
 volumes:
   db_cp_server:

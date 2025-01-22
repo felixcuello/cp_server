@@ -67,6 +67,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_22_005411) do
     t.text "interpreter_output"
     t.integer "memory_used"
     t.integer "time_used"
+    t.string "status", default: "queued", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["problem_id"], name: "index_submissions_on_problem_id"

@@ -2,6 +2,14 @@
   <a href="/problems">Back to problem list</a>
 </div>
 
+<div id="flash-messages">
+  <% if flash[:notice] %>
+    <div class="flash notice"><%= flash[:notice] %></div>
+  <% elsif flash[:alert] %>
+    <div class="flash alert"><%= flash[:alert] %></div>
+  <% end %>
+</div>
+
 <div class="problem-box">
   <div class="problem-title-box">
     <div class="problem-title">
@@ -12,6 +20,7 @@
       /
       Memory Limit: <%= @problem.memory_limit_mb %> mb.
     </div>
+
     <div class="problem-tags">
       <a class="problem-difficulty-<%= @problem.difficulty.downcase %>" href="/problems?difficulty=<%= @problem.difficulty %>">
         <%= @problem.difficulty.camelize %>
@@ -21,6 +30,8 @@
       <% end %>
     </div>
   </div>
+
+  <%= render partial: 'submission_form' %>
 
   <h1 class="problem-description">Description</h1>
   <div class="problem-example-box">

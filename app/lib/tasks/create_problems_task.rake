@@ -24,11 +24,15 @@ namespace :problems do
       tags = data["tags"]
       examples = data["examples"]
       constraints = data["constraints"]
+      memory_limit_mb = data["memory_limit_mb"].to_i
+      time_limit_sec = data["time_limit_sec"].to_i
 
       problem = Problem.create!(
         title: title,
         description: description,
-        difficulty: difficulty.to_sym
+        difficulty: difficulty.to_sym,
+        memory_limit_mb: memory_limit_mb,
+        time_limit_sec: time_limit_sec
       )
 
       tags.each do |tag|

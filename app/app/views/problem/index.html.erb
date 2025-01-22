@@ -1,29 +1,7 @@
-<div class="problem-difficulty-title">
-  Difficulty
-</div>
-<div class="problem-each">
-<% ['easy', 'medium', 'hard'].each do |difficulty| %>
-    <a class="problem-difficulty-<%= difficulty %>" href="/problems?difficulty=<%= difficulty %>">
-      <%= difficulty %>
-    </a>
-<% end %>
-</div>
-
-<div class="problem-tag-title">
-  Tags
-</div>
-<div class="problem-list-title">
-  <% Tag.all.each do |tag| %>
-    <a class="problem-tag" href="/problems?tag=<%= tag.name %>">
-      #<%= tag.name %>
-  </a>
-<% end %>
-</div>
-
-<br /> <br />
+<%= render partial: 'navbar' %>
 
 <div class="problem-list-title">
-  <%= link_to 'Problem List', problems_path %>
+  Problem List
 </div>
 
 <div class="problem-list-box">

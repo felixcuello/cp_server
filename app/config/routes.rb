@@ -10,8 +10,10 @@ Rails.application.routes.draw do
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
 
-  get "submit" => "submit#index"
+  get "/", to: "problem#index", as: "home"
 
   get "problems", to: "problem#index", as: "problems"
   get "problems/:id", to: "problem#show", as: "problem"
+
+  get "submissions", to: "submission#index", as: "submissions"
 end

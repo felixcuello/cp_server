@@ -26,24 +26,20 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
     - [X] Por dificultad
     - [X] Por tags
     - [ ] Agregar unit tests para los filtros
-  - [ ] Crear una rake task para agregar problemas desde problems/problems.json
+  - [X] Crear una rake task para agregar problemas desde problems/problems.json
     - [ ] crear un unit test para chequear que corra
-    - [ ] agregar problemas de ejemplo en problems/something.json
-    - [ ] correr la rake task
+    - [X] agregar problemas de ejemplo en problems/something.json
+    - [X] correr la rake task
   - [ ] Verificar alguna forma de mostrar el problema (markdown? / Latex?)
 
-- [ ] Examples
-    - [ ] Create a rake task to add examples to the problems (with tags)
-    - [ ] Find examples to common problems
-
 - [ ] Ejecutar Problemas
-    - [ ] Agregar una tabla para cada lenguaje de programación disponible
-        - [ ] Nombre
-        - [ ] Forma de ejecución
-    - [ ] Agregar un form de submission
+    - [X] Agregar una tabla para cada lenguaje de programación disponible
+        - [X] Nombre
+        - [X] Forma de ejecución
     - [ ] Agregar sidekiq (o algo por el estilo) para poder correr los tests en background
         - [ ] Agregar redis
         - [ ] Agregar sidekiq
+    - [ ] Agregar un form de submission
     - [ ] Chequear cómo verificar el output de una ejecución
     - [ ] Ejecutar cada example
     - [ ] Ver los resultados de la ejecución

@@ -7,6 +7,11 @@
     <div class="problem-title">
       Problem: <a class="problem-name"><%= @problem.title %></a>
     </div>
+    <div class="problem-limits">
+      Time Limit: <%= @problem.time_limit_sec %> sec.
+      /
+      Memory Limit: <%= @problem.memory_limit_mb %> mb.
+    </div>
     <div class="problem-tags">
       <a class="problem-difficulty-<%= @problem.difficulty.downcase %>" href="/problems?difficulty=<%= @problem.difficulty %>">
         <%= @problem.difficulty.camelize %>

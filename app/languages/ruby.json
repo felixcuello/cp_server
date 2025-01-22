@@ -1,0 +1,9 @@
+{
+  "name": "Ruby",
+  "compiler_binary": "",
+  "compiler_flags": "",
+  "interpreter_binary": "ruby",
+  "interpreter_flags": "",
+  "memory_limit_mb": 256,
+  "time_limit_sec": 5
+}

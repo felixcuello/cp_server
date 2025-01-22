@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_21_174059) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_22_005411) do
   create_table "constraints", charset: "utf8", force: :cascade do |t|
     t.bigint "problem_id", null: false
     t.text "description", null: false
@@ -40,8 +40,38 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_21_174059) do
     t.string "title", null: false
     t.text "description", null: false
     t.integer "difficulty", null: false
+    t.integer "memory_limit_mb", null: false
+    t.integer "time_limit_sec", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "programming_languages", charset: "utf8", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "compiler_binary"
+    t.string "compiler_flags"
+    t.string "interpreter_binary"
+    t.string "interpreter_flags"
+    t.integer "memory_limit_mb"
+    t.integer "time_limit_sec"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "submissions", charset: "utf8", force: :cascade do |t|
+    t.bigint "problem_id", null: false
+    t.bigint "programming_language_id", null: false
+    t.bigint "user_id", null: false
+    t.text "source_code", null: false
+    t.text "compiler_output"
+    t.text "interpreter_output"
+    t.integer "memory_used"
+    t.integer "time_used"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["problem_id"], name: "index_submissions_on_problem_id"
+    t.index ["programming_language_id"], name: "index_submissions_on_programming_language_id"
+    t.index ["user_id"], name: "index_submissions_on_user_id"
   end
 
   create_table "tags", charset: "utf8", force: :cascade do |t|
@@ -73,4 +103,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_21_174059) do
   add_foreign_key "examples", "problems"
   add_foreign_key "problem_tags", "problems"
   add_foreign_key "problem_tags", "tags"
+  add_foreign_key "submissions", "problems"
+  add_foreign_key "submissions", "programming_languages"
+  add_foreign_key "submissions", "users"
 end

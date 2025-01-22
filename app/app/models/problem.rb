@@ -4,6 +4,7 @@ class Problem < ApplicationRecord
   has_many :examples
   has_many :problem_tags
   has_many :tags, through: :problem_tags
+  has_many :constraints
 
   enum :difficulty, {
     easy: 0,

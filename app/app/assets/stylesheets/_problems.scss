@@ -12,7 +12,9 @@
   font-family: Arial, sans-serif;
   font-weight: bold;
   font-size: 2em; // Equivalent to H1 size, which is typically around 2em or 32px in most browsers
+  text-align: center;
   color: #000090; // Very dark blue (Navy)
+  padding: 10px;
 }
 
 .problem-box {
@@ -24,7 +26,7 @@
 
 .problem-name {
   font-family: Arial, sans-serif;
-  font-size: 1.7em; // Equivalent to H1 size, which is typically around 2em or 32px in most browsers
+  font-size: 1.0em; // Equivalent to H1 size, which is typically around 2em or 32px in most browsers
   color: #000000; // Very dark blue (Navy)
 }
 
@@ -35,7 +37,6 @@
 }
 
 .problem-description-text {
-  font-family: Arial, sans-serif;
   font-size: 1.4em;
   color: #000000;
 }
@@ -94,6 +95,14 @@
   border: 1px solid #d3d3d3; // Light gray border
 }
 
+.problem-title-box {
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #d3d3d3; // Light gray border
+  background-color: #f0faff; // Light gray background
+  border-radius: 10px; // Rounded corners
+}
+
 .problem-constraints {
   font-family: Arial, sans-serif;
   font-size: 1.9em;
@@ -129,6 +138,10 @@
   }
 }
 
+.problem-tags {
+  text-align: center;
+}
+
 .problem-tag {
   font-family: Arial, sans-serif;
   font-size: 12px;
@@ -140,6 +153,20 @@
   font-weight: bold; // Optional for visibility at small sizes
   line-height: 1; // Ensures text fits within the pill
   margin-right: 10px;
+}
+
+.problem-difficulty-title {
+  font-family: Arial, sans-serif;
+  font-size: 1.9em;
+  padding: 10px;
+  color: #000090;
+}
+
+.problem-tag-title {
+  font-family: Arial, sans-serif;
+  font-size: 1.9em;
+  padding: 10px;
+  color: #000090;
 }
 
 .problem-list-title {

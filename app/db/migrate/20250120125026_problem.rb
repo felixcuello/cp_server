@@ -4,7 +4,6 @@ class Problem < ActiveRecord::Migration[7.2]
       t.string :title, null: false
       t.text :description, null: false
       t.integer :difficulty, null: false
-      t.string :constraints, null: false
 
       t.timestamps
     end

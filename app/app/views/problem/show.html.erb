@@ -3,11 +3,10 @@
 </div>
 
 <div class="problem-box">
-  <div class="problem-title">
-    Problem 
-  </div>
-  <div class="problem-name">
-    <%= @problem.title %>
+  <div class="problem-title-box">
+    <div class="problem-title">
+      Problem: <a class="problem-name"><%= @problem.title %></a>
+    </div>
     <div class="problem-tags">
       <a class="problem-difficulty-<%= @problem.difficulty.downcase %>" href="/problems?difficulty=<%= @problem.difficulty %>">
         <%= @problem.difficulty.camelize %>
@@ -19,8 +18,10 @@
   </div>
 
   <h1 class="problem-description">Description</h1>
-  <div class="problem-description-text">
-    <%= @problem.description.gsub("\n", "<br />").html_safe %>
+  <div class="problem-example-box">
+    <div class="problem-description-text">
+      <%= @problem.description.gsub("\n", "<br />").html_safe %>
+    </div>
   </div>
 
   <h1 class="problem-examples">
@@ -51,9 +52,11 @@
   <div class="problem-constraints">
     Constraints
   </div>
-  <ul>
-    <% @problem.constraints.split("\n").each do |constraint| %>
-      <li><%= constraint %></li><br />
+  <div class="problem-example-box">
+    <% @problem.constraints.each do |constraint| %>
+      <div class="pre-with-numbers">
+        <%= constraint.description %>
+      </div>
     <% end %>
-  </ul>
+  </div>
 </div>

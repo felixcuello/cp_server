@@ -1,0 +1,10 @@
+{
+  "name": "C++11",
+  "compiler_binary": "g++",
+  "compiler_flags": "-std=c++11 -O2 -o {compiled_file} {source_file}",
+  "interpreter_binary": "",
+  "interpreter_flags": "",
+  "memory_limit_kb": 2048,
+  "time_limit_sec": 2,
+  "extension": "cc"
+}

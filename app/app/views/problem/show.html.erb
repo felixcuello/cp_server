@@ -32,10 +32,10 @@
     Examples
   </h1>
 
-  <% @problem.examples.where(is_hidden: false).each do |example| %>
+  <% @problem.examples.where(is_hidden: false).each_with_index do |example, idx| %>
     <div class="problem-example-box">
       <div class="problem-single-example">
-        Example <%= example.id %>
+        Example <%= idx + 1 %>
       </div>
 
       <h3>Input</h3>

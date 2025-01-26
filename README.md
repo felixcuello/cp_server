@@ -43,16 +43,27 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
     - [X] Clean up del form luego del submission
     - [X] Agregar un service object para encolar problemas
     - [X] Hacer que sidekiq encole los problemas
-    - [ ] Hacer que se ejecute el problema [interprete]
+    - [X] Hacer que se ejecute el problema [interprete]
+    - [X] Chequear cómo verificar el output de una ejecución
+    - [X] Cambiar el estado de la submission de acuerdo al resultado
+      - [X] Presentation Error
+      - [X] Wrong Answer
+      - [X] Time Limit Exceeded
+      - [X] Memory Limit Exceeded
+      - [X] Running
+      - [X] Accepted
+    - [X] Profile
+        - [X] Mostrar el perfil de usuario (problemas resueltos, easy, medium and hard)
+        - [X] Mostrar los lenguajes usados
+    - [ ] Agregar lenguajes
+        - [X] Ruby
+        - [ ] C
+        - [ ] C++
+        - [ ] Go
+        - [ ] Java
+        - [ ] Javascript
+        - [ ] Python
     - [ ] Hacer que se compile y ejecute el problema [compilado]
-    - [ ] Chequear cómo verificar el output de una ejecución
-    - [ ] Cambiar el estado de la submission de acuerdo al resultado
-      - [ ] Presentation Error
-      - [ ] Wrong Answer
-      - [ ] Time Limit Exceeded
-      - [ ] Memory Limit Exceeded
-      - [ ] Running
-      - [ ] Accepted
     - [ ] Result table
         - [ ] Actualización automática (hotwire?)
             - [ ] Filtros

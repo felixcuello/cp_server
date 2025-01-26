@@ -18,6 +18,8 @@ Rails.application.routes.draw do
   get "submissions", to: "submission#index", as: "submission"
   post "submissions/submit", to: "submission#submit", as: "problem_submission"
 
+  get 'user/:alias', to: 'user#show', as: 'user'
+
   require 'sidekiq/web'
   mount Sidekiq::Web => '/sidekiq'
 end

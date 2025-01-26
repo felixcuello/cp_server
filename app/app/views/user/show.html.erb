@@ -1,0 +1,23 @@
+<div class="user-profile-box">
+  <a class="user-profile-title">Profile: </a>
+  <a class="user-profile-name"><%= @user.alias %></a>
+</div>
+
+<div class="user-profile-problems-space"></div>
+
+<div class="user-profile-problems-box">
+  <a class="user-profile-problems-title">Problems Solved: </a> <br /><br />
+  <a class="user-profile-problems-count-easy">Easy: <%= @easy_count %></a> <br />
+  <div class="user-profile-problems-space"></div>
+  <a class="user-profile-problems-count-medium">Medium: <%= @medium_count %></a> <br />
+  <div class="user-profile-problems-space"></div>
+  <a class="user-profile-problems-count-hard">Hard: <%= @hard_count %></a> <br />
+</div>
+
+<div class="user-profile-submissions-space"></div>
+
+<div class="user-profile-programming-languages-box">
+  <a class="user-profile-programming-languages-used">
+    Programming Languages Used: <%= @programming_languages.join(", ") %>
+  </a>
+</div>

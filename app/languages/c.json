@@ -1,0 +1,10 @@
+{
+  "name": "C",
+  "compiler_binary": "gcc",
+  "compiler_flags": "-O2 -std=c99 -lm -o {compiled_file} {source_file}",
+  "interpreter_binary": "",
+  "interpreter_flags": "",
+  "memory_limit_kb": 2048,
+  "time_limit_sec": 2,
+  "extension": "c"
+}

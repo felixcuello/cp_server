@@ -40,7 +40,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_22_005411) do
     t.string "title", null: false
     t.text "description", null: false
     t.integer "difficulty", null: false
-    t.integer "memory_limit_mb", null: false
+    t.integer "memory_limit_kb", null: false
     t.integer "time_limit_sec", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -52,8 +52,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_22_005411) do
     t.string "compiler_flags"
     t.string "interpreter_binary"
     t.string "interpreter_flags"
-    t.integer "memory_limit_mb"
+    t.integer "memory_limit_kb"
     t.integer "time_limit_sec"
+    t.string "extension"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -66,7 +67,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_22_005411) do
     t.text "compiler_output"
     t.text "interpreter_output"
     t.integer "memory_used"
-    t.integer "time_used"
+    t.float "time_used"
     t.string "status", default: "queued", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

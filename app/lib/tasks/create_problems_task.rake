@@ -24,14 +24,14 @@ namespace :problems do
       tags = data["tags"]
       examples = data["examples"]
       constraints = data["constraints"]
-      memory_limit_mb = data["memory_limit_mb"].to_i
+      memory_limit_kb = data["memory_limit_kb"].to_i
       time_limit_sec = data["time_limit_sec"].to_i
 
       problem = Problem.create!(
         title: title,
         description: description,
         difficulty: difficulty.to_sym,
-        memory_limit_mb: memory_limit_mb,
+        memory_limit_kb: memory_limit_kb,
         time_limit_sec: time_limit_sec
       )
 
@@ -61,6 +61,18 @@ namespace :problems do
 
         problem.constraints << constraint
       end
+    end
+  end
+
+  task destroy: :environment do
+    puts "Destroying all problems, examples, constraints, tags, and problem_tags"
+    Problem.transaction do
+      Example.destroy_all
+      Constraint.destroy_all
+      ProblemTag.destroy_all
+      Tag.destroy_all
+      Submission.destroy_all
+      Problem.destroy_all
     end
   end
 end

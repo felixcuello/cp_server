@@ -31,6 +31,9 @@
   border-collapse: collapse;
   width: 100%;
   padding: 10px;
+}
+
+.submission-cell-uppercase {
   text-transform: uppercase;
 }
 
@@ -46,10 +49,38 @@
   font-family: monospace;
   font-size: 1.2em;
   text-align: center;
-  width: 25%;
+  width: 15%;
+  padding: 10px;
 }
+
+// Submission status
 
 .submission-status-queued {
   color: #000090;
+  font-weight: bold;
+}
+
+.submission-status-running {
+  color: #000000;
+  font-weight: bold;
+}
+
+.submission-status-wrong-answer {
+  color: #c00000;
+  font-weight: bold;
+}
+
+.submission-status-accepted {
+  color: #009020;
+  font-weight: bold;
+}
+
+.submission-status-time-limit-exceeded {
+  color: #900090;
+  font-weight: bold;
+}
+
+.submission-status-presentation-error {
+  color: #3030a0;
   font-weight: bold;
 }

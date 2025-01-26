@@ -14,7 +14,9 @@
     <tr class="submissions-header">
       <th>Date</th>
       <th>Submission ID</th>
+      <th>Problem</th>
       <th>Language</th>
+      <th>Execution Time</th>
       <th>Status</th>
     </tr>
   </thead>
@@ -23,9 +25,15 @@
       <tr class="submission-row-<%= i % 2 == 0 ? 'even' : 'odd' %>">
         <td class="submission-centered-cell"><%= submission.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
         <td class="submission-centered-cell"><%= submission.id %></td>
-        <td class="submission-centered-cell"><%= submission.programming_language.name.capitalize %></td>
         <td class="submission-centered-cell">
-          <a class="submission-status-<%= submission.status %>">
+          <a href="/problems/<%= submission.problem.id %>">
+            <%= submission.problem.title %>
+          </a>
+        </td>
+        <td class="submission-centered-cell"><%= submission.programming_language.name.capitalize %></td>
+        <td class="submission-centered-cell"><%= submission.time_used ? "#{submission.time_used.round(3)} sec" : '' %></td>
+        <td class="submission-centered-cell submission-cell-uppercase">
+          <a class="submission-status-<%= submission.status.downcase.gsub(/\s/, '-') %>">
             <%= submission.status %>
           </a>
         </td>

@@ -7,25 +7,26 @@ namespace :languages do
 
   task create: :environment do
     Dir.glob("languages/*.json").each do |file|
-      data = JSON.parse(File.read(file))
+      programming_language = JSON.parse(File.read(file))
 
-      language = ProgrammingLanguage.find_by(name: data["name"])
+      language = ProgrammingLanguage.find_by(name: programming_language["name"])
 
       if language
-        puts "Skipping #{data["name"]} as it already exists"
+        puts "Skipping #{programming_language["name"]} as it already exists"
         next
       end
 
-      puts "Adding #{data["name"]} language"
+      puts "Adding #{programming_language["name"]} language"
 
       ProgrammingLanguage.create!(
-        name: data["name"],
-        memory_limit_mb: data["memory_limit_mb"],
-        time_limit_sec: data["time_limit_sec"],
-        compiler_binary: data["compiler_binary"],
-        compiler_flags: data["compiler_flags"],
-        interpreter_binary: data["interpreter_binary"],
-        interpreter_flags: data["interpreter_flags"]
+        name: programming_language["name"],
+        memory_limit_kb: programming_language["memory_limit_kb"],
+        time_limit_sec: programming_language["time_limit_sec"],
+        compiler_binary: programming_language["compiler_binary"],
+        compiler_flags: programming_language["compiler_flags"],
+        interpreter_binary: programming_language["interpreter_binary"],
+        interpreter_flags: programming_language["interpreter_flags"],
+        extension: programming_language["extension"]
       )
     end
   end

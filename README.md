@@ -55,15 +55,15 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
     - [X] Profile
         - [X] Mostrar el perfil de usuario (problemas resueltos, easy, medium and hard)
         - [X] Mostrar los lenguajes usados
+    - [X] Hacer que se compile y ejecute el problema [compilado]
     - [ ] Agregar lenguajes
         - [X] Ruby
-        - [ ] C
+        - [X] C
         - [ ] C++
         - [ ] Go
         - [ ] Java
         - [ ] Javascript
         - [ ] Python
-    - [ ] Hacer que se compile y ejecute el problema [compilado]
     - [ ] Result table
         - [ ] Actualización automática (hotwire?)
             - [ ] Filtros

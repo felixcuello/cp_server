@@ -15,7 +15,7 @@ class ProblemController < AuthenticatedController
 
   def show
     @problem = Problem.find(params[:id])
-    @languages = ProgrammingLanguage.all
+    @languages = ProgrammingLanguage.order(:name)
   end
 
   private

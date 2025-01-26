@@ -13,6 +13,20 @@ services:
     depends_on:
       - db
       - redis
+      - sidekiq
+
+  sidekiq:
+    platform: linux/amd64
+    env_file: .env.development
+    build:
+      context: ./app/
+      dockerfile: Dockerfile.dev
+    command: bundle exec sidekiq
+    volumes:
+      - ./app:/app
+    depends_on:
+      - db
+      - redis
 
   db:
     platform: linux/amd64

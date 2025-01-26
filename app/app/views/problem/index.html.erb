@@ -1,7 +1,21 @@
-<%= render partial: 'navbar' %>
-
 <div class="problem-list-title">
   Problem List
+
+  <div class="problem-each">
+    <% ['easy', 'medium', 'hard'].each do |difficulty| %>
+      <a class="problem-difficulty-<%= difficulty %>" href="/problems?difficulty=<%= difficulty %>">
+        <%= difficulty %>
+      </a>
+    <% end %>
+  </div>
+
+  <div class="difficulty-each">
+    <% Tag.all.each do |tag| %>
+      <a class="problem-tag" href="/problems?tag=<%= tag.name %>">
+        #<%= tag.name %>
+    </a>
+  <% end %>
+  </div>
 </div>
 
 <div class="problem-list-box">

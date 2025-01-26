@@ -1,0 +1,28 @@
+.problem-tags {
+  text-align: center;
+}
+
+.problem-tag {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  background-color: #00e0ff; // Light gray background
+  color: #000000;
+  border-radius: 10px; // Makes it pill-shaped
+  text-transform: uppercase; // All capitals
+  font-weight: normal;
+  line-height: 1; // Ensures text fits within the pill
+  margin-right: 10px;
+  box-shadow: 0 0 1px #000000;
+}
+
+.problem-tag-title {
+  font-family: Arial, sans-serif;
+  font-size: 1.9em;
+  color: #000090;
+}
+

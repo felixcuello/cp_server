@@ -1,0 +1,55 @@
+.submission-header {
+  padding: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 1.9em;
+  color: #000090;
+  background-color: #efefef;
+  border-radius: 10px;
+  border: 1px solid #d3d3d3;
+  font-weight: bold;
+  text-align: center;
+}
+
+.submission-title {
+  font-size: 1.5em;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+.submissions-header {
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background-color: #c0e0f0;
+}
+
+.submissions-table {
+  font-family: Arial, sans-serif;
+  font-size: 1.3em;
+  color: #000000;
+  border-collapse: collapse;
+  width: 100%;
+  padding: 10px;
+  text-transform: uppercase;
+}
+
+.submission-row-even {
+  background-color: #e0f0f0;
+}
+
+.submission-row-odd {
+  background-color: #c0e0e0;
+}
+
+.submission-centered-cell {
+  font-family: monospace;
+  font-size: 1.2em;
+  text-align: center;
+  width: 25%;
+}
+
+.submission-status-queued {
+  color: #000090;
+  font-weight: bold;
+}

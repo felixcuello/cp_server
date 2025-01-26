@@ -36,17 +36,22 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
     - [X] Agregar una tabla para cada lenguaje de programación disponible
         - [X] Nombre
         - [X] Forma de ejecución
-    - [ ] Agregar sidekiq (o algo por el estilo) para poder correr los tests en background
-        - [ ] Agregar redis
-        - [ ] Agregar sidekiq
-    - [ ] Agregar un form de submission
+    - [X] Agregar sidekiq (o algo por el estilo) para poder correr los tests en background
+        - [X] Agregar redis
+        - [X] Agregar sidekiq
+    - [X] Agregar un form de submission
+    - [X] Clean up del form luego del submission
+    - [X] Agregar un service object para encolar problemas
+    - [X] Hacer que sidekiq encole los problemas
+    - [ ] Hacer que se ejecute el problema [interprete]
+    - [ ] Hacer que se compile y ejecute el problema [compilado]
     - [ ] Chequear cómo verificar el output de una ejecución
-    - [ ] Ejecutar cada example
-    - [ ] Ver los resultados de la ejecución
+    - [ ] Cambiar el estado de la submission de acuerdo al resultado
       - [ ] Presentation Error
       - [ ] Wrong Answer
       - [ ] Time Limit Exceeded
       - [ ] Memory Limit Exceeded
+      - [ ] Running
       - [ ] Accepted
     - [ ] Result table
         - [ ] Actualización automática (hotwire?)

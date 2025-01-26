@@ -1,11 +1,3 @@
-<div id="flash-messages">
-  <% if flash[:notice] %>
-    <div class="flash notice"><%= flash[:notice] %></div>
-  <% elsif flash[:alert] %>
-    <div class="flash alert"><%= flash[:alert] %></div>
-  <% end %>
-</div>
-
 <div class="submission-header">
   <h1 class="submission-title">Submissions</h1>
 </div>
@@ -33,7 +25,7 @@
         <td class="submission-centered-cell"><%= submission.programming_language.name.capitalize %></td>
         <td class="submission-centered-cell"><%= submission.time_used ? "#{submission.time_used.round(3)} sec" : '' %></td>
         <td class="submission-centered-cell submission-cell-uppercase">
-          <a class="submission-status-<%= submission.status.downcase.gsub(/\s/, '-') %>">
+          <a class="submission-status-<%= submission.status.downcase.gsub(/\s+.example.+/, '').gsub(/\s/, '-') %>">
             <%= submission.status %>
           </a>
         </td>

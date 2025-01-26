@@ -37,7 +37,7 @@ down:
 
 run:
 	rm -f ./app/tmp/pids/server.pid
-	docker compose run -v $(PWD)/app:/rails --service-ports cp_server
+	docker compose run -v $(PWD)/app:/app --service-ports cp_server
 
 shell:
-	docker compose run -v $(PWD)/app:/rails --service-ports cp_server bash
+	docker compose run -v $(PWD)/app:/app --service-ports cp_server bash

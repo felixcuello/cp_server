@@ -53,42 +53,6 @@
   color: #000090;
 }
 
-.problem-difficulty-easy {
-  display: inline-block;
-  padding: 4px 10px;
-  background-color: #e6ffe6; // Light green background
-  color: #006400; // Dark green text
-  border-radius: 20px; // Makes it pill-shaped
-  text-transform: uppercase; // All capitals
-  font-size: 14px;
-  font-weight: bold; // Optional for visibility at small sizes
-  line-height: 1; // Ensures text fits within the pill
-}
-
-.problem-difficulty-medium {
-  display: inline-block;
-  padding: 4px 12px;
-  background-color: #fff0b3; // Light yellow background
-  color: #b38600; // Dark yellow text
-  border-radius: 20px; // Makes it pill-shaped
-  text-transform: uppercase; // All capitals
-  font-size: 14px;
-  font-weight: bold; // Optional for visibility at small sizes
-  line-height: 1; // Ensures text fits within the pill
-}
-
-.problem-difficulty-hard {
-  display: inline-block;
-  padding: 4px 12px;
-  background-color: #ffcccc; // Light red background
-  color: #800000; // Dark red text
-  border-radius: 20px; // Makes it pill-shaped
-  text-transform: uppercase; // All capitals
-  font-size: 14px;
-  font-weight: bold; // Optional for visibility at small sizes
-  line-height: 1; // Ensures text fits within the pill
-}
-
 .problem-example-box {
   padding: 20px;
   margin: 20px 0;
@@ -113,9 +77,10 @@
 .pre-with-numbers {
   font-family: monospace;
   background-color: #f0f0f0; // Light gray background
-  padding: 10px;
+  padding: 18px;
   overflow: auto;
   counter-reset: line; // Reset the line counter
+  font-size: 1.3em; // Increase the font size as needed
 
   code {
     display: block;
@@ -138,46 +103,20 @@
   }
 }
 
-.problem-tags {
-  text-align: center;
-}
-
-.problem-tag {
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-  padding: 4px 10px;
-  background-color: #f0f0f0; // Light gray background
-  color: #000000;
-  border-radius: 20px; // Makes it pill-shaped
-  text-transform: uppercase; // All capitals
-  font-weight: bold; // Optional for visibility at small sizes
-  line-height: 1; // Ensures text fits within the pill
-  margin-right: 10px;
-}
-
-.problem-difficulty-title {
-  font-family: Arial, sans-serif;
-  font-size: 1.9em;
-  padding: 10px;
-  color: #000090;
-}
-
-.problem-tag-title {
-  font-family: Arial, sans-serif;
-  font-size: 1.9em;
-  padding: 10px;
-  color: #000090;
-}
-
 .problem-list-title {
-  font-family: Arial, sans-serif;
-  font-size: 1.9em;
-  color: #000090;
-  font-weight: bold;
   a:visited {
     color: #000000;
     underline: none;
   }
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  font-size: 1.9em;
+  color: #000090;
+  background-color: #efefef;
+  border-radius: 10px;
+  border: 1px solid #d3d3d3;
+  font-weight: bold;
+  text-align: center;
 }
 
 .problem-list-box {
@@ -189,21 +128,21 @@
 
 .problem-each-title {
   font-family: Arial, sans-serif;
-  font-size: 1.0em;
   color: #000000;
   padding: 10px;
 }
 
 .problem-each {
   font-family: Arial, sans-serif;
-  font-size: 1.2em;
+  font-size: 18px;
   color: #000000;
   padding: 10px;
+  text-align: center;
 }
 
 .problem-limits {
   font-family: monospace;
-  font-size: 12px;
+  font-size: 1em;
   color: #900000;
   text-align: center;
   padding: 10px;

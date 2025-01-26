@@ -3,7 +3,7 @@ ARG RUBY_VERSION=3.2.2
 ARG RAILS_MASTER_KEY
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
-WORKDIR /rails
+WORKDIR /app
 
 # Install base packages
 RUN apt-get update -qq && \
@@ -46,7 +46,7 @@ FROM base
 
 # Copy built artifacts: gems, application
 COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
-COPY --from=build /rails /rails
+COPY --from=build /app /app
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000

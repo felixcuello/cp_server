@@ -7,6 +7,10 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
+    <% unless request.headers["Turbo-Frame"] || request.path == "/users/sign_in" %>
+      <%= render partial: 'shared/navbar' %>
+    <% end %>
+
     <%= yield :head %>
 
     <link rel="manifest" href="/manifest.json">
@@ -17,7 +21,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body class="main-body">
     <%= yield %>
   </body>
 </html>

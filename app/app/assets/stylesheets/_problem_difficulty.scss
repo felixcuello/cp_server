@@ -1,0 +1,60 @@
+.problem-difficulty-title {
+  font-family: Arial, sans-serif;
+  font-size: 1.9em;
+  padding: 10px;
+  color: #000090;
+}
+
+.difficulty-each {
+  padding: 10px;
+  text-align: center;
+}
+
+.problem-difficulty-easy {
+  display: inline-block;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  background-color: #00ff90; // Light green background
+  color: #006400; // Dark green text
+  border-radius: 20px; // Makes it pill-shaped
+  text-transform: uppercase; // All capitals
+  font-size: 14px;
+  font-weight: bold; // Optional for visibility at small sizes
+  line-height: 1; // Ensures text fits within the pill
+  box-shadow: 0 0 1px #000000;
+}
+
+.problem-difficulty-medium {
+  display: inline-block;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  background-color: #fff000; // Light yellow background
+  color: #b38600; // Dark yellow text
+  border-radius: 20px; // Makes it pill-shaped
+  text-transform: uppercase; // All capitals
+  font-size: 14px;
+  font-weight: bold; // Optional for visibility at small sizes
+  line-height: 1; // Ensures text fits within the pill
+  box-shadow: 0 0 1px #000000;
+}
+
+.problem-difficulty-hard {
+  display: inline-block;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  background-color: #ff5000;
+  color: #800000; // Dark red text
+  border-radius: 20px; // Makes it pill-shaped
+  text-transform: uppercase; // All capitals
+  font-size: 14px;
+  font-weight: bold; // Optional for visibility at small sizes
+  line-height: 1; // Ensures text fits within the pill
+  box-shadow: 0 0 1px #000000;
+}
+

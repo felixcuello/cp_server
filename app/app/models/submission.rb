@@ -40,7 +40,7 @@ class Submission < ApplicationRecord
 
     final_status = ACCEPTED
 
-    problem.examples.each_with_index do |example, index|
+    problem.examples.order(:id).each_with_index do |example, index|
       input_file = "/tmp/#{uuid}.in"
       File.write(input_file, example.input)
 
@@ -90,7 +90,7 @@ class Submission < ApplicationRecord
         if output == expected_output
           final_status = PRESENTATION_ERROR
         else
-          final_status = WRONG_ANSWER
+          final_status = WRONG_ANSWER + " (example #{index + 1})"
         end
         break
       end

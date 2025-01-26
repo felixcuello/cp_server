@@ -5,6 +5,7 @@
   <thead>
     <tr class="submissions-header">
       <th>Date</th>
+      <th>User</th>
       <th>Submission ID</th>
       <th>Problem</th>
       <th>Language</th>
@@ -16,6 +17,9 @@
     <% (@submissions || []).order(created_at: :desc).limit(50).each_with_index do |submission, i| %>
       <tr class="submission-row-<%= i % 2 == 0 ? 'even' : 'odd' %>">
         <td class="submission-centered-cell"><%= submission.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+        <td class="submission-centered-cell">
+          <%= link_to submission.user.alias, user_path(alias: submission.user.alias) %>
+        </td>
         <td class="submission-centered-cell"><%= submission.id %></td>
         <td class="submission-centered-cell">
           <a href="/problems/<%= submission.problem.id %>">

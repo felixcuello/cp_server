@@ -1,0 +1,10 @@
+{
+  "name": "Javascript (NodeJS)",
+  "compiler_binary": "",
+  "compiler_flags": "",
+  "interpreter_binary": "node",
+  "interpreter_flags": "",
+  "memory_limit_kb": 4096,
+  "time_limit_sec": 5,
+  "extension": "js"
+}

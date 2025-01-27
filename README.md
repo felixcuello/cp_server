@@ -16,7 +16,7 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
 
 ## Pending
 
-- [ ] Problemas
+- [X] Problemas
   - [X] Crear la tabla para los problemas
   - [X] Mostrar lista de problemas (#index)
   - [X] Mostrar un problema (#show)
@@ -25,14 +25,12 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
   - [X] Filtrar lista de problemas
     - [X] Por dificultad
     - [X] Por tags
-    - [ ] Agregar unit tests para los filtros
   - [X] Crear una rake task para agregar problemas desde problems/problems.json
-    - [ ] crear un unit test para chequear que corra
     - [X] agregar problemas de ejemplo en problems/something.json
     - [X] correr la rake task
-  - [ ] Verificar alguna forma de mostrar el problema (markdown? / Latex?)
+  - [X] Verificar alguna forma de mostrar el problema (markdown? / Latex?)
 
-- [ ] Ejecutar Problemas
+- [X] Ejecutar Problemas
     - [X] Agregar una tabla para cada lenguaje de programación disponible
         - [X] Nombre
         - [X] Forma de ejecución
@@ -52,24 +50,26 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
       - [X] Memory Limit Exceeded
       - [X] Running
       - [X] Accepted
+
     - [X] Profile
         - [X] Mostrar el perfil de usuario (problemas resueltos, easy, medium and hard)
         - [X] Mostrar los lenguajes usados
+
     - [X] Hacer que se compile y ejecute el problema [compilado]
-    - [ ] Agregar lenguajes
-        - [X] Ruby
-        - [X] C
-        - [ ] C++
-        - [ ] Go
-        - [ ] Java
-        - [ ] Javascript
-        - [ ] Python
-    - [ ] Result table
-        - [ ] Actualización automática (hotwire?)
-            - [ ] Filtros
-            - [ ] Por usuario
-            - [ ] Por problema
-            - [ ] Por contest
+
+- [ ] Refactor Submission Model
+    - [ ] Crear unit tests
+    - [ ] Hacer una suerte de template object / dependency injection para ejecutar los problemas compilados o
+      interpretados
+
+- [ ] Agregar lenguajes
+    - [X] Ruby
+    - [X] C
+    - [X] C++
+    - [X] Javascript
+    - [X] Python
+    - [ ] Go
+    - [ ] Java
 
 - [ ] Contest
   - [ ] Crear contest (con fecha de inicio y fin)

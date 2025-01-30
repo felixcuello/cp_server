@@ -5,6 +5,8 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim
 WORKDIR /app
 
 # Install base packages
+# The SIDEKIQ server is mean to run all the code in the background
+# therefor we need to install all the packages that are needed to run the code
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
       curl \

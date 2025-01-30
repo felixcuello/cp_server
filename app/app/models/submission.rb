@@ -8,7 +8,7 @@ class Submission < ApplicationRecord
   validates :source_code, presence: true
   validates :status, presence: true
 
-  DEBUG = true
+  DEBUG = false
   ACCEPTED = "accepted"
   COMPILATION_ERROR = "compilation error"
   COMPILING = "compiling"

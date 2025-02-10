@@ -59,8 +59,24 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
 
 - [ ] Refactor Submission Model
     - [ ] Crear unit tests
+    - [ ] Buscar una forma de correr cosas de forma "isolated" sin necesidad de hacer docker on docker.
     - [ ] Hacer una suerte de template object / dependency injection para ejecutar los problemas compilados o
       interpretados
+
+- [ ] Contest
+  - [ ] Modificar los problemas para que tengan un hidden flag (que sea false por defecto)
+  - [ ] Cuando hay problemas que van al contest arrancan como hidden hasta que empieza el contest
+    - [ ] No se pueden ver ni siquiera sabiendo el ID si están hidden
+  - [ ] El contest se tiene que iniciar con un sidekiq job que manda el flag hidden de los problemas a false
+  - [ ] Crear el modelo de contest
+  - [ ] asignar problemas al contest (nuevos o existentes)
+  - [ ] Crear contest (con fecha de inicio y fin)
+    - [ ] cuando arranca el contest se corre un job de sidekiq
+  - [ ] Agregar usuarios al contest
+  - [ ] Mostrar tabla de posiciones
+    - [ ] el contest tiene una tabla especial de "contest - submissions" que se adiciona a la tabla de submissions
+      normal
+    - [ ] con esta tabla de submissions se calculan los standings en tiempo real
 
 - [ ] Agregar lenguajes
     - [X] Ruby
@@ -71,8 +87,4 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
     - [ ] Go
     - [ ] Java
 
-- [ ] Contest
-  - [ ] Crear contest (con fecha de inicio y fin)
-  - [ ] Agregar usuarios al contest
-  - [ ] Mostrar tabla de posiciones
-  - [ ] Mostrar problemas (solo cuando la fecha de inicio esté en el pasado)
+- INTERESTING!!! => https://github.com/morris821028/UVa/

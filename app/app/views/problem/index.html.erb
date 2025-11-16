@@ -1,39 +1,41 @@
-<div class="problem-list-title">
-  Problem List
+<div class="page-container">
+  <div class="problem-list-title">
+    Problem List
 
-  <div class="problem-each">
-    <% ['easy', 'medium', 'hard'].each do |difficulty| %>
-      <a class="problem-difficulty-<%= difficulty %>" href="/problems?difficulty=<%= difficulty %>">
-        <%= difficulty %>
-      </a>
-    <% end %>
-  </div>
-
-  <div class="difficulty-each">
-    <% Tag.all.each do |tag| %>
-      <a class="problem-tag" href="/problems?tag=<%= tag.name %>">
-        #<%= tag.name %>
-    </a>
-  <% end %>
-  </div>
-</div>
-
-<div class="problem-list-box">
-  <% @problems.order(:id).each do |problem| %>
     <div class="problem-each">
-      <%= problem.id %>
-      <%= link_to problem.title, problem_path(problem), class: 'problem-each-title' %>
-      <a class="problem-difficulty-<%= problem.difficulty %>" href="/problems?difficulty=<%= problem.difficulty %>">
-        <%= problem.difficulty %>
-      </a>
-      <% if problem.tags.any? %>
-        <% problem.tags.each_with_index do |tag, i| %>
-          <%= i.zero? ? '' : ', ' %>
-          <a class="problem-tag" href="/problems?tag=<%= tag&.name %>">
-            <%= tag.name %>
-          </a>
-        <% end %>
+      <% ['easy', 'medium', 'hard'].each do |difficulty| %>
+        <a class="problem-difficulty-<%= difficulty %>" href="/problems?difficulty=<%= difficulty %>">
+          <%= difficulty %>
+        </a>
       <% end %>
     </div>
-  <% end %>
+
+    <div class="difficulty-each">
+      <% Tag.all.each do |tag| %>
+        <a class="problem-tag" href="/problems?tag=<%= tag.name %>">
+          #<%= tag.name %>
+      </a>
+    <% end %>
+    </div>
+  </div>
+
+  <div class="problem-list-box">
+    <% @problems.order(:id).each do |problem| %>
+      <div class="problem-each">
+        <%= problem.id %>
+        <%= link_to problem.title, problem_path(problem), class: 'problem-each-title' %>
+        <a class="problem-difficulty-<%= problem.difficulty %>" href="/problems?difficulty=<%= problem.difficulty %>">
+          <%= problem.difficulty %>
+        </a>
+        <% if problem.tags.any? %>
+          <% problem.tags.each_with_index do |tag, i| %>
+            <%= i.zero? ? '' : ', ' %>
+            <a class="problem-tag" href="/problems?tag=<%= tag&.name %>">
+              <%= tag.name %>
+            </a>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 </div>

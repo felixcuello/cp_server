@@ -1,66 +1,68 @@
-<div class="problem-box">
-  <div class="problem-title-box">
-    <div class="problem-title">
-      Problem: <a class="problem-name"><%= @problem.title %></a>
+<div class="page-container">
+  <div class="problem-box">
+    <div class="problem-title-box">
+      <div class="problem-title">
+        Problem: <a class="problem-name"><%= @problem.title %></a>
+      </div>
+      <div class="problem-limits">
+        Time Limit: <%= @problem.time_limit_sec %> sec.
+        /
+        Memory Limit: <%= @problem.memory_limit_kb %> kb.
+      </div>
+
+      <div class="problem-tags">
+        <a class="problem-difficulty-<%= @problem.difficulty.downcase %>" href="/problems?difficulty=<%= @problem.difficulty %>">
+          <%= @problem.difficulty.camelize %>
+        </a>
+        <% @problem.tags.each do |tag| %>
+          <a class="problem-tag" href="/problems?tag=<%= tag.name %>"><%= tag.name %></a>
+        <% end %>
+      </div>
     </div>
-    <div class="problem-limits">
-      Time Limit: <%= @problem.time_limit_sec %> sec.
-      /
-      Memory Limit: <%= @problem.memory_limit_kb %> kb.
-    </div>
 
-    <div class="problem-tags">
-      <a class="problem-difficulty-<%= @problem.difficulty.downcase %>" href="/problems?difficulty=<%= @problem.difficulty %>">
-        <%= @problem.difficulty.camelize %>
-      </a>
-      <% @problem.tags.each do |tag| %>
-        <a class="problem-tag" href="/problems?tag=<%= tag.name %>"><%= tag.name %></a>
-      <% end %>
-    </div>
-  </div>
+    <%= render partial: 'submission_form' %>
 
-  <%= render partial: 'submission_form' %>
-
-  <h1 class="problem-description">Description</h1>
-  <div class="problem-example-box">
-    <div class="problem-description-text">
-      <%= @problem.description.gsub("\n", "<br />").html_safe %>
-    </div>
-  </div>
-
-  <h1 class="problem-examples">
-    Examples
-  </h1>
-
-  <% @problem.examples.where(is_hidden: false).each_with_index do |example, idx| %>
+    <h1 class="problem-description">Description</h1>
     <div class="problem-example-box">
-      <div class="problem-single-example">
-        Example <%= idx + 1 %>
-      </div>
-
-      <h3>Input</h3>
-
-      <div class="pre-with-numbers">
-        <%= example.input.gsub("\n", "<br />").html_safe %>
-      </div>
-
-      <h3>Output</h3>
-
-      <div class="pre-with-numbers">
-        <%= example.output.gsub("\n", "<br />").html_safe %>
+      <div class="problem-description-text">
+        <%= @problem.description.gsub("\n", "<br />").html_safe %>
       </div>
     </div>
-  <% end %>
 
+    <h1 class="problem-examples">
+      Examples
+    </h1>
 
-  <div class="problem-constraints">
-    Constraints
-  </div>
-  <div class="problem-example-box">
-    <% @problem.constraints.each do |constraint| %>
-      <div class="pre-with-numbers">
-        <%= constraint.description %>
+    <% @problem.examples.where(is_hidden: false).each_with_index do |example, idx| %>
+      <div class="problem-example-box">
+        <div class="problem-single-example">
+          Example <%= idx + 1 %>
+        </div>
+
+        <h3>Input</h3>
+
+        <div class="pre-with-numbers">
+          <%= example.input.gsub("\n", "<br />").html_safe %>
+        </div>
+
+        <h3>Output</h3>
+
+        <div class="pre-with-numbers">
+          <%= example.output.gsub("\n", "<br />").html_safe %>
+        </div>
       </div>
     <% end %>
+
+
+    <div class="problem-constraints">
+      Constraints
+    </div>
+    <div class="problem-example-box">
+      <% @problem.constraints.each do |constraint| %>
+        <div class="pre-with-numbers">
+          <%= constraint.description %>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>

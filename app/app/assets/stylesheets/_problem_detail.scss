@@ -1,0 +1,466 @@
+// LeetCode-style problem detail page
+
+.problem-detail-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
+  gap: 0;
+}
+
+// Split pane layout
+.problem-split-view {
+  display: flex;
+  gap: 20px;
+  height: 100%;
+  
+  @media (max-width: 1200px) {
+    flex-direction: column;
+    height: auto;
+  }
+}
+
+// Left pane - Problem description
+.problem-description-pane {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 30px;
+  
+  @media (max-width: 1200px) {
+    max-height: 600px;
+  }
+}
+
+// Right pane - Code editor
+.problem-editor-pane {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+// Tabs
+.problem-tabs {
+  display: flex;
+  gap: 5px;
+  border-bottom: 2px solid var(--border-primary);
+  margin-bottom: 20px;
+  
+  .tab {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-family: Arial, sans-serif;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      color: var(--text-primary);
+      background-color: var(--bg-tertiary);
+    }
+    
+    &.active {
+      color: var(--text-heading);
+      border-bottom-color: var(--text-heading);
+    }
+  }
+}
+
+.tab-panel {
+  display: none;
+  
+  &.active {
+    display: block;
+  }
+}
+
+// Problem header
+.problem-detail-header {
+  margin-bottom: 25px;
+  
+  h1 {
+    font-family: Arial, sans-serif;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: var(--text-heading);
+    margin-bottom: 15px;
+  }
+  
+  .problem-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  
+  .meta-item {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    
+    strong {
+      color: var(--text-primary);
+    }
+  }
+}
+
+// Problem description content (with Markdown support)
+.problem-content {
+  font-family: Arial, sans-serif;
+  font-size: 1em;
+  line-height: 1.6;
+  color: var(--text-primary);
+  
+  h2, h3, h4 {
+    color: var(--text-heading);
+    margin-top: 25px;
+    margin-bottom: 15px;
+  }
+  
+  p {
+    margin-bottom: 15px;
+  }
+  
+  ul, ol {
+    padding-left: 30px;
+    margin-bottom: 15px;
+    
+    li {
+      margin-bottom: 8px;
+    }
+  }
+  
+  code {
+    background-color: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 0.9em;
+    color: var(--text-primary);
+  }
+  
+  pre {
+    background-color: var(--code-bg);
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin-bottom: 15px;
+    
+    code {
+      background: none;
+      padding: 0;
+    }
+  }
+  
+  // Syntax highlighting (Rouge)
+  .highlight {
+    background-color: var(--code-bg);
+    border-radius: 5px;
+    padding: 15px;
+    overflow-x: auto;
+  }
+  
+  blockquote {
+    border-left: 3px solid var(--text-heading);
+    padding-left: 15px;
+    margin-left: 0;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+  
+  strong, b {
+    font-weight: bold;
+    color: var(--text-heading);
+  }
+}
+
+// Examples section
+.examples-section {
+  margin-top: 30px;
+  
+  h2 {
+    color: var(--text-heading);
+    margin-bottom: 20px;
+  }
+}
+
+.example-card {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+  
+  .example-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    
+    h4 {
+      margin: 0;
+      color: var(--text-heading);
+      font-size: 1.1em;
+    }
+  }
+  
+  .example-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .example-block {
+    position: relative;
+    
+    h5 {
+      font-size: 0.85em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    
+    .example-code {
+      background-color: var(--code-bg);
+      padding: 12px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 0.9em;
+      white-space: pre;
+      position: relative;
+      color: var(--text-primary);
+    }
+  }
+}
+
+.copy-button {
+  padding: 6px 12px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 5px;
+  color: var(--text-primary);
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: Arial, sans-serif;
+  
+  &:hover {
+    background-color: var(--bg-tertiary);
+  }
+  
+  &.copied {
+    background-color: var(--status-accepted);
+    color: white;
+    border-color: var(--status-accepted);
+  }
+}
+
+// Code editor section
+.editor-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-primary);
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-primary);
+  background-color: var(--bg-tertiary);
+  
+  select {
+    padding: 8px 12px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+    font-size: 0.95em;
+    cursor: pointer;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--text-heading);
+    }
+    
+    option {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+  }
+}
+
+.editor-container {
+  flex: 1;
+  min-height: 400px;
+  position: relative;
+}
+
+.editor-footer {
+  padding: 15px 20px;
+  border-top: 1px solid var(--border-primary);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background-color: var(--bg-tertiary);
+  
+  button {
+    padding: 10px 30px;
+    font-family: Arial, sans-serif;
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &.btn-primary {
+      background-color: var(--status-accepted);
+      color: white;
+      border: none;
+      
+      &:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+    }
+    
+    &.btn-secondary {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-primary);
+      
+      &:hover {
+        background-color: var(--bg-tertiary);
+      }
+    }
+  }
+}
+
+// Stats section
+.problem-stats {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  background-color: var(--bg-tertiary);
+  border-radius: 8px;
+  margin-top: 25px;
+  border: 1px solid var(--border-primary);
+  
+  .stat-item {
+    flex: 1;
+    text-align: center;
+    
+    .stat-label {
+      font-size: 0.85em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      letter-spacing: 0.5px;
+    }
+    
+    .stat-value {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: var(--text-heading);
+    }
+  }
+}
+
+// Similar problems
+.similar-problems {
+  margin-top: 30px;
+  
+  h3 {
+    font-size: 1.2em;
+    color: var(--text-heading);
+    margin-bottom: 15px;
+  }
+  
+  .similar-problem-item {
+    padding: 12px 15px;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: var(--bg-primary);
+      cursor: pointer;
+      border-color: var(--text-heading);
+    }
+    
+    a {
+      color: var(--text-primary);
+      text-decoration: none;
+      flex: 1;
+      
+      &:hover {
+        color: var(--text-heading);
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+// Submission history
+.submission-history {
+  .submission-item {
+    padding: 15px;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .submission-info {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+      
+      .submission-lang {
+        font-family: monospace;
+        color: var(--text-secondary);
+        font-size: 0.9em;
+      }
+      
+      .submission-time {
+        font-size: 0.9em;
+        color: var(--text-secondary);
+      }
+    }
+  }
+}
+
+// LaTeX math styling (KaTeX)
+.katex {
+  font-size: 1.1em;
+}
+
+.katex-display {
+  margin: 20px 0;
+}
+

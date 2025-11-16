@@ -1,41 +1,196 @@
-<div class="page-container">
-  <div class="problem-list-title">
-    Problem List
-
-    <div class="problem-each">
-      <% ['easy', 'medium', 'hard'].each do |difficulty| %>
-        <a class="problem-difficulty-<%= difficulty %>" href="/problems?difficulty=<%= difficulty %>">
-          <%= difficulty %>
-        </a>
-      <% end %>
-    </div>
-
-    <div class="difficulty-each">
-      <% Tag.all.each do |tag| %>
-        <a class="problem-tag" href="/problems?tag=<%= tag.name %>">
-          #<%= tag.name %>
-      </a>
-    <% end %>
+<div class="page-container" data-controller="problem-search problem-filter">
+  <!-- Header with Search -->
+  <div class="problem-list-header">
+    <h1 class="problem-list-title-new">Problems</h1>
+    
+    <div class="problem-search-box">
+      <input 
+        type="text" 
+        placeholder="Search problems by title or ID..." 
+        data-problem-search-target="input"
+        data-action="input->problem-search#search">
+      <button class="search-clear" data-action="click->problem-search#clear">
+        Clear
+      </button>
     </div>
   </div>
-
-  <div class="problem-list-box">
-    <% @problems.order(:id).each do |problem| %>
-      <div class="problem-each">
-        <%= problem.id %>
-        <%= link_to problem.title, problem_path(problem), class: 'problem-each-title' %>
-        <a class="problem-difficulty-<%= problem.difficulty %>" href="/problems?difficulty=<%= problem.difficulty %>">
-          <%= problem.difficulty %>
-        </a>
-        <% if problem.tags.any? %>
-          <% problem.tags.each_with_index do |tag, i| %>
-            <%= i.zero? ? '' : ', ' %>
-            <a class="problem-tag" href="/problems?tag=<%= tag&.name %>">
-              <%= tag.name %>
-            </a>
+  
+  <!-- Filter Sidebar + Table Layout -->
+  <div class="content-wrapper">
+    <!-- Left Sidebar for Filters -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Difficulty</h3>
+        <div class="sidebar-filter-group">
+          <% ['easy', 'medium', 'hard'].each do |diff| %>
+            <label class="sidebar-filter-item">
+              <input 
+                type="checkbox" 
+                value="<%= diff %>"
+                data-problem-filter-target="difficultyCheckbox"
+                data-action="change->problem-filter#filter">
+              <span><%= diff.capitalize %></span>
+            </label>
           <% end %>
-        <% end %>
+        </div>
       </div>
-    <% end %>
+      
+      <div class="sidebar-divider"></div>
+      
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Status</h3>
+        <div class="sidebar-filter-group">
+          <label class="sidebar-filter-item">
+            <input 
+              type="checkbox" 
+              value="solved"
+              data-problem-filter-target="statusCheckbox"
+              data-action="change->problem-filter#filter">
+            <span>Solved</span>
+          </label>
+          <label class="sidebar-filter-item">
+            <input 
+              type="checkbox" 
+              value="attempted"
+              data-problem-filter-target="statusCheckbox"
+              data-action="change->problem-filter#filter">
+            <span>Attempted</span>
+          </label>
+          <label class="sidebar-filter-item">
+            <input 
+              type="checkbox" 
+              value="unattempted"
+              data-problem-filter-target="statusCheckbox"
+              data-action="change->problem-filter#filter">
+            <span>Not Attempted</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="sidebar-divider"></div>
+      
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Tags</h3>
+        <div class="sidebar-tag-list">
+          <% @all_tags.each do |tag| %>
+            <label class="sidebar-tag">
+              <input 
+                type="checkbox" 
+                value="<%= tag.name %>" 
+                style="display: none;"
+                data-problem-filter-target="tagCheckbox"
+                data-action="change->problem-filter#filter">
+              <%= tag.name %>
+            </label>
+          <% end %>
+        </div>
+      </div>
+      
+      <div class="sidebar-divider"></div>
+      
+      <button 
+        class="sidebar-clear-filters" 
+        data-problem-filter-target="clearButton"
+        data-action="click->problem-filter#clearAll"
+        style="display: none;">
+        Clear All Filters
+      </button>
+    </aside>
+    
+    <!-- Main Content: Problem Table -->
+    <div class="main-content">
+      <table class="problems-table">
+        <thead>
+          <tr>
+            <th class="center" style="width: 60px;">Status</th>
+            <th>Title</th>
+            <th class="center hide-mobile sortable" style="width: 120px;">Acceptance</th>
+            <th class="center" style="width: 100px;">Difficulty</th>
+            <th class="hide-mobile">Tags</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @problems.each do |problem| %>
+            <%
+              user_status = current_user ? problem.user_problem_statuses.find_by(user: current_user) : nil
+              status_class = if user_status&.status == 'solved'
+                              'solved'
+                             elsif user_status&.status == 'attempted'
+                              'attempted'
+                             else
+                              'unattempted'
+                             end
+              status_icon = case status_class
+                           when 'solved' then '✓'
+                           when 'attempted' then '○'
+                           else '—'
+                           end
+              
+              acceptance = problem.acceptance_rate
+              acceptance_class = if acceptance >= 50
+                                  'high'
+                                elsif acceptance >= 30
+                                  'medium'
+                                else
+                                  'low'
+                                end
+              
+              tag_names = problem.tags.map(&:name).join(',')
+            %>
+            <tr 
+              data-problem-search-target="row"
+              data-problem-filter-target="row"
+              data-problem-id="<%= problem.id %>"
+              data-problem-title="<%= problem.title %>"
+              data-problem-difficulty="<%= problem.difficulty %>"
+              data-problem-status="<%= status_class %>"
+              data-problem-tags="<%= tag_names %>"
+              onclick="window.location='<%= problem_path(problem) %>'">
+              
+              <td class="center">
+                <span class="problem-status <%= status_class %>">
+                  <%= status_icon %>
+                </span>
+              </td>
+              
+              <td class="problem-title-cell">
+                <%= link_to problem_path(problem) do %>
+                  <strong><%= problem.id %>.</strong> <%= problem.title %>
+                <% end %>
+              </td>
+              
+              <td class="center hide-mobile">
+                <span class="acceptance-rate <%= acceptance_class %>">
+                  <%= acceptance %>%
+                </span>
+              </td>
+              
+              <td class="center">
+                <span class="problem-difficulty-<%= problem.difficulty %>">
+                  <%= problem.difficulty.capitalize %>
+                </span>
+              </td>
+              
+              <td class="hide-mobile">
+                <% problem.tags.first(3).each do |tag| %>
+                  <span class="problem-tag"><%= tag.name %></span>
+                <% end %>
+                <% if problem.tags.count > 3 %>
+                  <span style="color: var(--text-secondary); font-size: 0.9em;">
+                    +<%= problem.tags.count - 3 %>
+                  </span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      
+      <% if @problems.empty? %>
+        <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+          <p style="font-size: 1.2em;">No problems found</p>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>

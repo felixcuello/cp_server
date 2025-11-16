@@ -20,9 +20,20 @@ build:
 		--build-arg BUNDLE_WITHOUT="" \
 		--build-arg RAILS_ENV="development" \
 		--build-arg RAILS_MASTER_KEY="config/master.key" \
+		sidekiq
+	docker compose build \
+		--build-arg BUNDLE_PATH="/usr/local/bin/bundle" \
+		--build-arg BUNDLE_WITHOUT="" \
+		--build-arg RAILS_ENV="development" \
+		--build-arg RAILS_MASTER_KEY="config/master.key" \
 		cp_server
 
 build-nc:
+	docker compose build --no-cache \
+		--build-arg BUNDLE_PATH="/usr/local/bin/bundle" \
+		--build-arg BUNDLE_WITHOUT="" \
+		--build-arg RAILS_ENV="development" \
+		sidekiq
 	docker compose build --no-cache \
 		--build-arg BUNDLE_PATH="/usr/local/bin/bundle" \
 		--build-arg BUNDLE_WITHOUT="" \

@@ -1,0 +1,31 @@
+// Base styles for the application
+
+html {
+  background-color: var(--bg-primary);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+.main-body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+a {
+  color: var(--text-link);
+  text-decoration: none;
+  
+  &:visited {
+    color: var(--text-link-visited);
+  }
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}

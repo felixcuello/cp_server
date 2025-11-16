@@ -1,0 +1,214 @@
+// Devise authentication forms styling
+
+.devise-container {
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 40px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px var(--shadow-light);
+}
+
+.devise-title {
+  font-family: Arial, sans-serif;
+  font-size: 2em;
+  font-weight: bold;
+  color: var(--text-heading);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.devise-subtitle {
+  font-family: Arial, sans-serif;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: var(--text-heading);
+  margin-top: 40px;
+  margin-bottom: 20px;
+}
+
+.devise-field {
+  margin-bottom: 20px;
+
+  label {
+    display: block;
+    font-family: Arial, sans-serif;
+    font-size: 1em;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  em {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  i {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  input[type="email"],
+  input[type="password"],
+  input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    font-family: Arial, sans-serif;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 5px;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: var(--text-heading);
+      box-shadow: 0 0 0 2px var(--shadow-light);
+    }
+  }
+
+  input[type="checkbox"] {
+    margin-right: 8px;
+  }
+}
+
+.devise-actions {
+  margin-top: 30px;
+  text-align: center;
+
+  input[type="submit"] {
+    background-color: var(--text-heading);
+    color: var(--bg-primary);
+    font-family: Arial, sans-serif;
+    font-size: 1em;
+    font-weight: bold;
+    padding: 12px 40px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.85;
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+}
+
+.devise-links {
+  margin-top: 30px;
+  text-align: center;
+  font-size: 0.95em;
+
+  a {
+    color: var(--text-link);
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:visited {
+      color: var(--text-link-visited);
+    }
+  }
+
+  br {
+    line-height: 2;
+  }
+}
+
+.devise-back-link {
+  display: block;
+  margin-top: 20px;
+  text-align: center;
+  
+  a {
+    color: var(--text-link);
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Error messages
+#error_explanation {
+  background-color: var(--flash-alert-bg);
+  border: 1px solid var(--status-wrong);
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 30px;
+
+  h2 {
+    color: var(--flash-alert-text);
+    font-family: Arial, sans-serif;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+    
+    li {
+      color: var(--flash-alert-text);
+      font-family: Arial, sans-serif;
+      margin-bottom: 5px;
+    }
+  }
+}
+
+// Cancel account section
+.devise-cancel-account {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid var(--border-primary);
+
+  button {
+    background-color: var(--status-wrong);
+    color: var(--bg-primary);
+    font-family: Arial, sans-serif;
+    font-size: 0.9em;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+}
+
+// Remember me checkbox styling
+.devise-remember-me {
+  display: flex;
+  align-items: center;
+  margin: 15px 0;
+
+  input[type="checkbox"] {
+    margin-right: 8px;
+  }
+
+  label {
+    font-weight: normal !important;
+    margin-bottom: 0 !important;
+    color: var(--text-primary);
+  }
+}

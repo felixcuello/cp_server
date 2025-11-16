@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html class="preload">
   <head>
     <title><%= content_for(:title) || "Cp Server" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
-    <% unless request.headers["Turbo-Frame"] || request.path == "/users/sign_in" %>
-      <%= render partial: 'shared/navbar' %>
-    <% end %>
 
     <%= yield :head %>
 
@@ -19,9 +15,23 @@
     <link rel="apple-touch-icon" href="/icon.png">
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    
+    <script>
+      // Initialize theme immediately to prevent flash
+      (function() {
+        const savedTheme = localStorage.getItem('theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
   </head>
 
   <body class="main-body">
+    <% unless request.headers["Turbo-Frame"] || request.path == "/users/sign_in" %>
+      <%= render partial: 'shared/navbar' %>
+    <% end %>
+    
     <div id="flash-messages">
       <% if flash[:notice] %>
         <div class="flash notice"><%= flash[:notice] %></div>

@@ -2,10 +2,10 @@
   padding: 10px;
   font-family: Arial, sans-serif;
   font-size: 1.9em;
-  color: #000090;
-  background-color: #efefef;
+  color: var(--text-heading);
+  background-color: var(--bg-tertiary);
   border-radius: 10px;
-  border: 1px solid #d3d3d3;
+  border: 1px solid var(--border-primary);
   font-weight: bold;
   text-align: center;
 }
@@ -15,22 +15,32 @@
   font-weight: bold;
   font-family: Arial, sans-serif;
   text-align: center;
+  color: var(--text-heading);
 }
 
 .submissions-header {
   font-weight: bold;
   font-family: Arial, sans-serif;
   text-align: center;
-  background-color: #c0e0f0;
+  background-color: var(--bg-table-header);
+  color: var(--text-primary);
 }
 
 .submissions-table {
   font-family: Arial, sans-serif;
   font-size: 1.3em;
-  color: #000000;
+  color: var(--text-primary);
   border-collapse: collapse;
   width: 100%;
   padding: 10px;
+  
+  a {
+    color: var(--text-link);
+    
+    &:visited {
+      color: var(--text-link-visited);
+    }
+  }
 }
 
 .submission-cell-uppercase {
@@ -38,11 +48,11 @@
 }
 
 .submission-row-even {
-  background-color: #e0f0f0;
+  background-color: var(--bg-table-even);
 }
 
 .submission-row-odd {
-  background-color: #c0e0e0;
+  background-color: var(--bg-table-odd);
 }
 
 .submission-centered-cell {
@@ -56,31 +66,51 @@
 // Submission status
 
 .submission-status-queued {
-  color: #000090;
+  color: var(--status-queued);
   font-weight: bold;
 }
 
 .submission-status-running {
-  color: #000000;
+  color: var(--status-running);
   font-weight: bold;
 }
 
 .submission-status-wrong-answer {
-  color: #c00000;
+  color: var(--status-wrong);
   font-weight: bold;
 }
 
 .submission-status-accepted {
-  color: #009020;
+  color: var(--status-accepted);
   font-weight: bold;
 }
 
 .submission-status-time-limit-exceeded {
-  color: #900090;
+  color: var(--status-tle);
   font-weight: bold;
 }
 
 .submission-status-presentation-error {
-  color: #3030a0;
+  color: var(--status-presentation);
+  font-weight: bold;
+}
+
+.submission-status-compilation-error {
+  color: var(--status-wrong);
+  font-weight: bold;
+}
+
+.submission-status-runtime-error {
+  color: var(--status-wrong);
+  font-weight: bold;
+}
+
+.submission-status-memory-limit-exceeded {
+  color: var(--status-tle);
+  font-weight: bold;
+}
+
+.submission-status-enqueued {
+  color: var(--status-queued);
   font-weight: bold;
 }

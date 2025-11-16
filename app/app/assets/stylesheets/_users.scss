@@ -2,22 +2,23 @@
   font-size: 1.3em;
   font-weight: bold;
   font-family: Arial, sans-serif;
+  color: var(--text-primary);
 }
 
 .user-profile-name {
   font-size: 1.5em;
   font-weight: bold;
   font-family: Arial, sans-serif;
-  color: #003366;
+  color: var(--profile-name);
 }
 
 .user-profile-box {
   font-family: Arial, sans-serif;
   font-size: 1.3em;
   border-radius: 10px;
-  border: 1px solid #d3d3d3;
-  background-color: #c0e0f0;
-  color: #000000;
+  border: 1px solid var(--border-primary);
+  background-color: var(--bg-table-header);
+  color: var(--text-primary);
   width: 100%;
   padding: 10px;
   align-items: center;
@@ -28,9 +29,9 @@
   font-family: Arial, sans-serif;
   font-size: 1.3em;
   border-radius: 10px;
-  border: 1px solid #d3d3d3;
-  background-color: #f0f0f0;
-  color: #000000;
+  border: 1px solid var(--border-primary);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   width: 100%;
   padding: 10px;
   align-items: center;
@@ -45,7 +46,7 @@
   font-size: 1.0em;
   font-weight: bold;
   font-family: Arial, sans-serif;
-  color: #003366;
+  color: var(--profile-name);
   text-transform: uppercase;
 }
 
@@ -55,14 +56,14 @@
   padding-right: 15px;
   padding-top: 4px;
   padding-bottom: 4px;
-  background-color: #00ff90; // Light green background
-  color: #006400; // Dark green text
-  border-radius: 20px; // Makes it pill-shaped
-  text-transform: uppercase; // All capitals
+  background-color: var(--difficulty-easy-bg);
+  color: var(--difficulty-easy-text);
+  border-radius: 20px;
+  text-transform: uppercase;
   font-size: 1.3em;
-  font-weight: bold; // Optional for visibility at small sizes
-  line-height: 1; // Ensures text fits within the pill
-  box-shadow: 0 0 1px #000000;
+  font-weight: bold;
+  line-height: 1;
+  box-shadow: 0 0 1px var(--shadow-color);
 }
 
 .user-profile-problems-count-medium {
@@ -71,14 +72,14 @@
   padding-right: 15px;
   padding-top: 4px;
   padding-bottom: 4px;
-  background-color: #fff000; // Light yellow background
-  color: #b38600; // Dark yellow text
-  border-radius: 20px; // Makes it pill-shaped
-  text-transform: uppercase; // All capitals
+  background-color: var(--difficulty-medium-bg);
+  color: var(--difficulty-medium-text);
+  border-radius: 20px;
+  text-transform: uppercase;
   font-size: 1.3em;
-  font-weight: bold; // Optional for visibility at small sizes
-  line-height: 1; // Ensures text fits within the pill
-  box-shadow: 0 0 1px #000000;
+  font-weight: bold;
+  line-height: 1;
+  box-shadow: 0 0 1px var(--shadow-color);
 }
 
 .user-profile-problems-count-hard {
@@ -87,23 +88,23 @@
   padding-right: 15px;
   padding-top: 4px;
   padding-bottom: 4px;
-  background-color: #ff5000;
-  color: #800000; // Dark red text
-  border-radius: 20px; // Makes it pill-shaped
-  text-transform: uppercase; // All capitals
+  background-color: var(--difficulty-hard-bg);
+  color: var(--difficulty-hard-text);
+  border-radius: 20px;
+  text-transform: uppercase;
   font-size: 1.3em;
-  font-weight: bold; // Optional for visibility at small sizes
-  line-height: 1; // Ensures text fits within the pill
-  box-shadow: 0 0 1px #000000;
+  font-weight: bold;
+  line-height: 1;
+  box-shadow: 0 0 1px var(--shadow-color);
 }
 
 .user-profile-programming-languages-box {
   font-family: Arial, sans-serif;
   font-size: 1.3em;
   border-radius: 10px;
-  border: 1px solid #d3d3d3;
-  background-color: #f0f0f0;
-  color: #000000;
+  border: 1px solid var(--border-primary);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   width: 100%;
   padding: 10px;
   align-items: center;
@@ -112,4 +113,9 @@
 
 .user-profile-programming-languages-used {
   font-family: monospace;
+  color: var(--text-primary);
+}
+
+.user-profile-submissions-space {
+  padding: 10px;
 }

@@ -1,0 +1,125 @@
+// Sidebar for filtering (optional, can be used on problem list)
+
+.sidebar {
+  width: 280px;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid var(--border-primary);
+  height: fit-content;
+  position: sticky;
+  top: 80px; // Below navbar
+  
+  @media (max-width: 968px) {
+    width: 100%;
+    position: static;
+  }
+}
+
+.sidebar-section {
+  margin-bottom: 25px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.sidebar-title {
+  font-family: Arial, sans-serif;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--text-heading);
+  margin-bottom: 12px;
+}
+
+.sidebar-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: var(--bg-tertiary);
+  }
+  
+  input[type="checkbox"] {
+    cursor: pointer;
+  }
+  
+  label {
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    font-size: 0.95em;
+    color: var(--text-primary);
+    flex: 1;
+  }
+  
+  .count {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+  }
+}
+
+// Tag filter (shows as clickable badges)
+.sidebar-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sidebar-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: var(--tag-bg);
+  color: var(--tag-text);
+  border-radius: 12px;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  
+  &:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+  }
+  
+  &.active {
+    border-color: var(--text-heading);
+    font-weight: bold;
+  }
+}
+
+// Clear filters button
+.sidebar-clear-filters {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: var(--status-wrong);
+    color: var(--bg-primary);
+    border-color: var(--status-wrong);
+  }
+}
+
+.sidebar-divider {
+  height: 1px;
+  background-color: var(--border-primary);
+  margin: 15px 0;
+}

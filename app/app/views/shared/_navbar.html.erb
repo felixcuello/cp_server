@@ -1,35 +1,90 @@
-<!-- Navigation Bar -->
-<div data-controller="theme">
-  <table class="navbar-box">
-    <tr>
-      <td>
-        <% # link_to "Home", root_path, class: "nav-link" %>
-      </td>
-      <td>
-        <%= link_to "All Problems", problems_path, class: "nav-link" %>
-      </td>
-      <td>
-        <%= link_to "Submissions", submission_path, class: "nav-link" %>
-      </td>
-      <td>
-          <% # link_to "Contest", leaderboard_path, class: "nav-link" %>
-      </td>
-      <td>
-        <%= link_to "User Profile", user_path(alias: current_user.alias), class: "nav-link" %>
-      </td>
-      <td>
+<!-- Navigation Bar with Hamburger Menu -->
+<div data-controller="drawer theme">
+  <!-- Top Navbar -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <!-- Left: Hamburger + Logo -->
+      <div class="navbar-left">
+        <% if user_signed_in? %>
+          <button 
+            class="hamburger-button" 
+            data-action="click->drawer#toggle"
+            aria-label="Toggle menu">
+            <span class="hamburger-icon">☰</span>
+          </button>
+        <% end %>
+        <%= link_to "CP Server", home_path, class: "navbar-logo" %>
+      </div>
+      
+      <!-- Right: User Menu + Theme Toggle -->
+      <div class="navbar-right">
         <button 
-          class="nav-link theme-toggle" 
+          class="theme-toggle-button" 
           data-action="click->theme#toggle"
           data-theme-target="icon"
           title="Toggle theme">
           🌙
         </button>
-      </td>
-      <td>
-          <%= link_to "Sign Out", destroy_user_session_path, data: { "turbo-method": :delete }, class: "nav-link" %>
-      </td>
-    </tr>
-  </table>
+        
+        <% if user_signed_in? %>
+          <div class="user-menu">
+            <span class="user-name"><%= current_user.alias %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </nav>
+  
+  <% if user_signed_in? %>
+    <!-- Overlay (backdrop) -->
+    <div 
+      class="drawer-overlay" 
+      data-drawer-target="overlay"
+      data-action="click->drawer#closeOnOverlay">
+    </div>
+    
+    <!-- Side Drawer -->
+    <aside class="drawer" data-drawer-target="drawer">
+      <div class="drawer-header">
+        <h2 class="drawer-title">Navigation</h2>
+        <button 
+          class="drawer-close" 
+          data-action="click->drawer#close"
+          aria-label="Close menu">
+          ✕
+        </button>
+      </div>
+      
+      <nav class="drawer-nav">
+        <%= link_to problems_path, class: "drawer-link" do %>
+          <span class="drawer-icon">📝</span>
+          <span>Problems</span>
+        <% end %>
+        
+        <%= link_to submission_path, class: "drawer-link" do %>
+          <span class="drawer-icon">📊</span>
+          <span>Submissions</span>
+        <% end %>
+        
+        <div class="drawer-link drawer-link-disabled">
+          <span class="drawer-icon">🏆</span>
+          <span>Contests</span>
+          <span class="coming-soon">Coming Soon</span>
+        </div>
+        
+        <%= link_to user_path(alias: current_user.alias), class: "drawer-link" do %>
+          <span class="drawer-icon">👤</span>
+          <span>Profile</span>
+        <% end %>
+        
+        <div class="drawer-divider"></div>
+        
+        <%= link_to destroy_user_session_path, data: { "turbo-method": :delete }, class: "drawer-link drawer-link-danger" do %>
+          <span class="drawer-icon">🚪</span>
+          <span>Sign Out</span>
+        <% end %>
+      </nav>
+    </aside>
+  <% end %>
 </div>
 

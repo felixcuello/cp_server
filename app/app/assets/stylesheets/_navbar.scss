@@ -1,43 +1,248 @@
-.navbar-box {
-  a:visted {
-    color: var(--navbar-text);
-  }
+// Modern Navbar with Hamburger Menu (all screen sizes)
 
-  text-align: center;
-  width: 100%;
-  padding: 20px;
-  border-radius: 20px;
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--navbar-bg);
+  border-bottom: 1px solid var(--border-primary);
+  box-shadow: 0 2px 4px var(--shadow-light);
 }
 
-.nav-link {
-  background-color: var(--navbar-bg);
-  border-radius: 10px;
-  border: 1px solid var(--navbar-border);
-  margin: 30px 0;
-  padding: 40px;
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
 
-  color: var(--navbar-text);
-  font-family: Arial, sans-serif;
-  font-size: 1.0em;
-  padding: 10px;
-  font-size: 18px;
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+// Hamburger Button
+.hamburger-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  border-radius: 5px;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: var(--bg-secondary);
+  }
+  
+  .hamburger-icon {
+    font-size: 24px;
+  }
+}
+
+// Logo
+.navbar-logo {
+  font-size: 1.3em;
+  font-weight: bold;
+  color: var(--text-heading);
   text-decoration: none;
-  text-transform: uppercase;
-
-  box-shadow: 0 0 5px var(--shadow-color);
+  font-family: Arial, sans-serif;
   
   &:hover {
     opacity: 0.8;
-    cursor: pointer;
   }
 }
 
-.theme-toggle {
-  font-size: 24px;
+// Theme Toggle Button
+.theme-toggle-button {
+  background: none;
+  border: 1px solid var(--border-primary);
   cursor: pointer;
-  padding: 8px 15px;
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 20px;
+  transition: all 0.2s ease;
   
   &:hover {
-    transform: scale(1.1);
+    background-color: var(--bg-secondary);
+    transform: scale(1.05);
+  }
+}
+
+// User Menu
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border-primary);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: var(--bg-secondary);
+  }
+  
+  .user-name {
+    font-family: Arial, sans-serif;
+    font-size: 0.95em;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+}
+
+// Drawer Overlay
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  
+  &.overlay-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+// Side Drawer
+.drawer {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 280px;
+  height: 100vh;
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-primary);
+  z-index: 300;
+  transition: left 0.3s ease;
+  overflow-y: auto;
+  box-shadow: 2px 0 8px var(--shadow-light);
+  
+  &.drawer-open {
+    left: 0;
+  }
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid var(--border-primary);
+  
+  .drawer-title {
+    font-family: Arial, sans-serif;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--text-heading);
+    margin: 0;
+  }
+  
+  .drawer-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--text-secondary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+  }
+}
+
+.drawer-nav {
+  padding: 10px 0;
+}
+
+.drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-family: Arial, sans-serif;
+  font-size: 1em;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  
+  &:hover:not(.drawer-link-disabled) {
+    background-color: var(--bg-tertiary);
+  }
+  
+  &:visited {
+    color: var(--text-primary);
+  }
+  
+  .drawer-icon {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+  }
+  
+  &.drawer-link-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    
+    .coming-soon {
+      margin-left: auto;
+      font-size: 0.75em;
+      background-color: var(--difficulty-medium-bg);
+      color: var(--difficulty-medium-text);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+  }
+  
+  &.drawer-link-danger {
+    color: var(--status-wrong);
+    
+    &:hover {
+      background-color: var(--flash-alert-bg);
+    }
+  }
+}
+
+.drawer-divider {
+  height: 1px;
+  background-color: var(--border-primary);
+  margin: 10px 20px;
+}
+
+// Mobile adjustments (if needed)
+@media (max-width: 768px) {
+  .navbar-logo {
+    font-size: 1.1em;
+  }
+  
+  .user-menu {
+    .user-name {
+      display: none; // Hide username on very small screens
+    }
   }
 }

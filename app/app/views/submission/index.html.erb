@@ -1,39 +1,41 @@
-<div class="submission-header">
-  <h1 class="submission-title">Submissions</h1>
-</div>
-<table class="submissions-table">
-  <thead>
-    <tr class="submissions-header">
-      <th>Date</th>
-      <th>User</th>
-      <th>Submission ID</th>
-      <th>Problem</th>
-      <th>Language</th>
-      <th>Execution Time</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% (@submissions || []).order(created_at: :desc).limit(50).each_with_index do |submission, i| %>
-      <tr class="submission-row-<%= i % 2 == 0 ? 'even' : 'odd' %>">
-        <td class="submission-centered-cell"><%= submission.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
-        <td class="submission-centered-cell">
-          <%= link_to submission.user.alias, user_path(alias: submission.user.alias) %>
-        </td>
-        <td class="submission-centered-cell"><%= submission.id %></td>
-        <td class="submission-centered-cell">
-          <a href="/problems/<%= submission.problem.id %>">
-            <%= submission.problem.title %>
-          </a>
-        </td>
-        <td class="submission-centered-cell"><%= submission.programming_language.name.capitalize %></td>
-        <td class="submission-centered-cell"><%= submission.time_used ? "#{submission.time_used.round(3)} sec" : '' %></td>
-        <td class="submission-centered-cell submission-cell-uppercase">
-          <a class="submission-status-<%= submission.status.downcase.gsub(/\s+.example.+/, '').gsub(/\s/, '-') %>">
-            <%= submission.status %>
-          </a>
-        </td>
+<div class="page-container">
+  <div class="submission-header">
+    <h1 class="submission-title">Submissions</h1>
+  </div>
+  <table class="submissions-table">
+    <thead>
+      <tr class="submissions-header">
+        <th>Date</th>
+        <th>User</th>
+        <th>Submission ID</th>
+        <th>Problem</th>
+        <th>Language</th>
+        <th>Execution Time</th>
+        <th>Status</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% (@submissions || []).order(created_at: :desc).limit(50).each_with_index do |submission, i| %>
+        <tr class="submission-row-<%= i % 2 == 0 ? 'even' : 'odd' %>">
+          <td class="submission-centered-cell"><%= submission.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+          <td class="submission-centered-cell">
+            <%= link_to submission.user.alias, user_path(alias: submission.user.alias) %>
+          </td>
+          <td class="submission-centered-cell"><%= submission.id %></td>
+          <td class="submission-centered-cell">
+            <a href="/problems/<%= submission.problem.id %>">
+              <%= submission.problem.title %>
+            </a>
+          </td>
+          <td class="submission-centered-cell"><%= submission.programming_language.name.capitalize %></td>
+          <td class="submission-centered-cell"><%= submission.time_used ? "#{submission.time_used.round(3)} sec" : '' %></td>
+          <td class="submission-centered-cell submission-cell-uppercase">
+            <a class="submission-status-<%= submission.status.downcase.gsub(/\s+.example.+/, '').gsub(/\s/, '-') %>">
+              <%= submission.status %>
+            </a>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -1,41 +1,167 @@
 <div class="page-container">
-  <div class="submission-header">
-    <h1 class="submission-title">Submissions</h1>
+  <!-- Header with title and filter toggle -->
+  <div class="submissions-header-section">
+    <h1 class="submissions-page-title">Submissions</h1>
+    <button class="filter-toggle-btn" data-controller="submission-filters" data-action="click->submission-filters#toggle">
+      🔍 Filters
+    </button>
   </div>
-  <table class="submissions-table">
-    <thead>
-      <tr class="submissions-header">
-        <th>Date</th>
-        <th>User</th>
-        <th>Submission ID</th>
-        <th>Problem</th>
-        <th>Language</th>
-        <th>Execution Time</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% (@submissions || []).order(created_at: :desc).limit(50).each_with_index do |submission, i| %>
-        <tr class="submission-row-<%= i % 2 == 0 ? 'even' : 'odd' %>">
-          <td class="submission-centered-cell"><%= submission.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
-          <td class="submission-centered-cell">
-            <%= link_to submission.user.alias, user_path(alias: submission.user.alias) %>
-          </td>
-          <td class="submission-centered-cell"><%= submission.id %></td>
-          <td class="submission-centered-cell">
-            <a href="/problems/<%= submission.problem.id %>">
-              <%= submission.problem.title %>
-            </a>
-          </td>
-          <td class="submission-centered-cell"><%= submission.programming_language.name.capitalize %></td>
-          <td class="submission-centered-cell"><%= submission.time_used ? "#{submission.time_used.round(3)} sec" : '' %></td>
-          <td class="submission-centered-cell submission-cell-uppercase">
-            <a class="submission-status-<%= submission.status.downcase.gsub(/\s+.example.+/, '').gsub(/\s/, '-') %>">
-              <%= submission.status %>
-            </a>
-          </td>
+
+  <!-- Filters Section (collapsible) -->
+  <div class="submissions-filters" data-submission-filters-target="panel" style="display: none;">
+    <%= form_with url: submission_path, method: :get, class: "filter-form", data: { turbo: false } do |f| %>
+      <div class="filter-grid">
+        <!-- Status Filter -->
+        <div class="filter-item">
+          <label>Status</label>
+          <%= select_tag :status, 
+              options_for_select([['All', 'all']] + @statuses.map { |s| [s.titleize, s] }, params[:status] || 'all'),
+              class: 'filter-select' %>
+        </div>
+
+        <!-- Language Filter -->
+        <div class="filter-item">
+          <label>Language</label>
+          <%= select_tag :language,
+              options_for_select([['All', 'all']] + @all_languages.map { |l| [l.name, l.id] }, params[:language] || 'all'),
+              class: 'filter-select' %>
+        </div>
+
+        <!-- Problem Filter -->
+        <div class="filter-item">
+          <label>Problem</label>
+          <%= select_tag :problem,
+              options_for_select([['All', 'all']] + @all_problems.map { |p| ["#{p.id}. #{p.title}", p.id] }, params[:problem] || 'all'),
+              class: 'filter-select' %>
+        </div>
+
+        <!-- My Submissions Toggle -->
+        <% if current_user %>
+          <div class="filter-item">
+            <label>
+              <%= check_box_tag :my_submissions, 'true', params[:my_submissions] == 'true', class: 'filter-checkbox' %>
+              <span class="checkbox-label">My submissions only</span>
+            </label>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="filter-actions">
+        <%= submit_tag "Apply Filters", class: "btn-primary" %>
+        <%= link_to "Clear All", submission_path, class: "btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Results Info -->
+  <div class="submissions-info">
+    Showing <%= @submissions.count %> of <%= @total_count %> submissions
+    <% if params[:status].present? || params[:language].present? || params[:problem].present? || params[:my_submissions] == 'true' %>
+      <span class="filtered-indicator">(filtered)</span>
+    <% end %>
+  </div>
+
+  <!-- Submissions Table -->
+  <div class="submissions-table-container">
+    <table class="submissions-table-modern">
+      <thead>
+        <tr>
+          <th class="col-time">Submitted</th>
+          <th class="col-user">User</th>
+          <th class="col-problem">Problem</th>
+          <th class="col-status">Status</th>
+          <th class="col-language">Language</th>
+          <th class="col-runtime">Runtime</th>
         </tr>
+      </thead>
+      <tbody>
+        <% if @submissions.any? %>
+          <% @submissions.each do |submission| %>
+            <tr class="submission-row <%= 'recent' if submission.created_at > 1.minute.ago %>"
+                onclick="window.location='<%= submission_detail_path(submission) %>'"
+                data-controller="submission-status"
+                data-submission-status-id-value="<%= submission.id %>"
+                data-submission-status-current-value="<%= submission.status %>">
+              
+              <!-- Time -->
+              <td class="col-time">
+                <div class="time-display">
+                  <div class="relative-time"><%= time_ago_in_words(submission.created_at) %> ago</div>
+                  <div class="absolute-time"><%= submission.created_at.strftime("%b %d, %H:%M") %></div>
+                </div>
+              </td>
+
+              <!-- User -->
+              <td class="col-user">
+                <%= link_to submission.user.alias, user_path(alias: submission.user.alias), class: "user-link" %>
+              </td>
+
+              <!-- Problem -->
+              <td class="col-problem">
+                <%= link_to problem_path(submission.problem) do %>
+                  <span class="problem-id">#<%= submission.problem.id %></span>
+                  <span class="problem-title"><%= submission.problem.title %></span>
+                <% end %>
+              </td>
+
+              <!-- Status with icon -->
+              <td class="col-status">
+                <span class="status-badge status-<%= submission.status.downcase.gsub(/\s+/, '-').gsub(/\(.*\)/, '').strip %>">
+                  <%= status_icon(submission.status) %>
+                  <span><%= submission.status.upcase %></span>
+                </span>
+              </td>
+
+              <!-- Language -->
+              <td class="col-language">
+                <span class="language-badge"><%= submission.programming_language.name %></span>
+              </td>
+
+              <!-- Runtime -->
+              <td class="col-runtime">
+                <% if submission.time_used %>
+                  <span class="runtime-value"><%= (submission.time_used * 1000).round %> ms</span>
+                <% else %>
+                  <span class="runtime-empty">—</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="6" class="no-submissions">
+              <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <div class="empty-message">No submissions found</div>
+                <% if params[:status].present? || params[:language].present? || params[:problem].present? %>
+                  <div class="empty-hint">Try adjusting your filters</div>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <% if @total_pages > 1 %>
+    <div class="pagination">
+      <% if @page > 1 %>
+        <%= link_to "← Previous", submission_path(params.permit(:status, :language, :problem, :my_submissions).merge(page: @page - 1)), class: "pagination-btn" %>
+      <% else %>
+        <span class="pagination-btn disabled">← Previous</span>
       <% end %>
-    </tbody>
-  </table>
+
+      <div class="pagination-info">
+        Page <%= @page %> of <%= @total_pages %>
+      </div>
+
+      <% if @page < @total_pages %>
+        <%= link_to "Next →", submission_path(params.permit(:status, :language, :problem, :my_submissions).merge(page: @page + 1)), class: "pagination-btn" %>
+      <% else %>
+        <span class="pagination-btn disabled">Next →</span>
+      <% end %>
+    </div>
+  <% end %>
 </div>

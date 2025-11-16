@@ -3,84 +3,86 @@
   font-size: 1.2em;
   padding: 10px;
   a:visited {
-    color: #A00000;
+    color: var(--text-link-visited);
   }
-  text-transform: uppercase; // All capitals
+  text-transform: uppercase;
 }
 
 .problem-title {
   font-family: Arial, sans-serif;
   font-weight: bold;
-  font-size: 2em; // Equivalent to H1 size, which is typically around 2em or 32px in most browsers
+  font-size: 2em;
   text-align: center;
-  color: #000090; // Very dark blue (Navy)
+  color: var(--text-heading);
   padding: 10px;
 }
 
 .problem-box {
   padding: 20px;
   margin: 20px 0;
-  border: 1px solid #d3d3d3; // Light gray border
-  border-radius: 10px; // Rounded corners
+  border: 1px solid var(--border-primary);
+  border-radius: 10px;
+  background-color: var(--bg-primary);
 }
 
 .problem-name {
   font-family: Arial, sans-serif;
-  font-size: 1.0em; // Equivalent to H1 size, which is typically around 2em or 32px in most browsers
-  color: #000000; // Very dark blue (Navy)
+  font-size: 1.0em;
+  color: var(--text-primary);
 }
 
 .problem-description {
   font-family: Arial, sans-serif;
   font-size: 1.9em;
-  color: #000090;
+  color: var(--text-heading);
 }
 
 .problem-description-text {
   font-size: 1.4em;
-  color: #000000;
+  color: var(--text-primary);
 }
 
 .problem-examples {
   font-family: Arial, sans-serif;
   font-size: 1.9em;
-  color: #000090;
+  color: var(--text-heading);
 }
 
 .problem-single-example {
   font-family: Arial, sans-serif;
   font-size: 1.5em;
-  color: #000090;
+  color: var(--text-heading);
 }
 
 .problem-example-box {
   padding: 20px;
   margin: 20px 0;
-  border: 1px solid #d3d3d3; // Light gray border
+  border: 1px solid var(--border-primary);
+  background-color: var(--bg-primary);
 }
 
 .problem-title-box {
   padding: 20px;
   margin: 20px 0;
-  border: 1px solid #d3d3d3; // Light gray border
-  background-color: #f0faff; // Light gray background
-  border-radius: 10px; // Rounded corners
+  border: 1px solid var(--border-primary);
+  background-color: var(--bg-accent);
+  border-radius: 10px;
 }
 
 .problem-constraints {
   font-family: Arial, sans-serif;
   font-size: 1.9em;
   font-weight: bold;
-  color: #000090;
+  color: var(--text-heading);
 }
 
 .pre-with-numbers {
   font-family: monospace;
-  background-color: #f0f0f0; // Light gray background
+  background-color: var(--code-bg);
   padding: 18px;
   overflow: auto;
-  counter-reset: line; // Reset the line counter
-  font-size: 1.3em; // Increase the font size as needed
+  counter-reset: line;
+  font-size: 1.3em;
 
   code {
     display: block;
@@ -90,14 +92,14 @@
 
       &::before {
         counter-increment: line;
-        content: counter(line); // Display the line number
+        content: counter(line);
         display: inline-block;
-        width: 2em; // Adjust for consistent spacing
+        width: 2em;
         margin-right: 1em;
         padding-right: 1em;
         text-align: right;
-        color: #999; // Line number color
-        border-right: 1px solid #ddd; // Divider between line numbers and code
+        color: var(--code-line-number);
+        border-right: 1px solid var(--code-border);
       }
     }
   }
@@ -105,16 +107,16 @@
 
 .problem-list-title {
   a:visited {
-    color: #000000;
+    color: var(--text-primary);
     underline: none;
   }
   padding: 20px;
   font-family: Arial, sans-serif;
   font-size: 1.9em;
-  color: #000090;
-  background-color: #efefef;
+  color: var(--text-heading);
+  background-color: var(--bg-tertiary);
   border-radius: 10px;
-  border: 1px solid #d3d3d3;
+  border: 1px solid var(--border-primary);
   font-weight: bold;
   text-align: center;
 }
@@ -122,20 +124,21 @@
 .problem-list-box {
   padding: 20px;
   margin: 20px 0;
-  border: 1px solid #d3d3d3; // Light gray border
-  border-radius: 10px; // Rounded corners
+  border: 1px solid var(--border-primary);
+  border-radius: 10px;
+  background-color: var(--bg-primary);
 }
 
 .problem-each-title {
   font-family: Arial, sans-serif;
-  color: #000000;
+  color: var(--text-link);
   padding: 10px;
 }
 
 .problem-each {
   font-family: Arial, sans-serif;
   font-size: 18px;
-  color: #000000;
+  color: var(--text-primary);
   padding: 10px;
   text-align: center;
 }
@@ -143,7 +146,7 @@
 .problem-limits {
   font-family: monospace;
   font-size: 1em;
-  color: #900000;
+  color: var(--limits-text);
   text-align: center;
   padding: 10px;
 }
@@ -151,9 +154,9 @@
 .submission-form-box {
   padding: 5px;
   margin: 20px 0;
-  border: 1px solid #d3d3d3; // Light gray border
-  border-radius: 10px; // Rounded corners
-  background-color: #f0f0f0; // Light gray background
+  border: 1px solid var(--border-primary);
+  border-radius: 10px;
+  background-color: var(--bg-secondary);
   text-align: center;
   font-family: Arial, sans-serif;
 }
@@ -161,7 +164,7 @@
 .submission-title {
   font-family: Arial, sans-serif;
   font-size: 0.9em;
-  color: #000090;
+  color: var(--text-heading);
   padding: 5px;
   font-weight: bold;
 }
@@ -169,7 +172,7 @@
 .submission-language {
   font-family: Arial, sans-serif;
   font-size: 1.0em;
-  color: #000000;
+  color: var(--text-primary);
   padding: 10px;
 }
 
@@ -180,17 +183,17 @@
   font-size: 14px;
   text-align: center;
   font-weight: bold;
-  text-transform: uppercase; // All capitals
+  text-transform: uppercase;
 }
 .flash.notice {
   font-face: Arial, sans-serif;
-  background-color: #d4edda;
-  color: #155724;
+  background-color: var(--flash-notice-bg);
+  color: var(--flash-notice-text);
   text-align: center;
 }
 .flash.alert {
   font-face: Arial, sans-serif;
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: var(--flash-alert-bg);
+  color: var(--flash-alert-text);
   text-align: center;
 }

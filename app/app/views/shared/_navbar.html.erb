@@ -1,24 +1,35 @@
 <!-- Navigation Bar -->
-<table class="navbar-box">
-  <tr>
-    <td>
-      <% # link_to "Home", root_path, class: "nav-link" %>
-    </td>
-    <td>
-      <%= link_to "All Problems", problems_path, class: "nav-link" %>
-    </td>
-    <td>
-      <%= link_to "Submissions", submission_path, class: "nav-link" %>
-    </td>
-    <td>
-        <% # link_to "Contest", leaderboard_path, class: "nav-link" %>
-    </td>
-    <td>
-      <%= link_to "User Profile", user_path(alias: current_user.alias), class: "nav-link" %>
-    </td>
-    <td>
-        <%= link_to "Sign Out", destroy_user_session_path, data: { "turbo-method": :delete }, class: "nav-link" %>
-    </td>
-  </tr>
-</table>
+<div data-controller="theme">
+  <table class="navbar-box">
+    <tr>
+      <td>
+        <% # link_to "Home", root_path, class: "nav-link" %>
+      </td>
+      <td>
+        <%= link_to "All Problems", problems_path, class: "nav-link" %>
+      </td>
+      <td>
+        <%= link_to "Submissions", submission_path, class: "nav-link" %>
+      </td>
+      <td>
+          <% # link_to "Contest", leaderboard_path, class: "nav-link" %>
+      </td>
+      <td>
+        <%= link_to "User Profile", user_path(alias: current_user.alias), class: "nav-link" %>
+      </td>
+      <td>
+        <button 
+          class="nav-link theme-toggle" 
+          data-action="click->theme#toggle"
+          data-theme-target="icon"
+          title="Toggle theme">
+          🌙
+        </button>
+      </td>
+      <td>
+          <%= link_to "Sign Out", destroy_user_session_path, data: { "turbo-method": :delete }, class: "nav-link" %>
+      </td>
+    </tr>
+  </table>
+</div>
 

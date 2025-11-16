@@ -1,0 +1,156 @@
+// CSS Variables for Theme Support
+// This file defines all colors used in the application to support light/dark themes
+
+:root {
+  // ===== Light Theme (Default) =====
+  
+  // Background colors
+  --bg-primary: #ffffff;
+  --bg-secondary: #f0f0f0;
+  --bg-tertiary: #efefef;
+  --bg-accent: #f0faff;
+  --bg-table-even: #e0f0f0;
+  --bg-table-odd: #c0e0e0;
+  --bg-table-header: #c0e0f0;
+  
+  // Text colors
+  --text-primary: #000000;
+  --text-secondary: #303030;
+  --text-heading: #000090;
+  --text-link: #000000;
+  --text-link-visited: #A00000;
+  --text-muted: #999999;
+  
+  // Border colors
+  --border-primary: #d3d3d3;
+  --border-secondary: #ddd;
+  --border-dark: #000000;
+  
+  // Component-specific colors
+  --navbar-bg: #c0c0c0;
+  --navbar-text: #000000;
+  --navbar-border: #000000;
+  
+  // Difficulty badges (light mode)
+  --difficulty-easy-bg: #00ff90;
+  --difficulty-easy-text: #006400;
+  --difficulty-medium-bg: #fff000;
+  --difficulty-medium-text: #b38600;
+  --difficulty-hard-bg: #ff5000;
+  --difficulty-hard-text: #800000;
+  
+  // Problem tags
+  --tag-bg: #00e0ff;
+  --tag-text: #000000;
+  
+  // Submission status colors
+  --status-queued: #000090;
+  --status-running: #000000;
+  --status-accepted: #009020;
+  --status-wrong: #c00000;
+  --status-tle: #900090;
+  --status-presentation: #3030a0;
+  
+  // Problem limits
+  --limits-text: #900000;
+  
+  // User profile colors
+  --profile-name: #003366;
+  
+  // Flash messages
+  --flash-notice-bg: #d4edda;
+  --flash-notice-text: #155724;
+  --flash-alert-bg: #f8d7da;
+  --flash-alert-text: #721c24;
+  
+  // Shadow
+  --shadow-light: rgba(48, 48, 48, 0.3);
+  --shadow-color: #303030;
+  
+  // Code/Pre background
+  --code-bg: #f0f0f0;
+  --code-border: #ddd;
+  --code-line-number: #999;
+}
+
+// ===== Dark Theme =====
+[data-theme="dark"] {
+  // Background colors
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #242424;
+  --bg-tertiary: #2a2a2a;
+  --bg-accent: #1e2a35;
+  --bg-table-even: #252e35;
+  --bg-table-odd: #1e2830;
+  --bg-table-header: #2a3844;
+  
+  // Text colors
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-heading: #6ba3ff;
+  --text-link: #7db8ff;
+  --text-link-visited: #ff6b9d;
+  --text-muted: #707070;
+  
+  // Border colors
+  --border-primary: #404040;
+  --border-secondary: #505050;
+  --border-dark: #606060;
+  
+  // Component-specific colors
+  --navbar-bg: #2a2a2a;
+  --navbar-text: #e0e0e0;
+  --navbar-border: #505050;
+  
+  // Difficulty badges (dark mode - slightly muted for better contrast)
+  --difficulty-easy-bg: #00cc75;
+  --difficulty-easy-text: #00ff90;
+  --difficulty-medium-bg: #d4c000;
+  --difficulty-medium-text: #ffeb3b;
+  --difficulty-hard-bg: #d84315;
+  --difficulty-hard-text: #ff8a65;
+  
+  // Problem tags
+  --tag-bg: #00a8cc;
+  --tag-text: #e0f7ff;
+  
+  // Submission status colors (adjusted for dark mode)
+  --status-queued: #6ba3ff;
+  --status-running: #b0b0b0;
+  --status-accepted: #4caf50;
+  --status-wrong: #ef5350;
+  --status-tle: #ba68c8;
+  --status-presentation: #7986cb;
+  
+  // Problem limits
+  --limits-text: #ff6b6b;
+  
+  // User profile colors
+  --profile-name: #64b5f6;
+  
+  // Flash messages
+  --flash-notice-bg: #1b5e20;
+  --flash-notice-text: #a5d6a7;
+  --flash-alert-bg: #b71c1c;
+  --flash-alert-text: #ef9a9a;
+  
+  // Shadow
+  --shadow-light: rgba(0, 0, 0, 0.5);
+  --shadow-color: #000000;
+  
+  // Code/Pre background
+  --code-bg: #2a2a2a;
+  --code-border: #404040;
+  --code-line-number: #707070;
+}
+
+// ===== Theme Transition =====
+// Smooth transition when switching themes
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+// Disable transitions on page load to prevent flash
+.preload * {
+  transition: none !important;
+}

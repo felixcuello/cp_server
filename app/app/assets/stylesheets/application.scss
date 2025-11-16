@@ -12,6 +12,7 @@
  *
  */
 
+@import "variables";
 @import "base";
 @import "navbar";
 @import "problem_difficulty";
@@ -19,3 +20,4 @@
 @import "problems";
 @import "submissions";
 @import "users";
+@import "devise";

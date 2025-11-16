@@ -14,6 +14,11 @@ gem "sass-rails", "~> 6.0"
 gem "turbo-rails"
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
+# Markdown and LaTeX support
+gem "kramdown", "~> 2.4"
+gem "kramdown-parser-gfm", "~> 1.1" # GitHub Flavored Markdown parser
+gem "rouge", "~> 4.2" # Syntax highlighting for code blocks
+
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 

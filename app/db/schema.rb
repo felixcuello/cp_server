@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_22_005411) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_16_000002) do
   create_table "constraints", charset: "utf8", force: :cascade do |t|
     t.bigint "problem_id", null: false
     t.text "description", null: false
@@ -44,6 +44,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_22_005411) do
     t.integer "time_limit_sec", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "total_submissions", default: 0, null: false
+    t.integer "accepted_submissions", default: 0, null: false
+    t.index ["accepted_submissions"], name: "index_problems_on_accepted_submissions"
+    t.index ["total_submissions"], name: "index_problems_on_total_submissions"
   end
 
   create_table "programming_languages", charset: "utf8", force: :cascade do |t|
@@ -80,6 +84,20 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_22_005411) do
     t.string "name", null: false
   end
 
+  create_table "user_problem_statuses", charset: "utf8", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "problem_id", null: false
+    t.string "status", null: false
+    t.datetime "first_solved_at"
+    t.integer "attempts", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["problem_id"], name: "index_user_problem_statuses_on_problem_id"
+    t.index ["status"], name: "index_user_problem_statuses_on_status"
+    t.index ["user_id", "problem_id"], name: "index_user_problem_statuses_on_user_id_and_problem_id", unique: true
+    t.index ["user_id"], name: "index_user_problem_statuses_on_user_id"
+  end
+
   create_table "users", charset: "utf8", force: :cascade do |t|
     t.string "alias", null: false
     t.string "first_name", null: false
@@ -108,4 +126,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_22_005411) do
   add_foreign_key "submissions", "problems"
   add_foreign_key "submissions", "programming_languages"
   add_foreign_key "submissions", "users"
+  add_foreign_key "user_problem_statuses", "problems"
+  add_foreign_key "user_problem_statuses", "users"
 end

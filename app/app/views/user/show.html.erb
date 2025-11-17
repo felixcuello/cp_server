@@ -100,25 +100,33 @@
     </div>
   </div>
 
-  <!-- Bottom Grid: Recent AC + Languages -->
+  <!-- Bottom Grid: Recent Submissions + Languages -->
   <div class="profile-bottom-grid">
     
     <!-- Recent Submissions -->
     <div class="profile-section">
       <div class="section-tabs">
-        <button class="tab-button active">Recent AC</button>
+        <button class="tab-button active">Recent Submissions</button>
       </div>
       
-      <div class="recent-ac-list">
+      <div class="recent-submissions-list">
         <% if @recent_submissions.any? %>
-          <% @recent_submissions.select { |s| s.status == 'accepted' }.first(5).each do |submission| %>
-            <div class="ac-item" onclick="window.location='<%= submission_detail_path(submission) %>'">
-              <div class="ac-problem"><%= submission.problem.title %></div>
-              <div class="ac-time"><%= time_ago_in_words(submission.created_at) %> ago</div>
+          <% @recent_submissions.first(5).each do |submission| %>
+            <div class="submission-item" onclick="window.location='<%= submission_detail_path(submission) %>'">
+              <div class="submission-info">
+                <div class="submission-problem"><%= submission.problem.title %></div>
+                <div class="submission-time"><%= time_ago_in_words(submission.created_at) %> ago</div>
+              </div>
+              <div class="submission-status <%= submission.status %>">
+                <%= submission.status.titleize %>
+              </div>
             </div>
           <% end %>
+          <a href="/submissions" class="more-submissions-link">
+            more submissions →
+          </a>
         <% else %>
-          <p class="empty-state-small">No accepted submissions yet</p>
+          <p class="empty-state-small">No submissions yet</p>
         <% end %>
       </div>
     </div>

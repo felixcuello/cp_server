@@ -181,11 +181,32 @@ export default class extends Controller {
       ${formattedDate}
     `
     
-    // Position tooltip
-    const rect = cell.getBoundingClientRect()
-    tooltip.style.left = `${rect.left + window.scrollX - 50}px`
-    tooltip.style.top = `${rect.top + window.scrollY - 60}px`
+    // Show tooltip first to get its dimensions
     tooltip.classList.add('visible')
+    
+    // Position tooltip relative to the cell
+    const cellRect = cell.getBoundingClientRect()
+    const tooltipRect = tooltip.getBoundingClientRect()
+    
+    // Center horizontally above the cell
+    let left = cellRect.left + (cellRect.width / 2) - (tooltipRect.width / 2)
+    let top = cellRect.top - tooltipRect.height - 8
+    
+    // Keep tooltip within viewport bounds
+    const padding = 10
+    if (left < padding) {
+      left = padding
+    } else if (left + tooltipRect.width > window.innerWidth - padding) {
+      left = window.innerWidth - tooltipRect.width - padding
+    }
+    
+    // If tooltip would go above viewport, show below instead
+    if (top < padding) {
+      top = cellRect.bottom + 8
+    }
+    
+    tooltip.style.left = `${left}px`
+    tooltip.style.top = `${top}px`
   }
   
   hideTooltip() {

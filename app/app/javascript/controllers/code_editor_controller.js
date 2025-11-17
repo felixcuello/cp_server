@@ -234,21 +234,47 @@ export default class extends Controller {
         'X-CSRF-Token': this.getCSRFToken()
       }
     })
-    .then(response => {
-      if (response.ok) {
-        alert('Submission successful!')
-        // Clear localStorage after successful submission
-        this.clearLocalStorage()
-        // Reload to see updated submission status
-        window.location.reload()
-      } else {
-        alert('Submission failed. Please try again.')
-      }
+    .then(response => response.json())
+    .then(data => {
+      // Clear localStorage after successful submission
+      this.clearLocalStorage()
+      
+      // Show modal instead of alert
+      this.showSubmissionModal({
+        success: data.success !== false,
+        status: data.status || 'queued',
+        submissionId: data.submission_id
+      })
     })
     .catch(error => {
       console.error('Error:', error)
-      alert('Submission failed. Please try again.')
+      // Show error modal
+      this.showSubmissionModal({
+        success: false,
+        status: 'Submission failed. Please try again.'
+      })
     })
+  }
+  
+  showSubmissionModal(data) {
+    // Find the submission modal controller
+    const modalController = this.application.getControllerForElementAndIdentifier(
+      document.querySelector('[data-controller~="submission-modal"]'),
+      'submission-modal'
+    )
+    
+    if (modalController) {
+      modalController.show(data)
+    } else {
+      console.error('Submission modal controller not found')
+      // Fallback to alert
+      if (data.success) {
+        alert('Submission successful!')
+        window.location.reload()
+      } else {
+        alert(data.status)
+      }
+    }
   }
   
   resetCode(event) {

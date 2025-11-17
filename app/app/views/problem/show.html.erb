@@ -1,5 +1,42 @@
 <div class="page-container">
-  <div class="problem-detail-container">
+  <div class="problem-detail-container" data-controller="submission-modal" data-submission-modal-problem-id-value="<%= @problem.id %>">
+    
+    <!-- Submission Modal -->
+    <div class="submission-modal-backdrop" 
+         data-submission-modal-target="modal" 
+         data-action="click->submission-modal#closeOnBackdrop"
+         tabindex="-1">
+      <div class="submission-modal">
+        <button class="modal-close-btn" data-action="click->submission-modal#close">
+          ×
+        </button>
+        
+        <div class="modal-icon-container">
+          <div class="modal-icon" data-submission-modal-target="icon">✓</div>
+        </div>
+        
+        <h2 class="modal-title" data-submission-modal-target="title">Success!</h2>
+        <p class="modal-message" data-submission-modal-target="message">Your solution passed all test cases!</p>
+        
+        <div class="modal-actions">
+          <button class="modal-btn modal-btn-secondary" 
+                  data-submission-modal-target="tryAgainBtn"
+                  data-action="click->submission-modal#tryAgain">
+            Try Again
+          </button>
+          <button class="modal-btn modal-btn-primary" 
+                  data-submission-modal-target="viewSubmissionsBtn"
+                  data-action="click->submission-modal#viewSubmissions">
+            View Submissions
+          </button>
+        </div>
+        
+        <div class="modal-hint">
+          Press <kbd>ESC</kbd> to close or <kbd>Enter</kbd> to view submissions
+        </div>
+      </div>
+    </div>
+    
     <!-- Split View: Description | Code Editor -->
     <div class="problem-split-view">
       

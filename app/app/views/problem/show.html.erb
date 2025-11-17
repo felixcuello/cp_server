@@ -181,8 +181,11 @@
           <!-- Monaco Editor Container -->
           <div class="editor-container" data-code-editor-target="editor"></div>
           
-          <!-- Editor Footer with Submit Button -->
+          <!-- Editor Footer with Test and Submit Buttons -->
           <div class="editor-footer">
+            <button class="btn-test" data-action="click->code-editor#test">
+              ▶ Run Code
+            </button>
             <button class="btn-secondary" data-action="click->code-editor#clearLocalStorage">
               Reset Code
             </button>
@@ -190,6 +193,11 @@
               Submit Solution
             </button>
           </div>
+        </div>
+        
+        <!-- Test Results Section -->
+        <div class="test-results-container" data-code-editor-target="testResults" style="display: none;">
+          <!-- Results will be inserted here by JavaScript -->
         </div>
       </div>
       

@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="code-editor"
 export default class extends Controller {
-  static targets = ["editor", "languageSelect", "fileInput", "hiddenCode"]
+  static targets = ["editor", "languageSelect", "fileInput", "hiddenCode", "testResults"]
   static values = { 
     language: { type: String, default: "python" }
   }
@@ -65,6 +65,53 @@ export default class extends Controller {
     }
   }
   
+  async test(event) {
+    event.preventDefault()
+    
+    const code = this.editor.getValue()
+    if (!code.trim()) {
+      this.showTestResults({
+        success: false,
+        error: 'Please write some code before testing'
+      })
+      return
+    }
+    
+    // Show loading state
+    this.showTestResults({
+      loading: true
+    })
+    
+    // Create form data
+    const formData = new FormData()
+    formData.append('problem_id', this.data.get('problem-id'))
+    formData.append('programming_language_id', this.languageSelectTarget.value)
+    
+    // Create a blob from the code string
+    const blob = new Blob([code], { type: 'text/plain' })
+    formData.append('source_code', blob, 'solution.' + this.getFileExtension())
+    formData.append('authenticity_token', this.getCSRFToken())
+    
+    try {
+      const response = await fetch('/submissions/test', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRF-Token': this.getCSRFToken()
+        }
+      })
+      
+      const result = await response.json()
+      this.showTestResults(result)
+    } catch (error) {
+      console.error('Error:', error)
+      this.showTestResults({
+        success: false,
+        error: 'Failed to run tests. Please try again.'
+      })
+    }
+  }
+  
   submit(event) {
     event.preventDefault()
     
@@ -107,6 +154,91 @@ export default class extends Controller {
       console.error('Error:', error)
       alert('Submission failed. Please try again.')
     })
+  }
+  
+  showTestResults(result) {
+    if (!this.hasTestResultsTarget) return
+    
+    const container = this.testResultsTarget
+    
+    if (result.loading) {
+      container.innerHTML = `
+        <div class="test-results-loading">
+          <div class="spinner">⏱</div>
+          <div>Running test cases...</div>
+        </div>
+      `
+      container.style.display = 'block'
+      return
+    }
+    
+    if (!result.success) {
+      container.innerHTML = `
+        <div class="test-results-error">
+          <div class="error-icon">✗</div>
+          <div class="error-message">${result.error || 'An error occurred'}</div>
+        </div>
+      `
+      container.style.display = 'block'
+      return
+    }
+    
+    // Build results HTML
+    let html = `
+      <div class="test-results-header ${result.overall_status}">
+        <span class="status-icon">${result.overall_status === 'passed' ? '✓' : '✗'}</span>
+        <span class="status-text">${result.overall_status === 'passed' ? 'All tests passed!' : 'Some tests failed'}</span>
+      </div>
+      <div class="test-cases-list">
+    `
+    
+    result.test_results.forEach(test => {
+      const statusClass = test.status === 'passed' ? 'passed' : 'failed'
+      const statusIcon = test.status === 'passed' ? '✓' : '✗'
+      
+      html += `
+        <div class="test-case ${statusClass}">
+          <div class="test-case-header">
+            <span class="test-icon">${statusIcon}</span>
+            <span class="test-title">Example ${test.example_number}</span>
+            ${test.runtime ? `<span class="test-runtime">${test.runtime} ms</span>` : ''}
+          </div>
+          <div class="test-case-body">
+            <div class="test-section">
+              <div class="test-label">Input:</div>
+              <pre class="test-value">${this.escapeHtml(test.input)}</pre>
+            </div>
+            <div class="test-section">
+              <div class="test-label">Expected:</div>
+              <pre class="test-value">${this.escapeHtml(test.expected_output)}</pre>
+            </div>
+            <div class="test-section">
+              <div class="test-label">Your Output:</div>
+              <pre class="test-value ${test.status === 'passed' ? 'correct' : 'incorrect'}">${this.escapeHtml(test.actual_output || '(no output)')}</pre>
+            </div>
+            ${test.error_message ? `
+              <div class="test-error">
+                <strong>Error:</strong> ${test.error_message}
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `
+    })
+    
+    html += `</div>`
+    
+    container.innerHTML = html
+    container.style.display = 'block'
+    
+    // Scroll to results
+    container.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }
+  
+  escapeHtml(text) {
+    const div = document.createElement('div')
+    div.textContent = text
+    return div.innerHTML
   }
   
   getMonacoLanguage(lang) {

@@ -161,17 +161,17 @@
       </div>
       
       <!-- Right Pane: Code Editor -->
-      <div class="problem-editor-pane">
-        <div class="editor-section" 
-             data-controller="code-editor" 
-             data-code-editor-problem-id-value="<%= @problem.id %>">
-          
+      <div class="problem-editor-pane" 
+           data-controller="code-editor" 
+           data-code-editor-problem-id-value="<%= @problem.id %>">
+        
+        <div class="editor-section">
           <!-- Editor Header -->
           <div class="editor-header">
             <span style="font-weight: 600; color: var(--text-heading);">Code</span>
             <select data-code-editor-target="languageSelect" data-action="change->code-editor#changeLanguage">
-              <% @languages.each do |language| %>
-                <option value="<%= language.id %>" data-lang="<%= language.name.downcase %>">
+              <% @languages.each_with_index do |language, index| %>
+                <option value="<%= language.id %>" data-lang="<%= language.name.downcase %>" <%= 'selected' if index == 0 %>>
                   <%= language.name %>
                 </option>
               <% end %>
@@ -195,7 +195,7 @@
           </div>
         </div>
         
-        <!-- Test Results Section -->
+        <!-- Test Results Section (inside controller scope) -->
         <div class="test-results-container" data-code-editor-target="testResults" style="display: none;">
           <!-- Results will be inserted here by JavaScript -->
         </div>
@@ -205,11 +205,24 @@
   </div>
 </div>
 
+<!-- Monaco Editor -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
 <script>
-  // Load Monaco Editor after page load
-  window.addEventListener('load', function() {
-    require(['vs/editor/editor.main'], function() {
-      console.log('Monaco Editor loaded');
+  // Configure and load Monaco Editor
+  if (typeof require !== 'undefined') {
+    require.config({ 
+      paths: { 
+        vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' 
+      }
     });
-  });
+    
+    // Make Monaco globally available
+    window.monacoLoaded = new Promise((resolve) => {
+      require(['vs/editor/editor.main'], function() {
+        console.log('Monaco Editor loaded successfully');
+        window.monacoReady = true;
+        resolve();
+      });
+    });
+  }
 </script>

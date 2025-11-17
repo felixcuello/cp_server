@@ -40,6 +40,8 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
+  overflow-y: auto;
+  max-height: 100%;
 }
 
 // Tabs
@@ -264,7 +266,7 @@
 
 // Code editor section
 .editor-section {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-secondary);
@@ -306,6 +308,7 @@
 .editor-container {
   flex: 1;
   min-height: 400px;
+  max-height: 500px;
   position: relative;
 }
 
@@ -370,11 +373,13 @@
 
 // Test Results Container
 .test-results-container {
+  flex: 0 0 auto;
   background-color: var(--bg-secondary);
   border-radius: 8px;
   border: 1px solid var(--border-primary);
   padding: 20px;
-  margin-top: 15px;
+  max-height: 600px;
+  overflow-y: auto;
 }
 
 .test-results-loading {
@@ -536,9 +541,14 @@
       border: 1px solid var(--status-wrong);
       border-radius: 5px;
       color: var(--text-primary);
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.9em;
       
       strong {
         color: var(--status-wrong);
+        font-family: Arial, sans-serif;
       }
     }
   }

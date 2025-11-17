@@ -4,12 +4,41 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["editor", "languageSelect", "fileInput", "hiddenCode", "testResults"]
   static values = { 
-    language: { type: String, default: "python" }
+    language: { type: String, default: "python" },
+    problemId: { type: Number }
   }
   
   connect() {
-    this.initializeEditor()
-    this.loadFromLocalStorage()
+    // Wait for Monaco to be loaded
+    if (typeof window.monacoLoaded !== 'undefined') {
+      window.monacoLoaded.then(() => {
+        this.initializeEditor()
+        this.loadFromLocalStorage()
+      });
+    } else {
+      // Fallback: try to initialize directly
+      this.waitForMonaco();
+    }
+  }
+  
+  waitForMonaco() {
+    // Check if Monaco is ready every 100ms, up to 5 seconds
+    let attempts = 0;
+    const maxAttempts = 50;
+    
+    const checkMonaco = () => {
+      if (typeof monaco !== 'undefined') {
+        this.initializeEditor()
+        this.loadFromLocalStorage()
+      } else if (attempts < maxAttempts) {
+        attempts++;
+        setTimeout(checkMonaco, 100);
+      } else {
+        console.error('Monaco Editor failed to load after 5 seconds');
+      }
+    };
+    
+    checkMonaco();
   }
   
   disconnect() {
@@ -68,8 +97,13 @@ export default class extends Controller {
   async test(event) {
     event.preventDefault()
     
+    console.log('Test button clicked!')
+    
     const code = this.editor.getValue()
+    console.log('Code length:', code.length)
+    
     if (!code.trim()) {
+      console.log('No code entered')
       this.showTestResults({
         success: false,
         error: 'Please write some code before testing'
@@ -78,19 +112,37 @@ export default class extends Controller {
     }
     
     // Show loading state
+    console.log('Showing loading state...')
     this.showTestResults({
       loading: true
     })
     
+    // Get language ID
+    const languageId = this.languageSelectTarget.value
+    console.log('Language select element:', this.languageSelectTarget)
+    console.log('Language ID from select:', languageId)
+    
+    if (!languageId) {
+      console.error('No language selected!')
+      this.showTestResults({
+        success: false,
+        error: 'Please select a programming language'
+      })
+      return
+    }
+    
     // Create form data
     const formData = new FormData()
-    formData.append('problem_id', this.data.get('problem-id'))
-    formData.append('programming_language_id', this.languageSelectTarget.value)
+    formData.append('problem_id', this.problemIdValue)
+    formData.append('programming_language_id', languageId)
     
     // Create a blob from the code string
     const blob = new Blob([code], { type: 'text/plain' })
     formData.append('source_code', blob, 'solution.' + this.getFileExtension())
-    formData.append('authenticity_token', this.getCSRFToken())
+    
+    console.log('Sending test request to /submissions/test')
+    console.log('Problem ID:', this.problemIdValue)
+    console.log('Language ID:', languageId)
     
     try {
       const response = await fetch('/submissions/test', {
@@ -101,13 +153,22 @@ export default class extends Controller {
         }
       })
       
+      console.log('Response status:', response.status)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Server error:', errorText)
+        throw new Error(`Server returned ${response.status}: ${errorText}`)
+      }
+      
       const result = await response.json()
+      console.log('Test results received:', result)
       this.showTestResults(result)
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error running tests:', error)
       this.showTestResults({
         success: false,
-        error: 'Failed to run tests. Please try again.'
+        error: `Failed to run tests: ${error.message}`
       })
     }
   }
@@ -123,7 +184,7 @@ export default class extends Controller {
     
     // Create form data
     const formData = new FormData()
-    formData.append('problem_id', this.data.get('problem-id'))
+    formData.append('problem_id', this.problemIdValue)
     formData.append('programming_language_id', this.languageSelectTarget.value)
     
     // Create a blob from the code string
@@ -157,7 +218,12 @@ export default class extends Controller {
   }
   
   showTestResults(result) {
-    if (!this.hasTestResultsTarget) return
+    console.log('showTestResults called with:', result)
+    
+    if (!this.hasTestResultsTarget) {
+      console.error('Test results target not found!')
+      return
+    }
     
     const container = this.testResultsTarget
     
@@ -290,14 +356,14 @@ export default class extends Controller {
   }
   
   saveToLocalStorage() {
-    const problemId = this.data.get('problem-id')
+    const problemId = this.problemIdValue
     const code = this.editor.getValue()
     localStorage.setItem(`problem_${problemId}_code`, code)
     localStorage.setItem(`problem_${problemId}_language`, this.languageValue)
   }
   
   loadFromLocalStorage() {
-    const problemId = this.data.get('problem-id')
+    const problemId = this.problemIdValue
     const savedCode = localStorage.getItem(`problem_${problemId}_code`)
     const savedLanguage = localStorage.getItem(`problem_${problemId}_language`)
     
@@ -314,7 +380,7 @@ export default class extends Controller {
   }
   
   clearLocalStorage() {
-    const problemId = this.data.get('problem-id')
+    const problemId = this.problemIdValue
     localStorage.removeItem(`problem_${problemId}_code`)
     localStorage.removeItem(`problem_${problemId}_language`)
   }

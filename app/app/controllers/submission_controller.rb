@@ -54,17 +54,25 @@ class SubmissionController < ApplicationController
   end
 
   def submit
-    if submission_successful?
+    submission = submission_successful?
+    if submission
       respond_to do |format|
         format.turbo_stream { flash.now[:notice] = "Your solution was submitted successfully!" }
         format.html { redirect_to problems_path, notice: "Your solution was submitted successfully!" }
-        format.json { render json: { success: true, message: "Submission successful" } }
+        format.json { 
+          render json: { 
+            success: true, 
+            message: "Submission successful",
+            submission_id: submission.id,
+            status: submission.status
+          } 
+        }
       end
     else
       respond_to do |format|
         format.turbo_stream { flash.now[:alert] = "There was an error submitting your solution." }
         format.html { redirect_to problems_path, alert: "There was an error submitting your solution." }
-        format.json { render json: { success: false, message: "Submission failed" }, status: :unprocessable_entity }
+        format.json { render json: { success: false, message: "Submission failed", status: "error" }, status: :unprocessable_entity }
       end
     end
 
@@ -106,9 +114,10 @@ class SubmissionController < ApplicationController
 
     SubmissionJob.perform_async(submission.id)
 
-    true
-  rescue StandardError
-    false
+    submission
+  rescue StandardError => e
+    Rails.logger.error("Submission failed: #{e.message}")
+    nil
   end
   
   def test_code

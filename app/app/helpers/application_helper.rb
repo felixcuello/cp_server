@@ -19,4 +19,45 @@ module ApplicationHelper
     
     Kramdown::Document.new(text, options).to_html.html_safe
   end
+  
+  # Status icons for submissions
+  def status_icon(status)
+    case status.downcase
+    when 'accepted'
+      '✓'
+    when 'wrong answer', /wrong answer/
+      '✗'
+    when 'running', 'queued', 'enqueued', 'compiling'
+      '⏱'
+    when 'time limit exceeded'
+      '⏱'
+    when 'memory limit exceeded'
+      '💾'
+    when 'compilation error'
+      '🔧'
+    when 'runtime error'
+      '⚠'
+    when 'presentation error'
+      '~'
+    else
+      '•'
+    end
+  end
+  
+  # Map language names to Prism.js class names
+  def language_class(language_name)
+    mapping = {
+      'Python' => 'python',
+      'Python3' => 'python',
+      'JavaScript' => 'javascript',
+      'Node.js' => 'javascript',
+      'Ruby' => 'ruby',
+      'C' => 'c',
+      'C++' => 'cpp',
+      'C++ 11' => 'cpp',
+      'Java' => 'java',
+      'Go' => 'go'
+    }
+    mapping[language_name] || 'text'
+  end
 end

@@ -1,0 +1,154 @@
+<div class="page-container">
+  <div class="submission-detail-container">
+    <!-- Header -->
+    <div class="submission-detail-header">
+      <div class="header-left">
+        <%= link_to "← Back to Submissions", submission_path, class: "back-link" %>
+        <h1>Submission #<%= @submission.id %></h1>
+      </div>
+      <div class="header-right">
+        <span class="status-badge-large status-<%= @submission.status.downcase.gsub(/\s+/, '-').gsub(/\(.*\)/, '').strip %>">
+          <%= status_icon(@submission.status) %>
+          <span><%= @submission.status.upcase %></span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Submission Info Cards -->
+    <div class="submission-info-grid">
+      <div class="info-card">
+        <div class="info-label">Problem</div>
+        <div class="info-value">
+          <%= link_to problem_path(@submission.problem) do %>
+            #<%= @submission.problem.id %>. <%= @submission.problem.title %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">User</div>
+        <div class="info-value">
+          <%= link_to @submission.user.alias, user_path(alias: @submission.user.alias) %>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">Language</div>
+        <div class="info-value">
+          <span class="language-badge"><%= @submission.programming_language.name %></span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">Runtime</div>
+        <div class="info-value">
+          <% if @submission.time_used %>
+            <span class="runtime-highlight"><%= ((@submission.time_used * 1000).round) %> ms</span>
+          <% else %>
+            <span class="text-muted">N/A</span>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">Submitted</div>
+        <div class="info-value">
+          <%= @submission.created_at.strftime("%B %d, %Y at %H:%M:%S") %>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">Time Ago</div>
+        <div class="info-value">
+          <%= time_ago_in_words(@submission.created_at) %> ago
+        </div>
+      </div>
+    </div>
+
+    <!-- Source Code Section -->
+    <div class="source-code-section">
+      <div class="section-header">
+        <h2>Source Code</h2>
+        <button class="copy-code-btn" 
+                data-controller="copy-button"
+                data-action="click->copy-button#copy">
+          📋 Copy Code
+        </button>
+      </div>
+      
+      <div class="code-container" data-copy-button-target="source">
+        <pre><code class="language-<%= language_class(@submission.programming_language.name) %>"><%= @submission.source_code %></code></pre>
+      </div>
+    </div>
+
+    <!-- Test Results Section (if available) -->
+    <% if @submission.status.include?("example") %>
+      <div class="test-results-section">
+        <h2>Test Results</h2>
+        <div class="test-result-card failed">
+          <div class="test-result-header">
+            <span class="test-icon">✗</span>
+            <span class="test-name">Failed on <%= @submission.status.match(/example (\d+)/)[0] %></span>
+          </div>
+          <div class="test-result-body">
+            <p class="test-message">Your solution failed on this test case. Check your logic and try again.</p>
+          </div>
+        </div>
+      </div>
+    <% elsif @submission.status == Submission::ACCEPTED %>
+      <div class="test-results-section">
+        <h2>Test Results</h2>
+        <div class="test-result-card passed">
+          <div class="test-result-header">
+            <span class="test-icon">✓</span>
+            <span class="test-name">All test cases passed!</span>
+          </div>
+          <div class="test-result-body">
+            <p class="test-message">Congratulations! Your solution passed all test cases.</p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Error Messages (if any) -->
+    <% if @submission.status.downcase.include?('error') %>
+      <div class="error-section">
+        <h2>Error Details</h2>
+        <div class="error-card">
+          <div class="error-type">
+            <strong><%= @submission.status.titleize %></strong>
+          </div>
+          <div class="error-message">
+            <% case @submission.status.downcase %>
+            <% when /compilation error/ %>
+              <p>Your code failed to compile. Check for syntax errors, missing semicolons, or incorrect function declarations.</p>
+            <% when /runtime error/ %>
+              <p>Your code crashed during execution. Common causes include: null pointer exceptions, array index out of bounds, or division by zero.</p>
+            <% when /time limit exceeded/ %>
+              <p>Your solution took too long to execute. Consider optimizing your algorithm or reducing time complexity.</p>
+            <% when /memory limit exceeded/ %>
+              <p>Your solution used too much memory. Consider optimizing space usage or reducing data structure sizes.</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Actions -->
+    <div class="submission-actions">
+      <%= link_to "Try Again on This Problem", problem_path(@submission.problem), class: "btn-primary" %>
+      <%= link_to "View All My Submissions", submission_path(my_submissions: 'true'), class: "btn-secondary" %>
+    </div>
+  </div>
+</div>
+
+<!-- Syntax highlighting -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-ruby.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">

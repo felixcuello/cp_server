@@ -1,3 +1,659 @@
+// Modern LeetCode-inspired Submissions Page
+
+// ===== Header Section =====
+.submissions-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 20px;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
+}
+
+.submissions-page-title {
+  font-size: 2em;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.filter-toggle-btn {
+  padding: 10px 20px;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: var(--bg-primary);
+    border-color: var(--text-heading);
+  }
+}
+
+// ===== Filters Section =====
+.submissions-filters {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+.filter-form {
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    
+    label {
+      font-weight: 600;
+      color: var(--text-heading);
+      font-size: 0.9em;
+    }
+  }
+  
+  .filter-select {
+    padding: 10px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+    font-size: 1em;
+    cursor: pointer;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--text-heading);
+    }
+    
+    option {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+  }
+  
+  .filter-checkbox {
+    margin-right: 8px;
+    cursor: pointer;
+  }
+  
+  .checkbox-label {
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+  
+  .filter-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    
+    .btn-primary, .btn-secondary {
+      padding: 10px 30px;
+      font-family: Arial, sans-serif;
+      font-size: 1em;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+    
+    .btn-primary {
+      background-color: var(--status-accepted);
+      color: white;
+      border: none;
+      
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+    
+    .btn-secondary {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-primary);
+      
+      &:hover {
+        background-color: var(--bg-primary);
+      }
+    }
+  }
+}
+
+// ===== Info Section =====
+.submissions-info {
+  padding: 12px 20px;
+  background-color: var(--bg-tertiary);
+  border-radius: 5px;
+  margin-bottom: 20px;
+  font-size: 0.95em;
+  color: var(--text-secondary);
+  
+  .filtered-indicator {
+    color: var(--status-accepted);
+    font-weight: bold;
+  }
+}
+
+// ===== Modern Table =====
+.submissions-table-container {
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-primary);
+}
+
+.submissions-table-modern {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+  
+  thead {
+    background-color: var(--bg-tertiary);
+    border-bottom: 2px solid var(--border-primary);
+    
+    th {
+      padding: 15px 20px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-heading);
+      font-size: 0.9em;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+  
+  tbody {
+    tr.submission-row {
+      border-bottom: 1px solid var(--border-primary);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      
+      &:hover {
+        background-color: var(--bg-tertiary);
+      }
+      
+      &.recent {
+        background-color: rgba(76, 175, 80, 0.05);
+      }
+      
+      td {
+        padding: 15px 20px;
+        color: var(--text-primary);
+        
+        a {
+          color: var(--text-link);
+          text-decoration: none;
+          
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+  
+  // Column-specific styles
+  .col-time {
+    width: 140px;
+    
+    .time-display {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      
+      .relative-time {
+        font-size: 0.95em;
+        color: var(--text-primary);
+      }
+      
+      .absolute-time {
+        font-size: 0.85em;
+        color: var(--text-secondary);
+      }
+    }
+  }
+  
+  .col-user {
+    width: 120px;
+    
+    .user-link {
+      font-weight: 600;
+      color: var(--text-link);
+    }
+  }
+  
+  .col-problem {
+    min-width: 200px;
+    
+    .problem-id {
+      color: var(--text-secondary);
+      font-size: 0.9em;
+      margin-right: 8px;
+    }
+    
+    .problem-title {
+      color: var(--text-primary);
+    }
+  }
+  
+  .col-status {
+    width: 180px;
+  }
+  
+  .col-language {
+    width: 120px;
+  }
+  
+  .col-runtime {
+    width: 100px;
+    text-align: right;
+  }
+}
+
+// ===== Status Badges =====
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 0.85em;
+  font-weight: bold;
+  
+  &.status-accepted {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: var(--status-accepted);
+  }
+  
+  &.status-wrong-answer {
+    background-color: rgba(244, 67, 54, 0.15);
+    color: var(--status-wrong);
+  }
+  
+  &.status-running, &.status-queued, &.status-enqueued, &.status-compiling {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: var(--status-running);
+  }
+  
+  &.status-time-limit-exceeded {
+    background-color: rgba(255, 152, 0, 0.15);
+    color: var(--status-tle);
+  }
+  
+  &.status-memory-limit-exceeded {
+    background-color: rgba(156, 39, 176, 0.15);
+    color: var(--status-tle);
+  }
+  
+  &.status-compilation-error, &.status-runtime-error {
+    background-color: rgba(244, 67, 54, 0.15);
+    color: var(--status-wrong);
+  }
+  
+  &.status-presentation-error {
+    background-color: rgba(33, 150, 243, 0.15);
+    color: var(--status-presentation);
+  }
+}
+
+// ===== Language Badge =====
+.language-badge {
+  padding: 4px 10px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: 3px;
+  font-size: 0.85em;
+  font-family: monospace;
+  color: var(--text-primary);
+}
+
+// ===== Runtime =====
+.runtime-value {
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+.runtime-empty {
+  color: var(--text-secondary);
+}
+
+// ===== Empty State =====
+.no-submissions {
+  padding: 60px 20px;
+  text-align: center;
+  
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    
+    .empty-icon {
+      font-size: 3em;
+      opacity: 0.5;
+    }
+    
+    .empty-message {
+      font-size: 1.2em;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    
+    .empty-hint {
+      font-size: 0.95em;
+      color: var(--text-secondary);
+    }
+  }
+}
+
+// ===== Pagination =====
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+  padding: 20px;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
+  
+  .pagination-btn {
+    padding: 10px 20px;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    
+    &:hover:not(.disabled) {
+      background-color: var(--bg-primary);
+      border-color: var(--text-heading);
+    }
+    
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+  
+  .pagination-info {
+    font-weight: 600;
+    color: var(--text-heading);
+  }
+}
+
+// ===== Submission Detail Page =====
+.submission-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.submission-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 25px;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
+  
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    
+    .back-link {
+      color: var(--text-link);
+      text-decoration: none;
+      font-size: 0.9em;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    
+    h1 {
+      margin: 0;
+      font-size: 1.8em;
+      color: var(--text-heading);
+    }
+  }
+  
+  .header-right {
+    .status-badge-large {
+      font-size: 1.1em;
+      padding: 10px 20px;
+    }
+  }
+}
+
+.submission-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+  
+  .info-card {
+    padding: 20px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    
+    .info-label {
+      font-size: 0.85em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .info-value {
+      font-size: 1.1em;
+      color: var(--text-heading);
+      font-weight: 600;
+      
+      a {
+        color: var(--text-link);
+        text-decoration: none;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      
+      .runtime-highlight {
+        color: var(--status-accepted);
+      }
+      
+      .text-muted {
+        color: var(--text-secondary);
+      }
+    }
+  }
+}
+
+.source-code-section, .test-results-section, .error-section {
+  margin-bottom: 30px;
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    
+    h2 {
+      font-size: 1.3em;
+      color: var(--text-heading);
+      margin: 0;
+    }
+  }
+  
+  .copy-code-btn {
+    padding: 8px 16px;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 5px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: var(--bg-secondary);
+    }
+  }
+  
+  .code-container {
+    background-color: var(--code-bg);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    border: 1px solid var(--border-primary);
+    
+    pre {
+      margin: 0;
+      
+      code {
+        font-family: monospace;
+        font-size: 0.95em;
+        line-height: 1.5;
+        color: var(--text-primary);
+      }
+    }
+  }
+}
+
+.test-result-card {
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid;
+  
+  &.passed {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-color: var(--status-accepted);
+    
+    .test-icon {
+      color: var(--status-accepted);
+    }
+  }
+  
+  &.failed {
+    background-color: rgba(244, 67, 54, 0.1);
+    border-color: var(--status-wrong);
+    
+    .test-icon {
+      color: var(--status-wrong);
+    }
+  }
+  
+  .test-result-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    
+    .test-icon {
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+    
+    .test-name {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: var(--text-heading);
+    }
+  }
+  
+  .test-result-body {
+    padding-left: 35px;
+    
+    .test-message {
+      color: var(--text-primary);
+      margin: 0;
+    }
+  }
+}
+
+.error-section {
+  .error-card {
+    padding: 20px;
+    background-color: rgba(244, 67, 54, 0.1);
+    border: 1px solid var(--status-wrong);
+    border-radius: 8px;
+    
+    .error-type {
+      color: var(--status-wrong);
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+    
+    .error-message {
+      color: var(--text-primary);
+      
+      p {
+        margin: 0;
+      }
+    }
+  }
+}
+
+.submission-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+  
+  a {
+    padding: 12px 30px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    
+    &.btn-primary {
+      background-color: var(--status-accepted);
+      color: white;
+      
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+    
+    &.btn-secondary {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-primary);
+      
+      &:hover {
+        background-color: var(--bg-primary);
+      }
+    }
+  }
+}
+
+// Legacy styles (kept for backwards compatibility)
 .submission-header {
   padding: 10px;
   font-family: Arial, sans-serif;
@@ -16,101 +672,4 @@
   font-family: Arial, sans-serif;
   text-align: center;
   color: var(--text-heading);
-}
-
-.submissions-header {
-  font-weight: bold;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  background-color: var(--bg-table-header);
-  color: var(--text-primary);
-}
-
-.submissions-table {
-  font-family: Arial, sans-serif;
-  font-size: 1.3em;
-  color: var(--text-primary);
-  border-collapse: collapse;
-  width: 100%;
-  padding: 10px;
-  
-  a {
-    color: var(--text-link);
-    
-    &:visited {
-      color: var(--text-link-visited);
-    }
-  }
-}
-
-.submission-cell-uppercase {
-  text-transform: uppercase;
-}
-
-.submission-row-even {
-  background-color: var(--bg-table-even);
-}
-
-.submission-row-odd {
-  background-color: var(--bg-table-odd);
-}
-
-.submission-centered-cell {
-  font-family: monospace;
-  font-size: 1.0em;
-  text-align: center;
-  width: 10%;
-  padding: 10px;
-}
-
-// Submission status
-
-.submission-status-queued {
-  color: var(--status-queued);
-  font-weight: bold;
-}
-
-.submission-status-running {
-  color: var(--status-running);
-  font-weight: bold;
-}
-
-.submission-status-wrong-answer {
-  color: var(--status-wrong);
-  font-weight: bold;
-}
-
-.submission-status-accepted {
-  color: var(--status-accepted);
-  font-weight: bold;
-}
-
-.submission-status-time-limit-exceeded {
-  color: var(--status-tle);
-  font-weight: bold;
-}
-
-.submission-status-presentation-error {
-  color: var(--status-presentation);
-  font-weight: bold;
-}
-
-.submission-status-compilation-error {
-  color: var(--status-wrong);
-  font-weight: bold;
-}
-
-.submission-status-runtime-error {
-  color: var(--status-wrong);
-  font-weight: bold;
-}
-
-.submission-status-memory-limit-exceeded {
-  color: var(--status-tle);
-  font-weight: bold;
-}
-
-.submission-status-enqueued {
-  color: var(--status-queued);
-  font-weight: bold;
 }

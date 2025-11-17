@@ -18,7 +18,9 @@ Rails.application.routes.draw do
   get "problems/:id", to: "problem#show", as: "problem"
 
   get "submissions", to: "submission#index", as: "submission"
+  get "submissions/:id", to: "submission#show", as: "submission_detail"
   post "submissions/submit", to: "submission#submit", as: "problem_submission"
+  post "submissions/test", to: "submission#test", as: "problem_test"
 
   get 'user/:alias', to: 'user#show', as: 'user'
 

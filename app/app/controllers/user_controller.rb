@@ -26,13 +26,13 @@ class UserController < AuthenticatedController
     @total_submissions = Submission.where(user: @user).count
     @accepted_submissions = Submission.where(user: @user, status: 'accepted').count
     
-    # Programming languages used
-    @programming_languages = Submission.where(user: @user)
-                                       .joins(:programming_language)
-                                       .select('programming_languages.name')
-                                       .pluck(:name)
-                                       .uniq
-                                       .sort
+    # Programming languages used with problem counts
+    @programming_languages = Submission.where(user: @user, status: 'accepted')
+                                       .joins(:problem, :programming_language)
+                                       .select('programming_languages.name, COUNT(DISTINCT problems.id) as problem_count')
+                                       .group('programming_languages.name')
+                                       .order('problem_count DESC')
+                                       .map { |s| [s.name, s.problem_count] }
     
     # Recent submissions (last 10)
     @recent_submissions = Submission.where(user: @user)

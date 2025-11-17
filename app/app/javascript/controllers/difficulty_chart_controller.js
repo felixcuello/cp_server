@@ -47,6 +47,13 @@ export default class extends Controller {
     
     this.chart = new Chart(ctx, {
       type: 'doughnut',
+      // Add center text plugin
+      plugins: [{
+        id: 'centerText',
+        afterDatasetsDraw(chart) {
+          // This is now handled by HTML overlay, so we can skip drawing here
+        }
+      }],
       data: {
         labels: ['Easy', 'Medium', 'Hard'],
         datasets: [{
@@ -113,7 +120,7 @@ export default class extends Controller {
             offset: 0
           }
         },
-        cutout: '60%',  // Makes it a donut chart
+        cutout: '75%',  // Makes it a ring/progress circle (thinner ring)
         animation: {
           animateRotate: true,
           animateScale: true,

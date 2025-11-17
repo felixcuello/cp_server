@@ -1,0 +1,160 @@
+<div class="page-container profile-page">
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="profile-avatar">
+      <%= @user.alias[0..1].upcase %>
+    </div>
+    <div class="profile-info">
+      <h1 class="profile-username"><%= @user.alias %></h1>
+      <p class="profile-email"><%= @user.email %></p>
+    </div>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="profile-stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-value"><%= @total_solved %></div>
+      <div class="stat-label">Problems Solved</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📝</div>
+      <div class="stat-value"><%= @total_submissions %></div>
+      <div class="stat-label">Total Submissions</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">✓</div>
+      <div class="stat-value"><%= @accepted_submissions %></div>
+      <div class="stat-label">Accepted</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-value">
+        <% if @total_submissions > 0 %>
+          <%= ((@accepted_submissions.to_f / @total_submissions) * 100).round(1) %>%
+        <% else %>
+          0%
+        <% end %>
+      </div>
+      <div class="stat-label">Acceptance Rate</div>
+    </div>
+  </div>
+
+  <!-- Problems by Difficulty -->
+  <div class="profile-section">
+    <h2 class="section-title">Problems Solved by Difficulty</h2>
+    <div class="difficulty-visualization">
+      <!-- Pie Chart -->
+      <div class="difficulty-chart-container"
+           data-controller="difficulty-chart"
+           data-difficulty-chart-easy-value="<%= @easy_count %>"
+           data-difficulty-chart-medium-value="<%= @medium_count %>"
+           data-difficulty-chart-hard-value="<%= @hard_count %>">
+        <canvas data-difficulty-chart-target="canvas"></canvas>
+      </div>
+      
+      <!-- Stats Cards -->
+      <div class="difficulty-cards">
+        <div class="difficulty-card easy">
+          <span class="difficulty-count"><%= @easy_count %></span>
+          <span class="difficulty-label">Easy</span>
+          <div class="difficulty-bar">
+            <div class="difficulty-progress" style="width: <%= @total_solved > 0 ? (@easy_count.to_f / @total_solved * 100).round : 0 %>%"></div>
+          </div>
+          <span class="difficulty-percentage">
+            <%= @total_solved > 0 ? (@easy_count.to_f / @total_solved * 100).round : 0 %>%
+          </span>
+        </div>
+
+        <div class="difficulty-card medium">
+          <span class="difficulty-count"><%= @medium_count %></span>
+          <span class="difficulty-label">Medium</span>
+          <div class="difficulty-bar">
+            <div class="difficulty-progress" style="width: <%= @total_solved > 0 ? (@medium_count.to_f / @total_solved * 100).round : 0 %>%"></div>
+          </div>
+          <span class="difficulty-percentage">
+            <%= @total_solved > 0 ? (@medium_count.to_f / @total_solved * 100).round : 0 %>%
+          </span>
+        </div>
+
+        <div class="difficulty-card hard">
+          <span class="difficulty-count"><%= @hard_count %></span>
+          <span class="difficulty-label">Hard</span>
+          <div class="difficulty-bar">
+            <div class="difficulty-progress" style="width: <%= @total_solved > 0 ? (@hard_count.to_f / @total_solved * 100).round : 0 %>%"></div>
+          </div>
+          <span class="difficulty-percentage">
+            <%= @total_solved > 0 ? (@hard_count.to_f / @total_solved * 100).round : 0 %>%
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contribution Calendar -->
+  <div class="profile-section">
+    <h2 class="section-title">Contribution Activity</h2>
+    <div class="contribution-wrapper" 
+         data-controller="contribution-calendar"
+         data-contribution-calendar-contributions-value='<%= @contribution_data.to_json %>'>
+      <div data-contribution-calendar-target="calendar" class="contribution-calendar"></div>
+      <div data-contribution-calendar-target="tooltip" class="calendar-tooltip"></div>
+      <div class="calendar-legend">
+        <span class="legend-label">Less</span>
+        <div class="legend-square level-0"></div>
+        <div class="legend-square level-1"></div>
+        <div class="legend-square level-2"></div>
+        <div class="legend-square level-3"></div>
+        <div class="legend-square level-4"></div>
+        <span class="legend-label">More</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Programming Languages -->
+  <div class="profile-section">
+    <h2 class="section-title">Languages Used</h2>
+    <div class="languages-container">
+      <% if @programming_languages.any? %>
+        <% @programming_languages.each do |lang| %>
+          <span class="language-tag"><%= lang %></span>
+        <% end %>
+      <% else %>
+        <p class="empty-state">No submissions yet</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Recent Submissions -->
+  <div class="profile-section">
+    <h2 class="section-title">Recent Submissions</h2>
+    <div class="recent-submissions">
+      <% if @recent_submissions.any? %>
+        <% @recent_submissions.each do |submission| %>
+          <div class="submission-row" onclick="window.location='<%= submission_detail_path(submission) %>'">
+            <div class="submission-status">
+              <span class="status-badge status-<%= submission.status.downcase.gsub(/\s+/, '-') %>">
+                <%= status_icon(submission.status) %>
+                <%= submission.status.titleize %>
+              </span>
+            </div>
+            <div class="submission-problem">
+              <strong>#<%= submission.problem.id %>.</strong> <%= submission.problem.title %>
+            </div>
+            <div class="submission-lang">
+              <span class="lang-badge"><%= submission.programming_language.name %></span>
+            </div>
+            <div class="submission-time">
+              <%= time_ago_in_words(submission.created_at) %> ago
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="empty-state">No submissions yet</p>
+      <% end %>
+    </div>
+  </div>
+</div>

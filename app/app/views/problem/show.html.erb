@@ -141,7 +141,7 @@
               <h3>Similar Problems</h3>
               <% @similar_problems.each do |similar| %>
                 <div class="similar-problem-item" onclick="window.location='<%= problem_path(similar) %>'">
-                  <%= link_to problem_path(similar) do %>
+                  <%= link_to problem_path(similar), data: { turbo: false } do %>
                     <%= similar.id %>. <%= similar.title %>
                   <% end %>
                   <span class="problem-difficulty-<%= similar.difficulty %>">

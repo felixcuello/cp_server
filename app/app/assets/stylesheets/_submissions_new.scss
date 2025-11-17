@@ -18,9 +18,14 @@
     color: var(--text-heading);
     margin: 0;
   }
+  
+  .header-actions {
+    display: flex;
+    gap: 12px;
+  }
 }
 
-.filter-toggle-btn {
+.toggle-view-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -30,15 +35,17 @@
   border-radius: 8px;
   color: var(--text-primary);
   font-weight: 600;
+  text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    background-color: var(--bg-tertiary);
+    background-color: var(--text-heading);
+    color: white;
     border-color: var(--text-heading);
   }
   
-  .filter-icon {
+  span:first-child {
     font-size: 1.1em;
   }
 }
@@ -409,6 +416,15 @@
     
     .page-title {
       font-size: 1.6em;
+    }
+    
+    .header-actions {
+      width: 100%;
+      
+      .toggle-view-btn {
+        width: 100%;
+        justify-content: center;
+      }
     }
   }
   

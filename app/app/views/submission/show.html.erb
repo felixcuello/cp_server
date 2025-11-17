@@ -19,7 +19,7 @@
       <div class="info-card">
         <div class="info-label">Problem</div>
         <div class="info-value">
-          <%= link_to problem_path(@submission.problem) do %>
+          <%= link_to problem_path(@submission.problem), data: { turbo: false } do %>
             #<%= @submission.problem.id %>. <%= @submission.problem.title %>
           <% end %>
         </div>
@@ -136,8 +136,8 @@
 
     <!-- Actions -->
     <div class="submission-actions">
-      <%= link_to "Try Again on This Problem", problem_path(@submission.problem), class: "btn-primary" %>
-      <%= link_to "View All My Submissions", submission_path(my_submissions: 'true'), class: "btn-secondary" %>
+      <%= link_to "Try Again on This Problem", problem_path(@submission.problem), class: "btn-primary", data: { turbo: false } %>
+      <%= link_to "View All My Submissions", submission_path, class: "btn-secondary" %>
     </div>
   </div>
 </div>

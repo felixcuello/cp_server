@@ -5,6 +5,18 @@ class SubmissionController < ApplicationController
     @submissions = Submission.includes(:user, :problem, :programming_language)
                              .order(created_at: :desc)
     
+    # By default, show only current user's submissions
+    # Unless "show_all" is enabled
+    @show_all = params[:show_all] == 'true'
+    if current_user && !@show_all
+      @submissions = @submissions.where(user: current_user)
+    end
+    
+    # Filter by specific user (when showing all)
+    if params[:user_id].present? && params[:user_id] != 'all' && @show_all
+      @submissions = @submissions.where(user_id: params[:user_id])
+    end
+    
     # Filter by status
     if params[:status].present? && params[:status] != 'all'
       @submissions = @submissions.where(status: params[:status])
@@ -20,9 +32,16 @@ class SubmissionController < ApplicationController
       @submissions = @submissions.where(problem_id: params[:problem])
     end
     
-    # Filter by user (my submissions only)
-    if params[:my_submissions] == 'true' && current_user
-      @submissions = @submissions.where(user: current_user)
+    # Filter by time range
+    if params[:time_range].present? && params[:time_range] != 'all'
+      case params[:time_range]
+      when 'today'
+        @submissions = @submissions.where('created_at >= ?', Time.zone.now.beginning_of_day)
+      when 'week'
+        @submissions = @submissions.where('created_at >= ?', 1.week.ago)
+      when 'month'
+        @submissions = @submissions.where('created_at >= ?', 1.month.ago)
+      end
     end
     
     # Pagination
@@ -36,6 +55,7 @@ class SubmissionController < ApplicationController
     # For filters
     @all_languages = ProgrammingLanguage.order(:name)
     @all_problems = Problem.order(:id)
+    @all_users = User.order(:alias) if @show_all
     @statuses = [
       Submission::ACCEPTED,
       Submission::WRONG_ANSWER,

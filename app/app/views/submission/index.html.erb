@@ -1,28 +1,32 @@
 <div class="page-container submissions-page">
   <!-- Header -->
   <div class="submissions-header">
-    <h1 class="page-title">Submissions</h1>
-    <button class="filter-toggle-btn" data-controller="submission-filters" data-action="click->submission-filters#toggle">
-      <span class="filter-icon">🔍</span>
-      <span>Filters</span>
-    </button>
+    <h1 class="page-title"><%= @show_all ? "All Submissions" : "My Submissions" %></h1>
+    <div class="header-actions">
+      <% if @show_all %>
+        <%= link_to submission_path, class: "toggle-view-btn" do %>
+          <span>👤</span>
+          <span>My Submissions</span>
+        <% end %>
+      <% else %>
+        <%= link_to submission_path(show_all: 'true'), class: "toggle-view-btn" do %>
+          <span>👥</span>
+          <span>All Users</span>
+        <% end %>
+      <% end %>
+    </div>
   </div>
 
-  <!-- Filters Section (collapsible) -->
-  <div class="submissions-filters-panel" data-submission-filters-target="panel" style="display: none;">
+  <!-- Filters Section (always visible) -->
+  <div class="submissions-filters-panel">
     <%= form_with url: submission_path, method: :get, class: "filter-form", data: { turbo: false } do |f| %>
+      <%= hidden_field_tag :show_all, @show_all ? 'true' : nil %>
+      
       <div class="filter-grid">
         <div class="filter-item">
-          <label class="filter-label">Status</label>
+          <label class="filter-label">Result</label>
           <%= select_tag :status, 
-              options_for_select([['All Statuses', 'all']] + @statuses.map { |s| [s.titleize, s] }, params[:status] || 'all'),
-              class: 'filter-select' %>
-        </div>
-
-        <div class="filter-item">
-          <label class="filter-label">Language</label>
-          <%= select_tag :language,
-              options_for_select([['All Languages', 'all']] + @all_languages.map { |l| [l.name, l.id] }, params[:language] || 'all'),
+              options_for_select([['All Results', 'all']] + @statuses.map { |s| [s.titleize, s] }, params[:status] || 'all'),
               class: 'filter-select' %>
         </div>
 
@@ -33,19 +37,38 @@
               class: 'filter-select' %>
         </div>
 
-        <% if current_user %>
-          <div class="filter-item filter-checkbox-item">
-            <label class="checkbox-container">
-              <%= check_box_tag :my_submissions, 'true', params[:my_submissions] == 'true', class: 'filter-checkbox' %>
-              <span class="checkbox-label">My submissions only</span>
-            </label>
+        <div class="filter-item">
+          <label class="filter-label">Language</label>
+          <%= select_tag :language,
+              options_for_select([['All Languages', 'all']] + @all_languages.map { |l| [l.name, l.id] }, params[:language] || 'all'),
+              class: 'filter-select' %>
+        </div>
+        
+        <% if @show_all %>
+          <div class="filter-item">
+            <label class="filter-label">User</label>
+            <%= select_tag :user_id,
+                options_for_select([['All Users', 'all']] + @all_users.map { |u| [u.alias, u.id] }, params[:user_id] || 'all'),
+                class: 'filter-select' %>
           </div>
         <% end %>
+        
+        <div class="filter-item">
+          <label class="filter-label">Time Range</label>
+          <%= select_tag :time_range,
+              options_for_select([
+                ['All Time', 'all'],
+                ['Today', 'today'],
+                ['This Week', 'week'],
+                ['This Month', 'month']
+              ], params[:time_range] || 'all'),
+              class: 'filter-select' %>
+        </div>
       </div>
 
       <div class="filter-actions">
         <%= submit_tag "Apply Filters", class: "btn-apply" %>
-        <%= link_to "Clear", submission_path, class: "btn-clear" %>
+        <%= link_to "Clear Filters", submission_path(show_all: @show_all ? 'true' : nil), class: "btn-clear" %>
       </div>
     <% end %>
   </div>
@@ -74,7 +97,7 @@
           <div class="submission-card-header">
             <div class="submission-problem-info">
               <span class="problem-number">#<%= submission.problem.id %></span>
-              <%= link_to submission.problem.title, problem_path(submission.problem), class: "problem-title-link" %>
+              <%= link_to submission.problem.title, problem_path(submission.problem), class: "problem-title-link", data: { turbo: false } %>
             </div>
             <div class="submission-status-badge <%= submission.status.downcase.gsub(/\s+/, '-') %>">
               <%= status_icon(submission.status) %>

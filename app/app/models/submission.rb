@@ -7,6 +7,10 @@ class Submission < ApplicationRecord
 
   validates :source_code, presence: true
   validates :status, presence: true
+  
+  # Update problem statistics after submission status changes
+  after_save :update_problem_statistics, if: :saved_change_to_status?
+  after_save :update_user_problem_status, if: :saved_change_to_status?
 
   DEBUG = false
   ACCEPTED = "accepted"
@@ -197,5 +201,23 @@ class Submission < ApplicationRecord
 
   def debug!(message)
     File.write("/tmp/debug", "#{message}\n", mode: 'a') if DEBUG
+  end
+  
+  def update_problem_statistics
+    problem.update_statistics!
+  end
+  
+  def update_user_problem_status
+    user_status = UserProblemStatus.find_or_initialize_by(user: user, problem: problem)
+    
+    # If this submission is accepted, mark as solved
+    if status == ACCEPTED
+      user_status.status = 'solved'
+      user_status.save!
+    # Otherwise, if not already solved, mark as attempted
+    elsif user_status.status != 'solved'
+      user_status.status = 'attempted'
+      user_status.save!
+    end
   end
 end

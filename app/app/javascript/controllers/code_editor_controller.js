@@ -85,12 +85,46 @@ export default class extends Controller {
   }
   
   changeLanguage(event) {
-    const lang = event.target.value
-    this.languageValue = lang
+    const langId = event.target.value
+    
+    // Get the selected option's data-lang attribute
+    const selectedOption = event.target.options[event.target.selectedIndex]
+    const langName = selectedOption.getAttribute('data-lang')
+    
+    console.log('Language changed to:', langName, 'ID:', langId)
+    
+    this.languageValue = langName
     
     if (this.editor) {
+      const monacoLang = this.getMonacoLanguage(langName)
+      console.log('Setting Monaco language to:', monacoLang)
+      
       const model = this.editor.getModel()
-      monaco.editor.setModelLanguage(model, this.getMonacoLanguage(lang))
+      monaco.editor.setModelLanguage(model, monacoLang)
+      
+      // Update the editor's content to the new language template if code is default/empty
+      const currentCode = this.editor.getValue().trim()
+      const defaultCodes = this.getAllDefaultCodes()
+      const isDefaultCode = Object.values(defaultCodes).some(template => 
+        currentCode === template.trim() || currentCode === ''
+      )
+      
+      if (isDefaultCode || currentCode === '') {
+        console.log('Setting default template for new language')
+        this.editor.setValue(this.getDefaultCode())
+      }
+    }
+  }
+  
+  getAllDefaultCodes() {
+    return {
+      'python': '# Write your solution here\n\n',
+      'javascript': '// Write your solution here\n\n',
+      'ruby': '# Write your solution here\n\n',
+      'c': '#include <stdio.h>\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n',
+      'cpp': '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n',
+      'java': 'public class Main {\n    public static void main(String[] args) {\n        // Write your solution here\n    }\n}\n',
+      'go': 'package main\n\nimport "fmt"\n\nfunc main() {\n    // Write your solution here\n}\n'
     }
   }
   
@@ -217,6 +251,36 @@ export default class extends Controller {
     })
   }
   
+  resetCode(event) {
+    event.preventDefault()
+    
+    // Show confirmation dialog
+    const confirmed = confirm(
+      '⚠️ Are you sure you want to reset the code?\n\n' +
+      'This will:\n' +
+      '• Delete your current code\n' +
+      '• Load the default template\n' +
+      '• Clear saved code from browser storage\n\n' +
+      'This action cannot be undone!'
+    )
+    
+    if (!confirmed) {
+      console.log('Code reset cancelled by user')
+      return
+    }
+    
+    console.log('Resetting code to default template')
+    
+    // Clear localStorage
+    this.clearLocalStorage()
+    
+    // Reset editor to default template
+    if (this.editor) {
+      this.editor.setValue(this.getDefaultCode())
+      console.log('Code reset to default template')
+    }
+  }
+  
   showTestResults(result) {
     console.log('showTestResults called with:', result)
     
@@ -313,15 +377,17 @@ export default class extends Controller {
       'python3': 'python',
       'javascript': 'javascript',
       'nodejs': 'javascript',
+      'node.js': 'javascript',
       'ruby': 'ruby',
       'c': 'c',
       'cpp': 'cpp',
-      'cpp11': 'cpp',
       'c++': 'cpp',
+      'cpp11': 'cpp',
+      'c++ 11': 'cpp',
       'java': 'java',
       'go': 'go'
     }
-    return mapping[lang.toLowerCase()] || 'python'
+    return mapping[lang.toLowerCase()] || 'plaintext'
   }
   
   getFileExtension() {
@@ -370,12 +436,21 @@ export default class extends Controller {
     if (savedLanguage) {
       this.languageValue = savedLanguage
       if (this.hasLanguageSelectTarget) {
-        this.languageSelectTarget.value = savedLanguage
+        // Find the option with matching data-lang attribute
+        const options = Array.from(this.languageSelectTarget.options)
+        const matchingOption = options.find(opt => 
+          opt.getAttribute('data-lang') === savedLanguage.toLowerCase()
+        )
+        if (matchingOption) {
+          this.languageSelectTarget.value = matchingOption.value
+          console.log('Restored language from localStorage:', savedLanguage)
+        }
       }
     }
     
     if (savedCode && this.editor) {
       this.editor.setValue(savedCode)
+      console.log('Restored code from localStorage')
     }
   }
   

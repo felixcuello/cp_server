@@ -52,30 +52,20 @@
             <h2>Examples</h2>
             
             <% @problem.examples.where(is_hidden: false).each_with_index do |example, idx| %>
-              <div class="example-card" data-controller="copy-button">
+              <div class="example-card">
                 <div class="example-header">
                   <h4>Example <%= idx + 1 %></h4>
                 </div>
                 
                 <div class="example-content">
                   <div class="example-block">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                      <h5>Input:</h5>
-                      <button class="copy-button" data-copy-button-target="source" data-action="click->copy-button#copy">
-                        📋 Copy
-                      </button>
-                    </div>
-                    <div class="example-code" data-copy-button-target="source"><%= example.input %></div>
+                    <h5>Input:</h5>
+                    <div class="example-code"><%= example.input %></div>
                   </div>
                   
                   <div class="example-block">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                      <h5>Output:</h5>
-                      <button class="copy-button" data-action="click->copy-button#copy">
-                        📋 Copy
-                      </button>
-                    </div>
-                    <div class="example-code" data-copy-button-target="source"><%= example.output %></div>
+                    <h5>Output:</h5>
+                    <div class="example-code"><%= example.output %></div>
                   </div>
                 </div>
               </div>

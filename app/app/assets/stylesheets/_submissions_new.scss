@@ -1,0 +1,446 @@
+// Modern Submissions Page Redesign
+
+.submissions-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// Header
+.submissions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  
+  .page-title {
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--text-heading);
+    margin: 0;
+  }
+}
+
+.filter-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--text-heading);
+  }
+  
+  .filter-icon {
+    font-size: 1.1em;
+  }
+}
+
+// Filters Panel
+.submissions-filters-panel {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  
+  .filter-form {
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      
+      &.filter-checkbox-item {
+        justify-content: flex-end;
+      }
+    }
+    
+    .filter-label {
+      font-size: 0.9em;
+      font-weight: 600;
+      color: var(--text-heading);
+    }
+    
+    .filter-select {
+      padding: 10px 12px;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-primary);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.95em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover, &:focus {
+        border-color: var(--text-heading);
+        outline: none;
+      }
+    }
+    
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      
+      .filter-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+      
+      .checkbox-label {
+        font-size: 0.95em;
+        color: var(--text-primary);
+        user-select: none;
+      }
+    }
+    
+    .filter-actions {
+      display: flex;
+      gap: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-primary);
+      
+      .btn-apply {
+        padding: 10px 24px;
+        background-color: var(--text-heading);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          opacity: 0.9;
+          transform: translateY(-1px);
+        }
+      }
+      
+      .btn-clear {
+        padding: 10px 24px;
+        background-color: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-primary);
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background-color: var(--bg-primary);
+          border-color: var(--text-heading);
+        }
+      }
+    }
+  }
+}
+
+// Info Bar
+.submissions-info-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  
+  .results-count {
+    font-size: 0.95em;
+    color: var(--text-secondary);
+    
+    strong {
+      color: var(--text-heading);
+      font-weight: 600;
+    }
+  }
+  
+  .filtered-badge {
+    padding: 4px 10px;
+    background-color: rgba(76, 175, 80, 0.15);
+    color: var(--status-accepted);
+    font-size: 0.8em;
+    font-weight: 600;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// Submissions List (Card-based)
+.submissions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.submission-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 10px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: var(--text-heading);
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .submission-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    
+    .submission-problem-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      
+      .problem-number {
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 0.9em;
+      }
+      
+      .problem-title-link {
+        color: var(--text-heading);
+        font-weight: 600;
+        font-size: 1.05em;
+        text-decoration: none;
+        transition: color 0.2s ease;
+        
+        &:hover {
+          color: var(--text-link);
+        }
+      }
+    }
+  }
+  
+  .submission-card-footer {
+    .submission-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.9em;
+        color: var(--text-secondary);
+        
+        .meta-icon {
+          font-size: 1em;
+        }
+        
+        .user-link {
+          color: var(--text-link);
+          text-decoration: none;
+          font-weight: 500;
+          
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+        
+        .language-name,
+        .time-text,
+        .runtime-text {
+          color: var(--text-secondary);
+        }
+      }
+    }
+  }
+}
+
+// Status Badges (on cards)
+.submission-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.85em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  
+  &.accepted {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: var(--status-accepted);
+  }
+  
+  &.wrong-answer, &.wrong_answer {
+    background-color: rgba(244, 67, 54, 0.15);
+    color: var(--status-wrong);
+  }
+  
+  &.time-limit-exceeded, &.time_limit_exceeded {
+    background-color: rgba(255, 152, 0, 0.15);
+    color: #ff9800;
+  }
+  
+  &.compilation-error, &.compilation_error {
+    background-color: rgba(156, 39, 176, 0.15);
+    color: #9c27b0;
+  }
+  
+  &.runtime-error, &.runtime_error {
+    background-color: rgba(233, 30, 99, 0.15);
+    color: #e91e63;
+  }
+  
+  &.pending, &.running {
+    background-color: rgba(33, 150, 243, 0.15);
+    color: #2196f3;
+  }
+}
+
+// Empty State
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  
+  .empty-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+  
+  .empty-title {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--text-heading);
+    margin-bottom: 10px;
+  }
+  
+  .empty-text {
+    font-size: 1em;
+    color: var(--text-secondary);
+  }
+}
+
+// Pagination
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 30px;
+  padding: 20px;
+  
+  .pagination-btn {
+    padding: 10px 20px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover:not(.disabled) {
+      background-color: var(--bg-tertiary);
+      border-color: var(--text-heading);
+      transform: translateY(-2px);
+    }
+    
+    &.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+  
+  .pagination-info {
+    font-size: 0.95em;
+    color: var(--text-secondary);
+    
+    strong {
+      color: var(--text-heading);
+      font-weight: 600;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .submissions-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    
+    .page-title {
+      font-size: 1.6em;
+    }
+  }
+  
+  .submissions-filters-panel {
+    .filter-form {
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .filter-actions {
+        flex-direction: column;
+        
+        .btn-apply,
+        .btn-clear {
+          width: 100%;
+          text-align: center;
+        }
+      }
+    }
+  }
+  
+  .submission-card {
+    .submission-card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    
+    .submission-card-footer {
+      .submission-meta {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  }
+  
+  .pagination-container {
+    flex-direction: column;
+    gap: 15px;
+    
+    .pagination-btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+}

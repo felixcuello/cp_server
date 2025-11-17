@@ -27,9 +27,14 @@
         </button>
         
         <% if user_signed_in? %>
-          <div class="user-menu">
-            <span class="user-name"><%= current_user.alias %></span>
-          </div>
+          <%= link_to user_path(alias: current_user.alias), class: "user-menu-link" do %>
+            <div class="user-menu">
+              <div class="user-avatar">
+                <%= current_user.alias[0..1].upcase %>
+              </div>
+              <span class="user-name"><%= current_user.alias %></span>
+            </div>
+          <% end %>
         <% end %>
       </div>
     </div>

@@ -82,25 +82,51 @@
 }
 
 // User Menu
-.user-menu {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 12px;
-  border-radius: 5px;
-  border: 1px solid var(--border-primary);
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+.user-menu-link {
+  text-decoration: none;
+  transition: all 0.2s ease;
   
   &:hover {
-    background-color: var(--bg-secondary);
+    transform: translateY(-2px);
+  }
+}
+
+.user-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: var(--bg-secondary);
+  
+  &:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--text-heading);
+  }
+  
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+    font-weight: 700;
+    color: white;
   }
   
   .user-name {
     font-family: Arial, sans-serif;
-    font-size: 0.95em;
+    font-size: 0.75em;
     color: var(--text-primary);
     font-weight: 500;
+    white-space: nowrap;
   }
 }
 
@@ -241,8 +267,15 @@
   }
   
   .user-menu {
+    padding: 6px;
+    
     .user-name {
-      display: none; // Hide username on very small screens
+      display: none; // Hide username on very small screens, keep avatar only
+    }
+    
+    .user-avatar {
+      width: 32px;
+      height: 32px;
     }
   }
 }

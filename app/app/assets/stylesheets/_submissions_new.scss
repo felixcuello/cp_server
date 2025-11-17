@@ -288,33 +288,44 @@
   white-space: nowrap;
   
   &.accepted {
-    background-color: rgba(76, 175, 80, 0.15);
-    color: var(--status-accepted);
+    background-color: rgba(76, 175, 80, 0.15) !important;
+    color: #4CAF50 !important;
   }
   
-  &.wrong-answer, &.wrong_answer {
-    background-color: rgba(244, 67, 54, 0.15);
-    color: var(--status-wrong);
+  // Use attribute selectors to match partial class names (e.g., "wrong-answer-(example-2)")
+  &[class*="wrong"] {
+    background-color: rgba(244, 67, 54, 0.15) !important;
+    color: #F44336 !important;
   }
   
-  &.time-limit-exceeded, &.time_limit_exceeded {
-    background-color: rgba(255, 152, 0, 0.15);
-    color: #ff9800;
+  &[class*="compilation"] {
+    background-color: rgba(156, 39, 176, 0.15) !important;
+    color: #9C27B0 !important;
   }
   
-  &.compilation-error, &.compilation_error {
-    background-color: rgba(156, 39, 176, 0.15);
-    color: #9c27b0;
+  &[class*="presentation"] {
+    background-color: rgba(255, 152, 0, 0.15) !important;
+    color: #FF9800 !important;
   }
   
-  &.runtime-error, &.runtime_error {
-    background-color: rgba(233, 30, 99, 0.15);
-    color: #e91e63;
+  &[class*="time-limit"], &[class*="time_limit"] {
+    background-color: rgba(255, 152, 0, 0.15) !important;
+    color: #FF9800 !important;
+  }
+  
+  &[class*="runtime"] {
+    background-color: rgba(244, 67, 54, 0.15) !important;
+    color: #F44336 !important;
+  }
+  
+  &.queued {
+    background-color: rgba(33, 150, 243, 0.15) !important;
+    color: #2196F3 !important;
   }
   
   &.pending, &.running {
-    background-color: rgba(33, 150, 243, 0.15);
-    color: #2196f3;
+    background-color: rgba(33, 150, 243, 0.15) !important;
+    color: #2196F3 !important;
   }
 }
 

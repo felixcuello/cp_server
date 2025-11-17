@@ -527,21 +527,33 @@
   }
   
   .code-container {
-    background-color: var(--code-bg);
+    background-color: #2d2d2d !important; // Force dark background (Prism Tomorrow theme)
     border-radius: 8px;
     padding: 20px;
     overflow-x: auto;
-    border: 1px solid var(--border-primary);
+    border: 1px solid #444;
     
     pre {
       margin: 0;
+      background-color: transparent !important;
       
       code {
-        font-family: monospace;
+        color: #ccc !important; // Force light text color for dark code background
+        background-color: transparent !important;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         font-size: 0.95em;
         line-height: 1.5;
-        color: var(--text-primary);
+        
+        // Ensure Prism.js syntax highlighting colors don't get overridden
+        * {
+          background-color: transparent !important;
+        }
       }
+    }
+    
+    // Override any theme-based text colors inside code block
+    .token {
+      background-color: transparent !important;
     }
   }
 }

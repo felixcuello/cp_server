@@ -70,7 +70,47 @@ class SubmissionController < ApplicationController
   end
   
   def show
-    @submission = Submission.includes(:user, :problem, :programming_language).find(params[:id])
+    begin
+      @submission = Submission.includes(:user, :problem, :programming_language).find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      respond_to do |format|
+        format.html { 
+          redirect_to submission_path, alert: "Submission not found." 
+        }
+        format.json { 
+          render json: { error: 'Submission not found' }, status: :not_found
+        }
+      end
+      return
+    end
+    
+    # Security check: only allow users to view their own submissions
+    if @submission.user_id != current_user.id
+      respond_to do |format|
+        format.html { 
+          redirect_to submission_path, alert: "You don't have permission to view this submission." 
+        }
+        format.json { 
+          render json: { error: 'Unauthorized' }, status: :forbidden
+        }
+      end
+      return
+    end
+    
+    respond_to do |format|
+      format.html # renders the HTML view
+      format.json { 
+        render json: {
+          id: @submission.id,
+          source_code: @submission.source_code,
+          language_id: @submission.programming_language_id,
+          status: @submission.status,
+          time_used: @submission.time_used,
+          memory_used: @submission.memory_used,
+          created_at: @submission.created_at
+        }
+      }
+    end
   end
 
   def submit

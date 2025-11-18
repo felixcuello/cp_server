@@ -136,7 +136,7 @@
 
     <!-- Actions -->
     <div class="submission-actions">
-      <%= link_to "Try Again on This Problem", problem_path(@submission.problem), class: "btn-primary", data: { turbo: false } %>
+      <%= link_to "Try Again on This Problem", problem_path(@submission.problem, submission_id: @submission.id), class: "btn-primary", data: { turbo: false } %>
       <%= link_to "View All My Submissions", submission_path, class: "btn-secondary" %>
     </div>
   </div>

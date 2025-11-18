@@ -167,20 +167,22 @@
             
             <div class="submission-history">
               <% @user_submissions.each do |submission| %>
-                <div class="submission-item">
-                  <div class="submission-info">
-                    <span class="submission-status-<%= submission.status.downcase.gsub(/\s+/, '-') %>">
-                      <%= submission.status.upcase %>
-                    </span>
-                    <span class="submission-lang"><%= submission.programming_language.name %></span>
-                    <span class="submission-time">
-                      <%= time_ago_in_words(submission.created_at) %> ago
-                    </span>
+                <%= link_to submission_detail_path(submission), class: "submission-item-link" do %>
+                  <div class="submission-item">
+                    <div class="submission-info">
+                      <span class="submission-status-<%= submission.status.downcase.gsub(/\s+/, '-') %>">
+                        <%= submission.status.upcase %>
+                      </span>
+                      <span class="submission-lang"><%= submission.programming_language.name %></span>
+                      <span class="submission-time">
+                        <%= time_ago_in_words(submission.created_at) %> ago
+                      </span>
+                    </div>
+                    <% if submission.time_used %>
+                      <div><%= submission.time_used.round(3) %> sec</div>
+                    <% end %>
                   </div>
-                  <% if submission.time_used %>
-                    <div><%= submission.time_used.round(3) %> sec</div>
-                  <% end %>
-                </div>
+                <% end %>
               <% end %>
             </div>
           </div>

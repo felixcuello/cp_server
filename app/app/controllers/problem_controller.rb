@@ -94,6 +94,25 @@ class ProblemController < AuthenticatedController
                                .limit(5)
   end
 
+  def recent_submission
+    @problem = Problem.find(params[:id])
+    
+    if current_user
+      # Get the most recent submission for this user and problem
+      recent_submission = Submission.where(user: current_user, problem: @problem)
+                                    .order(created_at: :desc)
+                                    .first
+      
+      if recent_submission
+        render json: { submission_id: recent_submission.id }
+      else
+        render json: { submission_id: nil }
+      end
+    else
+      render json: { submission_id: nil, error: "Not authenticated" }, status: :unauthorized
+    end
+  end
+
   private
 
   def difficulty

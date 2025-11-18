@@ -85,6 +85,12 @@
       color: #FFC107;
       border: 3px solid #FFC107;
     }
+    
+    &.queued {
+      background-color: rgba(33, 150, 243, 0.15);
+      color: #2196F3;
+      border: 3px solid #2196F3;
+    }
   }
   
   .modal-title {
@@ -804,6 +810,23 @@
 
 // Submission history
 .submission-history {
+  .submission-item-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      
+      .submission-item {
+        background-color: var(--bg-secondary);
+        border-color: var(--text-heading);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
+  }
+  
   .submission-item {
     padding: 15px;
     background-color: var(--bg-tertiary);
@@ -813,6 +836,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
     
     .submission-info {
       display: flex;

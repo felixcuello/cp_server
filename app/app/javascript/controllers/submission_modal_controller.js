@@ -49,6 +49,11 @@ export default class extends Controller {
       this.iconTarget.className = 'modal-icon success'
       this.titleTarget.textContent = 'Success!'
       this.messageTarget.textContent = 'Your solution passed all test cases! 🎉'
+    } else if (status === 'queued' || status === 'pending' || status === 'running' || status === 'enqueued') {
+      this.iconTarget.textContent = '⏳'
+      this.iconTarget.className = 'modal-icon queued'
+      this.titleTarget.textContent = 'Submission Queued!'
+      this.messageTarget.textContent = 'Your code has been submitted successfully and is being evaluated. Check your submissions page for results. 🚀'
     } else {
       this.iconTarget.textContent = '✗'
       this.iconTarget.className = 'modal-icon error'
@@ -91,11 +96,41 @@ export default class extends Controller {
     }
   }
   
-  // Try again - reload page
-  tryAgain(event) {
+  // Try again - fetch most recent submission and reload with it
+  async tryAgain(event) {
     event.preventDefault()
-    // Just reload the page (clears submission, keeps problem)
-    window.location.reload()
+    
+    // Get the problem ID from the controller value
+    const problemId = this.problemIdValue
+    
+    if (!problemId) {
+      window.location.reload()
+      return
+    }
+    
+    try {
+      // Fetch the most recent submission for this problem
+      const response = await fetch(`/problems/${problemId}/recent_submission`, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        
+        if (data.submission_id) {
+          window.location.href = `/problems/${problemId}?submission_id=${data.submission_id}`
+        } else {
+          window.location.href = `/problems/${problemId}`
+        }
+      } else {
+        window.location.href = `/problems/${problemId}`
+      }
+    } catch (error) {
+      console.error('Error fetching recent submission:', error)
+      window.location.href = `/problems/${problemId}`
+    }
   }
   
   // View submissions

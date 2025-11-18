@@ -5,6 +5,18 @@ class SubmissionController < ApplicationController
     @submissions = Submission.includes(:user, :problem, :programming_language)
                              .order(created_at: :desc)
     
+    # By default, show only current user's submissions
+    # Unless "show_all" is enabled
+    @show_all = params[:show_all] == 'true'
+    if current_user && !@show_all
+      @submissions = @submissions.where(user: current_user)
+    end
+    
+    # Filter by specific user (when showing all)
+    if params[:user_id].present? && params[:user_id] != 'all' && @show_all
+      @submissions = @submissions.where(user_id: params[:user_id])
+    end
+    
     # Filter by status
     if params[:status].present? && params[:status] != 'all'
       @submissions = @submissions.where(status: params[:status])
@@ -20,9 +32,16 @@ class SubmissionController < ApplicationController
       @submissions = @submissions.where(problem_id: params[:problem])
     end
     
-    # Filter by user (my submissions only)
-    if params[:my_submissions] == 'true' && current_user
-      @submissions = @submissions.where(user: current_user)
+    # Filter by time range
+    if params[:time_range].present? && params[:time_range] != 'all'
+      case params[:time_range]
+      when 'today'
+        @submissions = @submissions.where('created_at >= ?', Time.zone.now.beginning_of_day)
+      when 'week'
+        @submissions = @submissions.where('created_at >= ?', 1.week.ago)
+      when 'month'
+        @submissions = @submissions.where('created_at >= ?', 1.month.ago)
+      end
     end
     
     # Pagination
@@ -36,6 +55,7 @@ class SubmissionController < ApplicationController
     # For filters
     @all_languages = ProgrammingLanguage.order(:name)
     @all_problems = Problem.order(:id)
+    @all_users = User.order(:alias) if @show_all
     @statuses = [
       Submission::ACCEPTED,
       Submission::WRONG_ANSWER,
@@ -50,7 +70,47 @@ class SubmissionController < ApplicationController
   end
   
   def show
-    @submission = Submission.includes(:user, :problem, :programming_language).find(params[:id])
+    begin
+      @submission = Submission.includes(:user, :problem, :programming_language).find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      respond_to do |format|
+        format.html { 
+          redirect_to submission_path, alert: "Submission not found." 
+        }
+        format.json { 
+          render json: { error: 'Submission not found' }, status: :not_found
+        }
+      end
+      return
+    end
+    
+    # Security check: only allow users to view their own submissions
+    if @submission.user_id != current_user.id
+      respond_to do |format|
+        format.html { 
+          redirect_to submission_path, alert: "You don't have permission to view this submission." 
+        }
+        format.json { 
+          render json: { error: 'Unauthorized' }, status: :forbidden
+        }
+      end
+      return
+    end
+    
+    respond_to do |format|
+      format.html # renders the HTML view
+      format.json { 
+        render json: {
+          id: @submission.id,
+          source_code: @submission.source_code,
+          language_id: @submission.programming_language_id,
+          status: @submission.status,
+          time_used: @submission.time_used,
+          memory_used: @submission.memory_used,
+          created_at: @submission.created_at
+        }
+      }
+    end
   end
 
   def submit

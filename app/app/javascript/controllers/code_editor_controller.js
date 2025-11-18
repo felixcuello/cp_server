@@ -13,7 +13,7 @@ export default class extends Controller {
     if (typeof window.monacoLoaded !== 'undefined') {
       window.monacoLoaded.then(() => {
         this.initializeEditor()
-        this.loadFromLocalStorage()
+        this.checkForSubmissionLoad() // Check if we should load a previous submission
       });
     } else {
       // Fallback: try to initialize directly
@@ -29,7 +29,7 @@ export default class extends Controller {
     const checkMonaco = () => {
       if (typeof monaco !== 'undefined') {
         this.initializeEditor()
-        this.loadFromLocalStorage()
+        this.checkForSubmissionLoad() // Check if we should load a previous submission
       } else if (attempts < maxAttempts) {
         attempts++;
         setTimeout(checkMonaco, 100);
@@ -39,6 +39,70 @@ export default class extends Controller {
     };
     
     checkMonaco();
+  }
+  
+  // Check if URL has submission_id parameter and load it
+  checkForSubmissionLoad() {
+    const urlParams = new URLSearchParams(window.location.search)
+    const submissionId = urlParams.get('submission_id')
+    
+    if (submissionId) {
+      this.loadSubmission(submissionId)
+    } else {
+      this.loadFromLocalStorage()
+    }
+  }
+  
+  // Fetch and load a specific submission
+  async loadSubmission(submissionId) {
+    try {
+      const response = await fetch(`/submissions/${submissionId}`, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Check for error in response (e.g., unauthorized access)
+        if (data.error) {
+          alert(`Cannot load submission: ${data.error}`)
+          this.loadFromLocalStorage()
+          return
+        }
+        
+        // Set the language dropdown
+        if (data.language_id) {
+          this.languageSelectTarget.value = data.language_id
+          
+          // Get language name from the selected option
+          const selectedOption = this.languageSelectTarget.options[this.languageSelectTarget.selectedIndex]
+          const langName = selectedOption.getAttribute('data-lang')
+          this.languageValue = langName
+          
+          // Update Monaco editor language
+          if (this.editor) {
+            const monacoLang = this.getMonacoLanguage(langName)
+            monaco.editor.setModelLanguage(this.editor.getModel(), monacoLang)
+          }
+        }
+        
+        // Set the code in the editor
+        if (this.editor && data.source_code) {
+          this.editor.setValue(data.source_code)
+        }
+      } else if (response.status === 403) {
+        alert('You do not have permission to view this submission.')
+        this.loadFromLocalStorage()
+      } else {
+        console.error('Failed to load submission:', response.status)
+        this.loadFromLocalStorage()
+      }
+    } catch (error) {
+      console.error('Error loading submission:', error)
+      this.loadFromLocalStorage()
+    }
   }
   
   disconnect() {
@@ -231,7 +295,8 @@ export default class extends Controller {
       method: 'POST',
       body: formData,
       headers: {
-        'X-CSRF-Token': this.getCSRFToken()
+        'X-CSRF-Token': this.getCSRFToken(),
+        'Accept': 'application/json'
       }
     })
     .then(response => response.json())
@@ -239,15 +304,15 @@ export default class extends Controller {
       // Clear localStorage after successful submission
       this.clearLocalStorage()
       
-      // Show modal instead of alert
+      // Show modal with queued status (submission was successful)
       this.showSubmissionModal({
-        success: data.success !== false,
+        success: data.success === true,
         status: data.status || 'queued',
         submissionId: data.submission_id
       })
     })
     .catch(error => {
-      console.error('Error:', error)
+      console.error('Submit error:', error)
       // Show error modal
       this.showSubmissionModal({
         success: false,

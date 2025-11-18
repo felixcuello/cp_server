@@ -154,7 +154,7 @@
               </td>
               
               <td class="problem-title-cell">
-                <%= link_to problem_path(problem) do %>
+                <%= link_to problem_path(problem), data: { turbo: false } do %>
                   <strong><%= problem.id %>.</strong> <%= problem.title %>
                 <% end %>
               </td>

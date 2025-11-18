@@ -1,0 +1,47 @@
+name: Ruby Specs with MySQL
+
+on:
+  push:
+    branches:
+      - main  # or whatever your main branch is named
+  pull_request:
+    branches:
+      - main  # or whatever your main branch is named
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'  # Specify your Ruby version, or use a .ruby-version file
+          bundler-cache: true
+
+      - name: Install MySQL client
+        run: sudo apt-get install -y default-mysql-client
+
+      - name: Run RSpec tests
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: "mysql2://root:rootpassword@127.0.0.1:3306/test_db"
+        run: |
+          cd app
+          bundle install
+          bundle exec rails db:create
+          bundle exec rails db:migrate
+          bundle exec rspec spec

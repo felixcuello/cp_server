@@ -35,6 +35,10 @@ jobs:
         env:
           RAILS_ENV: test
           DATABASE_URL: "mysql2://root:rootpassword@127.0.0.1:3306/test_db"
+          RAILS_MYSQL_USER: root
+          RAILS_MYSQL_PASSWORD: rootpassword
+          RAILS_MYSQL_HOST: 127.0.0.1
+          RAILS_MYSQL_PORT: 3306
         run: |
           cd app
           bundle install

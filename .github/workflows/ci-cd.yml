@@ -1,0 +1,69 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'  # Using the same version as in run-specs.yml
+          bundler-cache: true
+
+      - name: Install MySQL client
+        run: sudo apt-get install -y default-mysql-client
+
+      - name: Run RSpec tests
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: "mysql2://root:rootpassword@127.0.0.1:3306/test_db"
+          RAILS_MYSQL_USER: root
+          RAILS_MYSQL_PASSWORD: rootpassword
+          RAILS_MYSQL_HOST: 127.0.0.1
+          RAILS_MYSQL_PORT: 3306
+        run: |
+          cd app
+          bundle install
+          bundle exec rails db:create
+          bundle exec rails db:migrate
+          bundle exec rspec spec
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+    - name: Deploy to Digital Ocean
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DIGITALOCEAN_HOST }}
+        username: ${{ secrets.DIGITALOCEAN_USERNAME }}
+        key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+        script: |
+          cd /root/github/cp_server/
+          make down || echo "Container not running, continuing..."
+          git pull
+          make build
+          make migrate || { echo "Migration failed"; exit 1; }
+          make run || { echo "Failed to start the container"; exit 1; }
+          echo "Deployment completed successfully!"
+

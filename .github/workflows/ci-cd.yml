@@ -50,6 +50,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: success()
+    environment: cp_server  # Match your GitHub environment name
     
     steps:
     - name: Deploy to Digital Ocean

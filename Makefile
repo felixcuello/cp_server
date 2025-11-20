@@ -7,6 +7,8 @@ all:
 	@echo "  make                                      # Esta ayuda"
 	@echo "  make build                                # Construir las imágenes para desarrollo"
 	@echo "  make build-nc                             # Construir las imágenes para desarrollo sin el caché"
+	@echo "  make build-web                            # Construir solo la imagen web"
+	@echo "  make build-sidekiq                        # Construir solo la imagen sidekiq"
 	@echo "  make destroy                              # Detener los containers y borrar los volúmenes (borra la BBDD)"
 	@echo "  make run                                  # Ejecutar el proyecto [para desarrollar]"
 	@echo "  make down                                 # Detener los containers"
@@ -14,31 +16,25 @@ all:
 	@echo ""
 
 # Esto sólo construye para desarrollo
-build:
-	docker compose build \
-		--build-arg BUNDLE_PATH="/usr/local/bin/bundle" \
-		--build-arg BUNDLE_WITHOUT="" \
-		--build-arg RAILS_ENV="development" \
-		--build-arg RAILS_MASTER_KEY="config/master.key" \
-		sidekiq
-	docker compose build \
-		--build-arg BUNDLE_PATH="/usr/local/bin/bundle" \
-		--build-arg BUNDLE_WITHOUT="" \
-		--build-arg RAILS_ENV="development" \
-		--build-arg RAILS_MASTER_KEY="config/master.key" \
-		cp_server
+# DOCKER_BUILD_FLAGS can be set to add flags like --no-cache
+DOCKER_BUILD_FLAGS ?=
 
-build-nc:
-	docker compose build --no-cache \
-		--build-arg BUNDLE_PATH="/usr/local/bin/bundle" \
+# Common build arguments
+BUILD_ARGS = --build-arg BUNDLE_PATH="/usr/local/bin/bundle" \
 		--build-arg BUNDLE_WITHOUT="" \
 		--build-arg RAILS_ENV="development" \
-		sidekiq
-	docker compose build --no-cache \
-		--build-arg BUNDLE_PATH="/usr/local/bin/bundle" \
-		--build-arg BUNDLE_WITHOUT="" \
-		--build-arg RAILS_ENV="development" \
-		cp_server
+		--build-arg RAILS_MASTER_KEY="config/master.key"
+
+build-sidekiq:
+	docker compose build $(DOCKER_BUILD_FLAGS) $(BUILD_ARGS) sidekiq
+
+build-web:
+	docker compose build $(DOCKER_BUILD_FLAGS) $(BUILD_ARGS) cp_server
+
+build: build-sidekiq build-web
+
+build-nc: DOCKER_BUILD_FLAGS=--no-cache
+build-nc: build
 
 destroy:
 	docker compose down --volumes

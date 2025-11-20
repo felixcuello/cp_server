@@ -16,7 +16,74 @@ RUN apt-get update -qq && \
       default-mysql-client \
       default-libmysqlclient-dev \
       nodejs \
-      python3
+      python3 \
+      # nsjail dependencies
+      autoconf \
+      bison \
+      flex \
+      git \
+      libprotobuf-dev \
+      libnl-route-3-dev \
+      libtool \
+      pkg-config \
+      protobuf-compiler \
+      uidmap
+
+# Build and install nsjail from source
+RUN git clone --depth 1 https://github.com/google/nsjail.git /tmp/nsjail && \
+    cd /tmp/nsjail && \
+    make && \
+    mv /tmp/nsjail/nsjail /usr/local/bin/ && \
+    rm -rf /tmp/nsjail
+
+# Create chroot directory structure for isolated execution
+RUN mkdir -p /chroot && \
+    mkdir -p /chroot/bin && \
+    mkdir -p /chroot/lib && \
+    mkdir -p /chroot/lib64 && \
+    mkdir -p /chroot/usr && \
+    mkdir -p /chroot/usr/bin && \
+    mkdir -p /chroot/usr/lib && \
+    mkdir -p /chroot/tmp && \
+    mkdir -p /chroot/workspace && \
+    mkdir -p /chroot/etc && \
+    chmod 1777 /chroot/tmp
+
+# Copy required binaries and libraries for Python
+RUN cp /usr/bin/python3 /chroot/usr/bin/ && \
+    ldd /usr/bin/python3 | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /chroot/usr/lib/ 2>/dev/null || true
+
+# Copy Python libraries
+RUN cp -r /usr/lib/python3* /chroot/usr/lib/ 2>/dev/null || true
+
+# Copy required binaries and libraries for Node.js
+RUN cp /usr/bin/node /chroot/usr/bin/ && \
+    ldd /usr/bin/node | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /chroot/usr/lib/ 2>/dev/null || true
+
+# Copy required binaries and libraries for Ruby
+RUN cp /usr/local/bin/ruby /chroot/usr/bin/ && \
+    ldd /usr/local/bin/ruby | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /chroot/usr/lib/ 2>/dev/null || true && \
+    cp -r /usr/local/lib/ruby /chroot/usr/lib/ 2>/dev/null || true
+
+# Copy GCC and G++ for compiled languages
+RUN cp /usr/bin/gcc /chroot/usr/bin/ && \
+    cp /usr/bin/g++ /chroot/usr/bin/ && \
+    cp /usr/bin/as /chroot/usr/bin/ && \
+    cp /usr/bin/ld /chroot/usr/bin/ && \
+    ldd /usr/bin/gcc | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /chroot/usr/lib/ 2>/dev/null || true && \
+    ldd /usr/bin/g++ | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /chroot/usr/lib/ 2>/dev/null || true
+
+# Copy essential libraries
+RUN cp -r /lib/x86_64-linux-gnu/* /chroot/lib/ 2>/dev/null || true && \
+    cp -r /usr/lib/x86_64-linux-gnu/* /chroot/usr/lib/ 2>/dev/null || true && \
+    cp -r /lib64/* /chroot/lib64/ 2>/dev/null || true
+
+# Fix the dynamic linker symlink to use relative path
+RUN rm -f /chroot/lib64/ld-linux-x86-64.so.2 && \
+    ln -s ../lib/ld-linux-x86-64.so.2 /chroot/lib64/ld-linux-x86-64.so.2
+
+# Create a nobody user in chroot (for running untrusted code)
+RUN echo "nobody:x:65534:65534:Nobody:/:/bin/false" > /chroot/etc/passwd
 
 # Set production environment
 ENV RAILS_ENV="development" \

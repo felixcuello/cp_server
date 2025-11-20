@@ -206,9 +206,6 @@ class NsjailExecutionService
 
   # Execute command and return exit code
   def execute_command(command)
-    # Debug: log the command being executed
-    Rails.logger.debug("Executing nsjail command: #{command}") if defined?(Rails)
-
     # Use system() to execute and get exit code
     system(command)
     $?.exitstatus

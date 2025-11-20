@@ -115,6 +115,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_16_000002) do
     t.datetime "timeout_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["alias"], name: "index_users_on_alias", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

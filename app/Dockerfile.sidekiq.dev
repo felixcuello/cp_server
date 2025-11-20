@@ -49,6 +49,11 @@ RUN mkdir -p /chroot && \
     mkdir -p /chroot/etc && \
     chmod 1777 /chroot/tmp
 
+# Copy shell and basic utilities to chroot
+RUN cp /bin/sh /chroot/bin/ && \
+    cp /bin/dash /chroot/bin/ 2>/dev/null || true && \
+    ldd /bin/sh | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /chroot/lib/ 2>/dev/null || true
+
 # Copy required binaries and libraries for Python
 RUN cp /usr/bin/python3 /chroot/usr/bin/ && \
     ldd /usr/bin/python3 | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /chroot/usr/lib/ 2>/dev/null || true

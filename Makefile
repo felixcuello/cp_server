@@ -25,8 +25,13 @@ BUILD_ARGS = --build-arg BUNDLE_PATH="/usr/local/bin/bundle" \
 		--build-arg RAILS_ENV="development" \
 		--build-arg RAILS_MASTER_KEY="config/master.key"
 
+# Sidekiq-specific build arguments (uses /app workdir)
+SIDEKIQ_BUILD_ARGS = $(BUILD_ARGS) \
+		--build-arg WORKDIR_PATH="/app" \
+		--build-arg BUNDLE_DEPLOYMENT="0"
+
 build-sidekiq:
-	docker compose build $(DOCKER_BUILD_FLAGS) $(BUILD_ARGS) sidekiq
+	docker compose build $(DOCKER_BUILD_FLAGS) $(SIDEKIQ_BUILD_ARGS) sidekiq
 
 build-web:
 	docker compose build $(DOCKER_BUILD_FLAGS) $(BUILD_ARGS) cp_server

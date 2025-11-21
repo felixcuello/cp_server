@@ -20,7 +20,12 @@ services:
     env_file: .env.development
     build:
       context: ./app/
-      dockerfile: Dockerfile.sidekiq.dev
+      dockerfile: Dockerfile
+      args:
+        RAILS_ENV: development
+        BUNDLE_DEPLOYMENT: "0"
+        BUNDLE_WITHOUT: ""
+        WORKDIR_PATH: /app
     command: bundle exec sidekiq
     volumes:
       - ./app:/app

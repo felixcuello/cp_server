@@ -252,7 +252,7 @@ class SubmissionController < ApplicationController
     start_time = Time.now
     
     begin
-      # Compile if needed
+      # Compile if needed (compilation happens outside nsjail for now)
       if language.compiler_binary.present?
         compiler_output_file = "/tmp/#{uuid}_compile.out"
         compiler_command = "#{language.compiler_binary} #{language.compiler_flags} 2> #{compiler_output_file}; echo $?"
@@ -281,9 +281,7 @@ class SubmissionController < ApplicationController
         # Cleanup compiler output file
         File.delete(compiler_output_file) rescue nil
         
-        executable = "/tmp/#{uuid}"
-      else
-        executable = "#{language.interpreter_binary} #{language.interpreter_flags} #{source_code_file}"
+        compiled_file = "/tmp/#{uuid}"
       end
       
       # Prepare test case
@@ -291,37 +289,57 @@ class SubmissionController < ApplicationController
       File.write(input_file, example.input)
       
       output_file = "/tmp/#{uuid}_program.out"
-      error_file = "/tmp/#{uuid}_program.err"
+      File.write(output_file, "")  # Create empty output file
       
+      # Calculate resource limits
       time_limit = [language.time_limit_sec, problem.time_limit_sec].max
-      memory_limit_kb = [language.memory_limit_kb.to_i, problem.memory_limit_kb.to_i].max * 1024
+      memory_limit_mb = [language.memory_limit_kb.to_i, problem.memory_limit_kb.to_i].max / 1024
       
-      # Run the code (capture both stdout and stderr)
-      command = "ulimit -m #{memory_limit_kb}; ulimit -v #{memory_limit_kb}; timeout #{time_limit}s #{executable} < #{input_file} > #{output_file} 2> #{error_file}; echo $?"
+      Rails.logger.info "Executing with nsjail: timeout=#{time_limit}s, memory=#{memory_limit_mb}MB"
       
-      exit_code_output = `#{command}`.strip
+      # Execute using nsjail
+      if language.compiler_binary.present?
+        # Execute compiled binary
+        result = NsjailExecutionService.execute_compiled(
+          timeout_sec: time_limit,
+          memory_limit_mb: memory_limit_mb,
+          compiled_file: compiled_file,
+          input_file: input_file,
+          output_file: output_file
+        )
+      else
+        # Execute interpreted code
+        result = NsjailExecutionService.new(
+          language_name: language.name,
+          timeout_sec: time_limit,
+          memory_limit_mb: memory_limit_mb,
+          source_file: source_code_file,
+          input_file: input_file,
+          output_file: output_file
+        ).execute
+      end
+      
       runtime = Time.now - start_time
       
-      Rails.logger.info "Exit code: #{exit_code_output}"
+      Rails.logger.info "Execution result: exit_code=#{result.exit_code}, timed_out=#{result.timed_out}, oom_killed=#{result.oom_killed}"
       
-      # Check exit code
-      if exit_code_output == "124"
+      # Map nsjail results to test status
+      if result.timed_out
         status = "time_limit_exceeded"
         output = ""
         error_message = "Time limit exceeded (> #{time_limit}s)"
-      elsif exit_code_output == "133"
+      elsif result.oom_killed
         status = "memory_limit_exceeded"
         output = ""
         error_message = "Memory limit exceeded"
-      elsif exit_code_output != "0"
+      elsif !result.success?
         status = "runtime_error"
-        output = File.read(output_file) rescue ""
-        error_output = File.read(error_file) rescue ""
-        error_message = "Runtime error (exit code #{exit_code_output})"
-        error_message += "\n#{error_output}" if error_output.present?
+        output = result.stdout
+        error_message = "Runtime error (exit code #{result.exit_code})"
+        error_message += "\n#{result.stderr}" if result.stderr.present?
       else
         # Read output and compare
-        actual_output = File.read(output_file) rescue ""
+        actual_output = result.stdout
         expected_output = example.output
         
         if actual_output == expected_output
@@ -346,8 +364,7 @@ class SubmissionController < ApplicationController
       File.delete(source_code_file) rescue nil
       File.delete(input_file) rescue nil
       File.delete(output_file) rescue nil
-      File.delete(error_file) rescue nil
-      File.delete("/tmp/#{uuid}") rescue nil if language.compiler_binary.present?
+      File.delete(compiled_file) rescue nil if language.compiler_binary.present?
       
       {
         status: status,
@@ -363,8 +380,7 @@ class SubmissionController < ApplicationController
       File.delete(source_code_file) rescue nil
       File.delete(input_file) rescue nil
       File.delete(output_file) rescue nil
-      File.delete(error_file) rescue nil
-      File.delete("/tmp/#{uuid}") rescue nil
+      File.delete(compiled_file) rescue nil if defined?(compiled_file) && language.compiler_binary.present?
       
       {
         status: "error",

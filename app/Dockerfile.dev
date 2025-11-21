@@ -13,7 +13,73 @@ RUN apt-get update -qq && \
       libjemalloc2 \
       libvips \
       default-mysql-client \
-      default-libmysqlclient-dev
+      default-libmysqlclient-dev \
+      python3 \
+      # nsjail dependencies
+      autoconf \
+      bison \
+      flex \
+      git \
+      libprotobuf-dev \
+      libnl-route-3-dev \
+      libtool \
+      pkg-config \
+      protobuf-compiler \
+      uidmap
+
+# Install build tools temporarily to build nsjail
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y build-essential git && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Build and install nsjail from source
+RUN git clone --depth 1 https://github.com/google/nsjail.git /tmp/nsjail && \
+    cd /tmp/nsjail && \
+    make && \
+    mv /tmp/nsjail/nsjail /usr/local/bin/ && \
+    rm -rf /tmp/nsjail
+
+# Remove build tools to keep image size small (nsjail binary is already installed)
+RUN apt-get remove -y build-essential git && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Create chroot directory structure for isolated execution (needed for tests)
+RUN mkdir -p /chroot && \
+    mkdir -p /chroot/bin && \
+    mkdir -p /chroot/lib && \
+    mkdir -p /chroot/lib64 && \
+    mkdir -p /chroot/usr && \
+    mkdir -p /chroot/usr/bin && \
+    mkdir -p /chroot/usr/lib && \
+    mkdir -p /chroot/tmp && \
+    mkdir -p /chroot/workspace && \
+    mkdir -p /chroot/etc && \
+    chmod 1777 /chroot/tmp
+
+# Copy shell and basic utilities to chroot
+RUN cp /bin/sh /chroot/bin/ && \
+    cp /bin/dash /chroot/bin/ 2>/dev/null || true && \
+    ldd /bin/sh | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /chroot/lib/ 2>/dev/null || true
+
+# Copy required binaries and libraries for Python
+RUN cp /usr/bin/python3 /chroot/usr/bin/ && \
+    ldd /usr/bin/python3 | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /chroot/usr/lib/ 2>/dev/null || true
+
+# Copy Python libraries
+RUN cp -r /usr/lib/python3* /chroot/usr/lib/ 2>/dev/null || true
+
+# Copy essential libraries
+RUN cp -r /lib/x86_64-linux-gnu/* /chroot/lib/ 2>/dev/null || true && \
+    cp -r /usr/lib/x86_64-linux-gnu/* /chroot/usr/lib/ 2>/dev/null || true && \
+    cp -r /lib64/* /chroot/lib64/ 2>/dev/null || true
+
+# Fix the dynamic linker symlink to use relative path
+RUN rm -f /chroot/lib64/ld-linux-x86-64.so.2 && \
+    ln -s ../lib/ld-linux-x86-64.so.2 /chroot/lib64/ld-linux-x86-64.so.2
+
+# Create a nobody user in chroot (for running untrusted code)
+RUN echo "nobody:x:65534:65534:Nobody:/:/bin/false" > /chroot/etc/passwd
 
 # Set production environment
 ENV RAILS_ENV="development" \

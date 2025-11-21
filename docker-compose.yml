@@ -1,6 +1,9 @@
 ---
 services:
   cp_server:
+    privileged: true
+    security_opt:
+      - seccomp:unconfined
     platform: linux/amd64
     env_file: .env.development
     build:
@@ -16,6 +19,9 @@ services:
       - sidekiq
 
   sidekiq:
+    privileged: true
+    security_opt:
+      - seccomp:unconfined
     platform: linux/amd64
     env_file: .env.development
     build:

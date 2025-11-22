@@ -51,6 +51,25 @@ class NsjailExecutionService
     result = ExecutionResult.new
     start_time = Time.now
 
+    # Debug: Check if chroot exists and what's in it
+    if Dir.exist?(CHROOT_PATH)
+      interpreter = get_interpreter_for_language
+      interpreter_path_in_chroot = interpreter
+      full_path = File.join(CHROOT_PATH, interpreter_path_in_chroot[1..-1]) # Remove leading /
+      
+      unless File.exist?(full_path)
+        result.stderr = "ERROR: Interpreter not found in chroot. Expected: #{full_path}\n"
+        result.stderr += "Chroot contents of /usr/bin: #{Dir.glob(File.join(CHROOT_PATH, 'usr/bin/*')).join(', ')}\n" if Dir.exist?(File.join(CHROOT_PATH, 'usr/bin'))
+        result.stderr += "Chroot exists: #{Dir.exist?(CHROOT_PATH)}\n"
+        result.exit_code = 127
+        return result
+      end
+    else
+      result.stderr = "ERROR: Chroot directory #{CHROOT_PATH} does not exist!"
+      result.exit_code = 127
+      return result
+    end
+
     # Build the nsjail command
     command = build_nsjail_command
 
@@ -156,7 +175,7 @@ class NsjailExecutionService
       "--bindmount", "#{@input_file}:#{WORKSPACE_PATH}/input:ro",    # Mount input file (read-only)
       "--bindmount", "#{@output_file}:#{WORKSPACE_PATH}/output:rw",  # Mount output file (read-write)
       "--",                                        # End of nsjail args
-      "/bin/sh", "-c", "'#{inner_command}'"       # Shell to run command (properly quoted)
+      "/bin/sh", "-c", "\"#{inner_command.gsub('"', '\\"')}\""       # Shell to run command (escape double quotes)
     ].join(" ")
   end
 
@@ -186,22 +205,30 @@ class NsjailExecutionService
       "--bindmount", "#{@input_file}:#{WORKSPACE_PATH}/input:ro",
       "--bindmount", "#{@output_file}:#{WORKSPACE_PATH}/output:rw",
       "--",
-      "/bin/sh", "-c", "'#{inner_command}'"
+      "/bin/sh", "-c", "\"#{inner_command.gsub('"', '\\"')}\""       # Shell to run command (escape double quotes)
     ].join(" ")
   end
 
   # Get interpreter path for language
   def get_interpreter_for_language
-    case @language_name.downcase
-    when "python", "python3", "python 3"
-      "/usr/bin/python3"
-    when "ruby"
-      "/usr/bin/ruby"
-    when "javascript", "node", "nodejs", "node.js"
-      "/usr/bin/node"
-    else
-      raise "Unsupported language: #{@language_name}"
+    lang = @language_name.downcase
+    
+    # Handle Python variations
+    if lang.include?("python")
+      return "/usr/bin/python3"
     end
+    
+    # Handle Ruby
+    if lang == "ruby"
+      return "/usr/bin/ruby"
+    end
+    
+    # Handle JavaScript/Node.js variations (including "javascript (nodejs)", "node", "nodejs", etc.)
+    if lang.include?("javascript") || lang.include?("node")
+      return "/usr/bin/node"
+    end
+    
+    raise "Unsupported language: #{@language_name}"
   end
 
   # Execute command and return exit code

@@ -1,12 +1,24 @@
 # frozen_string_literal: true
 
+require 'open3'
+
 class Submission < ApplicationRecord
   belongs_to :problem
   belongs_to :programming_language
   belongs_to :user
 
-  validates :source_code, presence: true
+  validates :source_code, presence: true, length: { maximum: 1_000_000 } # 1MB limit
   validates :status, presence: true
+  validates :problem, presence: true
+  validates :programming_language, presence: true
+  validate :problem_exists
+  validate :programming_language_exists
+  validate :user_can_submit_to_problem, on: :create
+
+  # Security: Ensure user_id cannot be set to a different user than the user association
+  # This prevents mass assignment attacks where someone tries to submit as another user
+  before_validation :ensure_user_id_matches_user_association, on: :create
+  before_save :prevent_user_id_change, if: :persisted?
 
   # Update problem statistics after submission status changes
   after_save :update_problem_statistics, if: :saved_change_to_status?
@@ -35,10 +47,6 @@ class Submission < ApplicationRecord
   end
 
   def run_with_interpreter!
-    uuid = SecureRandom.uuid
-    source_code_file = "/tmp/#{uuid}.#{self.programming_language.extension}"
-    File.write(source_code_file, self.source_code)
-
     problem = Problem.find self.problem_id
     start_time = Time.now
 
@@ -46,75 +54,41 @@ class Submission < ApplicationRecord
 
     self.update!(status: RUNNING)
     problem.examples.order(:id).each_with_index do |example, index|
-      input_file = "/tmp/#{uuid}.in"
-      File.write(input_file, example.input)
+      # Use SubmissionService to run the test
+      service = SubmissionService.new(
+        source_code: self.source_code,
+        language: self.programming_language,
+        example: example,
+        problem: problem
+      )
 
-      output_file = "/tmp/#{uuid}_program.out"
-      File.write(output_file, "")  # Create empty output file
+      result = service.execute
+      debug!("#{__LINE__} Test #{index + 1} result: #{result[:status]}")
 
-      # Calculate resource limits (use max of language and problem limits)
-      time_limit = [self.programming_language.time_limit_sec, problem.time_limit_sec].max
-      memory_limit_mb = [self.programming_language.memory_limit_kb.to_i, problem.memory_limit_kb.to_i].max / 1024
-
-      debug!("#{__LINE__} Executing with nsjail: timeout=#{time_limit}s, memory=#{memory_limit_mb}MB")
-
-      # Execute using nsjail
-      result = NsjailExecutionService.new(
-        language_name: self.programming_language.name,
-        timeout_sec: time_limit,
-        memory_limit_mb: memory_limit_mb,
-        source_file: source_code_file,
-        input_file: input_file,
-        output_file: output_file
-      ).execute
-
-      debug!("#{__LINE__} Execution result: exit_code=#{result.exit_code}, timed_out=#{result.timed_out}")
-
-      # Check for time limit exceeded
-      if result.timed_out
+      # Map service result status to Submission status constants
+      case result[:status]
+      when "time_limit_exceeded"
         final_status = TIME_LIMIT_EXCEEDED
-      elsif result.oom_killed
+      when "memory_limit_exceeded"
         final_status = MEMORY_LIMIT_EXCEEDED
-      elsif !result.success?
+      when "runtime_error"
         final_status = RUNTIME_ERROR
-      end
-
-      # Read and compare output
-      output = result.stdout
-      expected_output = example.output
-
-      # Clean up temp files
-      begin
-        unless DEBUG
-          File.delete(input_file)
-          File.delete(output_file)
-        end
-      rescue StandardError => e
-        debug!("#{__LINE__} error deleting files: #{e.message}")
+      when "compilation_error"
+        final_status = COMPILATION_ERROR
+      when "passed"
+        # Continue to next example
+        next
+      when "presentation_error"
+        final_status = PRESENTATION_ERROR
+      when "wrong_answer"
+        final_status = WRONG_ANSWER + " (example #{index + 1})"
+      else
+        final_status = RUNTIME_ERROR
       end
 
       # Break if we already have a non-accepted status
       break if final_status != ACCEPTED
-
-      # Compare outputs
-      if output == expected_output
-        next
-      else
-        # Try with normalized whitespace
-        output_normalized = output.gsub(/\s+/, "")
-        expected_normalized = expected_output.gsub(/\s+/, "")
-
-        if output_normalized == expected_normalized
-          final_status = PRESENTATION_ERROR
-        else
-          final_status = WRONG_ANSWER + " (example #{index + 1})"
-        end
-        break
-      end
     end
-
-    # Clean up source file
-    File.delete(source_code_file) unless DEBUG
 
     time_used = Time.now - start_time
     self.update!(time_used: time_used)
@@ -122,107 +96,82 @@ class Submission < ApplicationRecord
   end
 
   def run_with_compiler!
-    uuid = SecureRandom.uuid
-    source_code_file = "/tmp/#{uuid}.#{self.programming_language.extension}"
-    File.write(source_code_file, self.source_code)
-
     problem = Problem.find self.problem_id
     start_time = Time.now
 
-    compiler_binary = self.programming_language.compiler_binary
-    compiler_flags = self.programming_language.compiler_flags
-    compiler_command = "#{compiler_binary} #{compiler_flags}; echo $?"
-
-    debug!("#{__LINE__}: running #{compiler_command}")
-
-    compiler_command.gsub!("{compiled_file}", "/tmp/#{uuid}")
-    compiler_command.gsub!("{source_file}", source_code_file)
-
     self.update!(status: COMPILING)
 
-    # Compilation happens outside nsjail for now
-    # TODO: Move compilation inside nsjail in future iteration
-    result = `#{compiler_command}`
-
-    if result != "0\n"
-      self.update!(status: COMPILATION_ERROR)
-      File.delete(source_code_file) unless DEBUG
+    # Try to compile - if compilation fails, TestExecutionService will handle it
+    # We run the first test to trigger compilation and catch compilation errors early
+    first_example = problem.examples.order(:id).first
+    if first_example.nil?
+      self.update!(status: RUNTIME_ERROR)
       return
     end
 
+    service = SubmissionService.new(
+      source_code: self.source_code,
+      language: self.programming_language,
+      example: first_example,
+      problem: problem
+    )
+
+    begin
+      first_result = service.execute
+    rescue SubmissionService::CompilationError => e
+      self.update!(status: COMPILATION_ERROR)
+      return
+    end
+
+    # If compilation succeeded, continue with all examples
     final_status = ACCEPTED
-    compiled_file = "/tmp/#{uuid}"
 
     self.update!(status: RUNNING)
 
     problem.examples.order(:id).each_with_index do |example, index|
-      input_file = "/tmp/#{uuid}.in"
-      File.write(input_file, example.input)
+      # Skip first example if we already ran it (unless it failed)
+      if index == 0 && first_result[:status] == "passed"
+        next
+      elsif index == 0
+        result = first_result
+      else
+        # Use SubmissionService to run the test
+        service = SubmissionService.new(
+          source_code: self.source_code,
+          language: self.programming_language,
+          example: example,
+          problem: problem
+        )
 
-      output_file = "/tmp/#{uuid}_program.out"
-      File.write(output_file, "")
+        result = service.execute
+      end
 
-      # Calculate resource limits
-      time_limit = [self.programming_language.time_limit_sec, problem.time_limit_sec].max
-      memory_limit_mb = [self.programming_language.memory_limit_kb.to_i, problem.memory_limit_kb.to_i].max / 1024
+      debug!("#{__LINE__} Test #{index + 1} result: #{result[:status]}")
 
-      debug!("#{__LINE__} Executing compiled binary with nsjail: timeout=#{time_limit}s, memory=#{memory_limit_mb}MB")
-
-      # Execute compiled binary using nsjail
-      result = NsjailExecutionService.execute_compiled(
-        timeout_sec: time_limit,
-        memory_limit_mb: memory_limit_mb,
-        compiled_file: compiled_file,
-        input_file: input_file,
-        output_file: output_file
-      )
-
-      debug!("#{__LINE__} Execution result: exit_code=#{result.exit_code}, timed_out=#{result.timed_out}")
-
-      # Check for errors
-      if result.timed_out
+      # Map service result status to Submission status constants
+      case result[:status]
+      when "time_limit_exceeded"
         final_status = TIME_LIMIT_EXCEEDED
-      elsif result.oom_killed
+      when "memory_limit_exceeded"
         final_status = MEMORY_LIMIT_EXCEEDED
-      elsif !result.success?
+      when "runtime_error"
+        final_status = RUNTIME_ERROR
+      when "compilation_error"
+        final_status = COMPILATION_ERROR
+      when "passed"
+        # Continue to next example
+        next
+      when "presentation_error"
+        final_status = PRESENTATION_ERROR
+      when "wrong_answer"
+        final_status = WRONG_ANSWER + " (example #{index + 1})"
+      else
         final_status = RUNTIME_ERROR
       end
 
-      # Read and compare output
-      output = result.stdout
-      expected_output = example.output
-
-      # Clean up temp files
-      begin
-        unless DEBUG
-          File.delete(input_file)
-          File.delete(output_file)
-        end
-      rescue StandardError => e
-        debug!("#{__LINE__} error deleting files: #{e.message}")
-      end
-
+      # Break if we already have a non-accepted status
       break if final_status != ACCEPTED
-
-      # Compare outputs
-      if output == expected_output
-        next
-      else
-        output_normalized = output.gsub(/\s+/, "")
-        expected_normalized = expected_output.gsub(/\s+/, "")
-
-        if output_normalized == expected_normalized
-          final_status = PRESENTATION_ERROR
-        else
-          final_status = WRONG_ANSWER + " (example #{index + 1})"
-        end
-        break
-      end
     end
-
-    # Clean up
-    File.delete(source_code_file) unless DEBUG
-    File.delete(compiled_file) unless DEBUG
 
     time_used = Time.now - start_time
     self.update!(time_used: time_used)
@@ -230,6 +179,56 @@ class Submission < ApplicationRecord
   end
 
   private
+
+  # Validation: Ensure problem exists
+  def problem_exists
+    return if problem_id.blank?
+
+    unless Problem.exists?(problem_id)
+      errors.add(:problem, "does not exist")
+    end
+  end
+
+  # Validation: Ensure programming language exists
+  def programming_language_exists
+    return if programming_language_id.blank?
+
+    unless ProgrammingLanguage.exists?(programming_language_id)
+      errors.add(:programming_language, "does not exist")
+    end
+  end
+
+  # Validation: Ensure user has permission to submit to problem
+  # For now, all authenticated users can submit to all problems
+  # This can be extended later to check for hidden problems, contest restrictions, etc.
+  def user_can_submit_to_problem
+    return if user.blank? || problem.blank?
+
+    # Add any permission checks here in the future
+    # For example: check if problem is hidden, check contest restrictions, etc.
+    # if problem.hidden? && !user.admin?
+    #   errors.add(:problem, "is not available for submission")
+    # end
+  end
+
+  # Security: Ensure that if user_id is set directly, it matches the user association
+  # This prevents users from submitting as other users
+  def ensure_user_id_matches_user_association
+    if user.present?
+      # Always use the user association to set user_id - ignore any user_id that was set directly
+      self.user_id = user.id
+    end
+  end
+
+  # Security: Prevent changing user_id after submission is created
+  # This ensures a submission always belongs to the user who created it
+  def prevent_user_id_change
+    if user_id_changed? && persisted?
+      self.user_id = user_id_was
+      Rails.logger.warn("Attempted to change user_id on submission #{id} from #{user_id_was} to #{user_id}. Blocked.")
+      errors.add(:user_id, "cannot be changed after submission is created")
+    end
+  end
 
   def debug!(message)
     File.write("/tmp/debug", "#{message}\n", mode: 'a') if DEBUG
@@ -240,16 +239,45 @@ class Submission < ApplicationRecord
   end
 
   def update_user_problem_status
-    user_status = UserProblemStatus.find_or_initialize_by(user: user, problem: problem)
+    # Use database-level locking to prevent race conditions with concurrent submissions
+    # The unique constraint on [user_id, problem_id] ensures only one record exists
+    # This implementation uses blocking locks - the second user will wait for the first to finish
+    UserProblemStatus.transaction(requires_new: true) do
+      # First, try to find the record with a lock (this will wait if another transaction has it locked)
+      # If not found, create it within the same transaction
+      user_status = UserProblemStatus.where(user: user, problem: problem).lock.first
 
-    # If this submission is accepted, mark as solved
-    if status == ACCEPTED
-      user_status.status = 'solved'
-      user_status.save!
-    # Otherwise, if not already solved, mark as attempted
-    elsif user_status.status != 'solved'
-      user_status.status = 'attempted'
-      user_status.save!
+      if user_status.nil?
+        # Record doesn't exist, create it with initial values
+        # The unique constraint will prevent duplicates if two processes try simultaneously
+        begin
+          user_status = UserProblemStatus.create!(
+            user: user,
+            problem: problem,
+            status: 'attempted',
+            attempts: 0
+          )
+        rescue ActiveRecord::RecordNotUnique
+          # Another process created it between our check and create, fetch it with lock
+          user_status = UserProblemStatus.where(user: user, problem: problem).lock.first
+        end
+      end
+
+      # At this point, we have the record with an exclusive lock
+      # Other processes will wait here until we release the lock (end of transaction)
+
+      # If this submission is accepted, mark as solved
+      if status == ACCEPTED
+        user_status.status = 'solved'
+        user_status.first_solved_at ||= Time.current
+        user_status.save!
+      # Otherwise, if not already solved, mark as attempted and increment attempts
+      elsif user_status.status != 'solved'
+        user_status.status = 'attempted'
+        user_status.attempts = (user_status.attempts || 0) + 1
+        user_status.save!
+      end
     end
+    # Transaction commits here, releasing the lock so the next waiting process can proceed
   end
 end

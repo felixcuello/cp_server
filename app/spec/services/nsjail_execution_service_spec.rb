@@ -6,6 +6,13 @@ RSpec.describe NsjailExecutionService do
   let(:timeout_sec) { 5 }
   let(:memory_limit_mb) { 256 }
 
+  # Helper to check if nsjail execution environment is available
+  def nsjail_available?
+    chroot_path = NsjailExecutionService::CHROOT_PATH
+    nsjail_binary = NsjailExecutionService::NSJAIL_BINARY
+    Dir.exist?(chroot_path) && File.exist?(nsjail_binary) && File.executable?(nsjail_binary)
+  end
+
   before do
     @temp_dir = Dir.mktmpdir
     @source_file = File.join(@temp_dir, "source.py")
@@ -20,6 +27,8 @@ RSpec.describe NsjailExecutionService do
   describe '#execute' do
     context 'with valid Python code' do
       it 'executes successfully and returns output' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
+
         File.write(@source_file, "print(input())")
         File.write(@input_file, "Hello World")
         File.write(@output_file, "")
@@ -43,6 +52,7 @@ RSpec.describe NsjailExecutionService do
 
     context 'with simple arithmetic' do
       it 'executes Python code with calculations' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
         File.write(@source_file, "a, b = map(int, input().split())\nprint(a + b)")
         File.write(@input_file, "5 3")
         File.write(@output_file, "")
@@ -66,6 +76,8 @@ RSpec.describe NsjailExecutionService do
 
     context 'with infinite loop' do
       it 'times out correctly' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
+
         File.write(@source_file, "while True: pass")
         File.write(@input_file, "")
         File.write(@output_file, "")
@@ -87,6 +99,7 @@ RSpec.describe NsjailExecutionService do
 
     context 'with memory-intensive code' do
       it 'respects memory limits' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
         File.write(@source_file, "a = [0] * (1024 * 1024 * 1024)")  # Try to allocate 1GB
         File.write(@input_file, "")
         File.write(@output_file, "")
@@ -109,6 +122,8 @@ RSpec.describe NsjailExecutionService do
 
     context 'with runtime error' do
       it 'detects errors correctly' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
+
         File.write(@source_file, "print(1/0)")  # Division by zero
         File.write(@input_file, "")
         File.write(@output_file, "")
@@ -131,6 +146,7 @@ RSpec.describe NsjailExecutionService do
 
     context 'with empty input' do
       it 'handles empty input correctly' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
         File.write(@source_file, "print('Hello')")
         File.write(@input_file, "")
         File.write(@output_file, "")
@@ -153,6 +169,8 @@ RSpec.describe NsjailExecutionService do
 
     context 'with multiple lines of output' do
       it 'captures all output lines' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
+
         File.write(@source_file, "for i in range(5):\n    print(i)")
         File.write(@input_file, "")
         File.write(@output_file, "")
@@ -177,6 +195,8 @@ RSpec.describe NsjailExecutionService do
   describe '.execute_compiled' do
     context 'with a compiled binary' do
       it 'executes binary successfully' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
+
         # Create a simple C program
         c_source = File.join(@temp_dir, "test.c")
         File.write(c_source, <<~C)

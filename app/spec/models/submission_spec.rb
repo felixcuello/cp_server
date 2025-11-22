@@ -7,9 +7,18 @@ RSpec.describe Submission, type: :model do
   let(:python_language) { create(:programming_language, :python) }
   let(:problem) { create(:problem, time_limit_sec: 5, memory_limit_kb: 262144) }
 
+  # Helper to check if nsjail execution environment is available
+  def nsjail_available?
+    chroot_path = NsjailExecutionService::CHROOT_PATH
+    nsjail_binary = NsjailExecutionService::NSJAIL_BINARY
+    Dir.exist?(chroot_path) && File.exist?(nsjail_binary) && File.executable?(nsjail_binary)
+  end
+
   describe '#run!' do
     context 'with Python interpreter' do
       it 'updates status to enqueued initially' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
+
         submission = create(:submission, 
           user: user,
           problem: problem,
@@ -24,6 +33,8 @@ RSpec.describe Submission, type: :model do
       end
 
       it 'runs with interpreter when no compiler binary' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
+
         submission = create(:submission,
           user: user,
           problem: problem,
@@ -49,6 +60,8 @@ RSpec.describe Submission, type: :model do
       )}
 
       it 'runs with compiler when compiler binary exists' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
+
         submission = create(:submission,
           user: user,
           problem: problem,
@@ -66,6 +79,8 @@ RSpec.describe Submission, type: :model do
   describe '#run_with_interpreter!' do
     context 'with valid Python code' do
       it 'executes successfully and marks as accepted' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
+
         # Create problem with example
         example = problem.examples.create!(
           input: "5 3\n",
@@ -88,6 +103,7 @@ RSpec.describe Submission, type: :model do
       end
 
       it 'handles multiple test cases correctly' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
         # Create problem with multiple examples
         problem.examples.create!(input: "1 1\n", output: "2\n", sort_order: 1)
         problem.examples.create!(input: "10 20\n", output: "30\n", sort_order: 2)
@@ -107,6 +123,8 @@ RSpec.describe Submission, type: :model do
       end
 
       it 'detects wrong answer' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
+
         problem.examples.create!(input: "5 3\n", output: "8\n", sort_order: 1)
 
         submission = create(:submission,
@@ -123,6 +141,7 @@ RSpec.describe Submission, type: :model do
       end
 
       it 'detects presentation error' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
         problem.examples.create!(input: "5 3\n", output: "8", sort_order: 1)
 
         submission = create(:submission,
@@ -141,6 +160,8 @@ RSpec.describe Submission, type: :model do
       end
 
       it 'detects time limit exceeded' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
+
         problem.examples.create!(input: "", output: "", sort_order: 1)
 
         submission = create(:submission,
@@ -157,6 +178,7 @@ RSpec.describe Submission, type: :model do
       end
 
       it 'updates time_used in database' do
+        skip "nsjail/chroot not available in test environment" unless nsjail_available?
         problem.examples.create!(input: "1 1\n", output: "2\n", sort_order: 1)
 
         submission = create(:submission,

@@ -26,5 +26,6 @@ Rails.application.routes.draw do
   get 'user/:alias', to: 'user#show', as: 'user'
 
   require 'sidekiq/web'
-  mount Sidekiq::Web => '/sidekiq'
+  # Protect Sidekiq web UI - only accessible to admin users
+  mount Sidekiq::Web => '/sidekiq', constraints: AdminConstraint.new
 end

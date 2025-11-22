@@ -7,8 +7,13 @@ class Submission < ApplicationRecord
   belongs_to :programming_language
   belongs_to :user
 
-  validates :source_code, presence: true
+  validates :source_code, presence: true, length: { maximum: 1_000_000 } # 1MB limit
   validates :status, presence: true
+  validates :problem, presence: true
+  validates :programming_language, presence: true
+  validate :problem_exists
+  validate :programming_language_exists
+  validate :user_can_submit_to_problem, on: :create
 
   # Security: Ensure user_id cannot be set to a different user than the user association
   # This prevents mass assignment attacks where someone tries to submit as another user
@@ -174,6 +179,37 @@ class Submission < ApplicationRecord
   end
 
   private
+
+  # Validation: Ensure problem exists
+  def problem_exists
+    return if problem_id.blank?
+
+    unless Problem.exists?(problem_id)
+      errors.add(:problem, "does not exist")
+    end
+  end
+
+  # Validation: Ensure programming language exists
+  def programming_language_exists
+    return if programming_language_id.blank?
+
+    unless ProgrammingLanguage.exists?(programming_language_id)
+      errors.add(:programming_language, "does not exist")
+    end
+  end
+
+  # Validation: Ensure user has permission to submit to problem
+  # For now, all authenticated users can submit to all problems
+  # This can be extended later to check for hidden problems, contest restrictions, etc.
+  def user_can_submit_to_problem
+    return if user.blank? || problem.blank?
+
+    # Add any permission checks here in the future
+    # For example: check if problem is hidden, check contest restrictions, etc.
+    # if problem.hidden? && !user.admin?
+    #   errors.add(:problem, "is not available for submission")
+    # end
+  end
 
   # Security: Ensure that if user_id is set directly, it matches the user association
   # This prevents users from submitting as other users

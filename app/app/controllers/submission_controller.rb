@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-class SubmissionController < ApplicationController
+require 'open3'
+
+class SubmissionController < AuthenticatedController
   def index
     @submissions = Submission.includes(:user, :problem, :programming_language)
                              .order(created_at: :desc)
@@ -8,7 +10,7 @@ class SubmissionController < ApplicationController
     # By default, show only current user's submissions
     # Unless "show_all" is enabled
     @show_all = params[:show_all] == 'true'
-    if current_user && !@show_all
+    unless @show_all
       @submissions = @submissions.where(user: current_user)
     end
     
@@ -163,12 +165,56 @@ class SubmissionController < ApplicationController
 
   private
 
+  # Strong parameters for submission creation
+  # Only permits the specific parameters we need, preventing mass assignment attacks
+  def submission_params
+    # Handle file upload for source_code
+    source_code_content = if params[:source_code].respond_to?(:read)
+                            params[:source_code].read
+                          else
+                            params[:source_code]
+                          end
+    
+    {
+      problem_id: params[:problem_id]&.to_i,
+      programming_language_id: params[:programming_language_id]&.to_i,
+      source_code: source_code_content
+    }
+  end
+
+  # Strong parameters for test endpoint
+  def test_params
+    # Handle file upload for source_code
+    source_code_content = if params[:source_code].respond_to?(:read)
+                            params[:source_code].read
+                          else
+                            params[:source_code]
+                          end
+    
+    {
+      problem_id: params[:problem_id]&.to_i,
+      programming_language_id: params[:programming_language_id]&.to_i,
+      source_code: source_code_content
+    }
+  end
+
   def submission_successful?
+    # Always use current_user - never trust user_id from params
+    submission_params_hash = submission_params
+    
+    # Validate required parameters
+    unless submission_params_hash[:problem_id].present? && 
+           submission_params_hash[:programming_language_id].present? && 
+           submission_params_hash[:source_code].present?
+      Rails.logger.error("Submission failed: Missing required parameters")
+      return nil
+    end
+    
     submission = Submission.create!(
-      problem_id: params[:problem_id],
-      programming_language_id: params[:programming_language_id],
-      user: current_user,
-      source_code: params[:source_code].read,
+      problem_id: submission_params_hash[:problem_id],
+      programming_language_id: submission_params_hash[:programming_language_id],
+      user: current_user,  # Explicitly set to current_user, ignoring any user_id in params
+      source_code: submission_params_hash[:source_code],
       status: "queued"
     )
 
@@ -184,13 +230,25 @@ class SubmissionController < ApplicationController
     begin
       Rails.logger.info "=== TEST_CODE METHOD CALLED ==="
       
-      problem = Problem.find(params[:problem_id])
+      test_params_hash = test_params
+      
+      # Validate required parameters
+      unless test_params_hash[:problem_id].present? && 
+             test_params_hash[:programming_language_id].present? && 
+             test_params_hash[:source_code].present?
+        return {
+          success: false,
+          error: "Missing required parameters: problem_id, programming_language_id, or source_code"
+        }
+      end
+      
+      problem = Problem.find(test_params_hash[:problem_id])
       Rails.logger.info "Problem found: #{problem.title}"
       
-      language = ProgrammingLanguage.find(params[:programming_language_id])
+      language = ProgrammingLanguage.find(test_params_hash[:programming_language_id])
       Rails.logger.info "Language found: #{language.name}"
       
-      source_code = params[:source_code].read
+      source_code = test_params_hash[:source_code]
       Rails.logger.info "Source code length: #{source_code.length}"
       
       # Get visible examples only
@@ -254,21 +312,26 @@ class SubmissionController < ApplicationController
     begin
       # Compile if needed (compilation happens outside nsjail for now)
       if language.compiler_binary.present?
-        compiler_output_file = "/tmp/#{uuid}_compile.out"
-        compiler_command = "#{language.compiler_binary} #{language.compiler_flags} 2> #{compiler_output_file}; echo $?"
-        compiler_command.gsub!("{compiled_file}", "/tmp/#{uuid}")
-        compiler_command.gsub!("{source_file}", source_code_file)
+        compiled_file = "/tmp/#{uuid}"
         
-        Rails.logger.info "Compiling with: #{compiler_command}"
-        compile_result = `#{compiler_command}`.strip
+        # Replace placeholders in compiler flags
+        flags_with_paths = language.compiler_flags.gsub("{compiled_file}", compiled_file)
+                                           .gsub("{source_file}", source_code_file)
         
-        if compile_result != "0"
-          # Read compiler error output
-          compiler_errors = File.read(compiler_output_file) rescue "Compilation failed (no error details)"
+        # Split flags into array (handles spaces, but not quoted args - acceptable for our use case)
+        # This prevents command injection by passing arguments as separate array elements
+        compiler_args = flags_with_paths.split(/\s+/).reject(&:empty?)
+        
+        Rails.logger.info "Compiling with: #{language.compiler_binary} #{compiler_args.join(' ')}"
+        
+        # Use Open3.capture3 with array arguments to prevent command injection
+        stdout, stderr, status = Open3.capture3(language.compiler_binary, *compiler_args)
+        
+        if !status.success?
+          compiler_errors = stderr.present? ? stderr : "Compilation failed (no error details)"
           Rails.logger.error "Compilation failed: #{compiler_errors}"
           
           File.delete(source_code_file) rescue nil
-          File.delete(compiler_output_file) rescue nil
           
           return {
             status: "compilation_error",
@@ -277,11 +340,6 @@ class SubmissionController < ApplicationController
             error_message: "Compilation failed:\n#{compiler_errors}"
           }
         end
-        
-        # Cleanup compiler output file
-        File.delete(compiler_output_file) rescue nil
-        
-        compiled_file = "/tmp/#{uuid}"
       end
       
       # Prepare test case

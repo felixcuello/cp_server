@@ -65,6 +65,6 @@ jobs:
           git pull
           make build
           make migrate || { echo "Migration failed"; exit 1; }
-          make run || { echo "Failed to start the container"; exit 1; }
+          make up || { echo "Failed to start the container"; exit 1; }
           echo "Deployment completed successfully!"
 

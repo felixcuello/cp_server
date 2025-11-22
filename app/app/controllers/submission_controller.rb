@@ -303,149 +303,29 @@ class SubmissionController < AuthenticatedController
   end
   
   def run_single_test(source_code, language, example, problem)
-    uuid = SecureRandom.uuid
-    source_code_file = "/tmp/#{uuid}.#{language.extension}"
-    File.write(source_code_file, source_code)
+    service = SubmissionService.new(
+      source_code: source_code,
+      language: language,
+      example: example,
+      problem: problem
+    )
+    service.execute
+  rescue SubmissionService::CompilationError => e
+    {
+      status: "compilation_error",
+      output: "",
+      runtime: 0,
+      error_message: "Compilation failed:\n#{e.message}"
+    }
+  rescue StandardError => e
+    Rails.logger.error "Error in run_single_test: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
     
-    start_time = Time.now
-    
-    begin
-      # Compile if needed (compilation happens outside nsjail for now)
-      if language.compiler_binary.present?
-        compiled_file = "/tmp/#{uuid}"
-        
-        # Replace placeholders in compiler flags
-        flags_with_paths = language.compiler_flags.gsub("{compiled_file}", compiled_file)
-                                           .gsub("{source_file}", source_code_file)
-        
-        # Split flags into array (handles spaces, but not quoted args - acceptable for our use case)
-        # This prevents command injection by passing arguments as separate array elements
-        compiler_args = flags_with_paths.split(/\s+/).reject(&:empty?)
-        
-        Rails.logger.info "Compiling with: #{language.compiler_binary} #{compiler_args.join(' ')}"
-        
-        # Use Open3.capture3 with array arguments to prevent command injection
-        stdout, stderr, status = Open3.capture3(language.compiler_binary, *compiler_args)
-        
-        if !status.success?
-          compiler_errors = stderr.present? ? stderr : "Compilation failed (no error details)"
-          Rails.logger.error "Compilation failed: #{compiler_errors}"
-          
-          File.delete(source_code_file) rescue nil
-          
-          return {
-            status: "compilation_error",
-            output: "",
-            runtime: 0,
-            error_message: "Compilation failed:\n#{compiler_errors}"
-          }
-        end
-      end
-      
-      # Prepare test case
-      input_file = "/tmp/#{uuid}.in"
-      File.write(input_file, example.input)
-      
-      output_file = "/tmp/#{uuid}_program.out"
-      File.write(output_file, "")  # Create empty output file
-      
-      # Calculate resource limits
-      time_limit = [language.time_limit_sec, problem.time_limit_sec].max
-      memory_limit_mb = [language.memory_limit_kb.to_i, problem.memory_limit_kb.to_i].max / 1024
-      
-      Rails.logger.info "Executing with nsjail: timeout=#{time_limit}s, memory=#{memory_limit_mb}MB"
-      
-      # Execute using nsjail
-      if language.compiler_binary.present?
-        # Execute compiled binary
-        result = NsjailExecutionService.execute_compiled(
-          timeout_sec: time_limit,
-          memory_limit_mb: memory_limit_mb,
-          compiled_file: compiled_file,
-          input_file: input_file,
-          output_file: output_file
-        )
-      else
-        # Execute interpreted code
-        result = NsjailExecutionService.new(
-          language_name: language.name,
-          timeout_sec: time_limit,
-          memory_limit_mb: memory_limit_mb,
-          source_file: source_code_file,
-          input_file: input_file,
-          output_file: output_file
-        ).execute
-      end
-      
-      runtime = Time.now - start_time
-      
-      Rails.logger.info "Execution result: exit_code=#{result.exit_code}, timed_out=#{result.timed_out}, oom_killed=#{result.oom_killed}"
-      
-      # Map nsjail results to test status
-      if result.timed_out
-        status = "time_limit_exceeded"
-        output = ""
-        error_message = "Time limit exceeded (> #{time_limit}s)"
-      elsif result.oom_killed
-        status = "memory_limit_exceeded"
-        output = ""
-        error_message = "Memory limit exceeded"
-      elsif !result.success?
-        status = "runtime_error"
-        output = result.stdout
-        error_message = "Runtime error (exit code #{result.exit_code})"
-        error_message += "\n#{result.stderr}" if result.stderr.present?
-      else
-        # Read output and compare
-        actual_output = result.stdout
-        expected_output = example.output
-        
-        if actual_output == expected_output
-          status = "passed"
-          output = actual_output
-          error_message = nil
-        else
-          # Try whitespace-insensitive comparison
-          if actual_output.gsub(/\s+/, "") == expected_output.gsub(/\s+/, "")
-            status = "presentation_error"
-            output = actual_output
-            error_message = "Output is correct but formatting differs"
-          else
-            status = "wrong_answer"
-            output = actual_output
-            error_message = "Output does not match expected"
-          end
-        end
-      end
-      
-      # Cleanup
-      File.delete(source_code_file) rescue nil
-      File.delete(input_file) rescue nil
-      File.delete(output_file) rescue nil
-      File.delete(compiled_file) rescue nil if language.compiler_binary.present?
-      
-      {
-        status: status,
-        output: output,
-        runtime: (runtime * 1000).round, # Convert to ms
-        error_message: error_message
-      }
-    rescue StandardError => e
-      Rails.logger.error "Error in run_single_test: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
-      
-      # Cleanup on error
-      File.delete(source_code_file) rescue nil
-      File.delete(input_file) rescue nil
-      File.delete(output_file) rescue nil
-      File.delete(compiled_file) rescue nil if defined?(compiled_file) && language.compiler_binary.present?
-      
-      {
-        status: "error",
-        output: "",
-        runtime: 0,
-        error_message: "System error: #{e.message}"
-      }
-    end
+    {
+      status: "error",
+      output: "",
+      runtime: 0,
+      error_message: "System error: #{e.message}"
+    }
   end
 end

@@ -42,10 +42,6 @@ class Submission < ApplicationRecord
   end
 
   def run_with_interpreter!
-    uuid = SecureRandom.uuid
-    source_code_file = "/tmp/#{uuid}.#{self.programming_language.extension}"
-    File.write(source_code_file, self.source_code)
-
     problem = Problem.find self.problem_id
     start_time = Time.now
 
@@ -53,75 +49,41 @@ class Submission < ApplicationRecord
 
     self.update!(status: RUNNING)
     problem.examples.order(:id).each_with_index do |example, index|
-      input_file = "/tmp/#{uuid}.in"
-      File.write(input_file, example.input)
+      # Use SubmissionService to run the test
+      service = SubmissionService.new(
+        source_code: self.source_code,
+        language: self.programming_language,
+        example: example,
+        problem: problem
+      )
 
-      output_file = "/tmp/#{uuid}_program.out"
-      File.write(output_file, "")  # Create empty output file
+      result = service.execute
+      debug!("#{__LINE__} Test #{index + 1} result: #{result[:status]}")
 
-      # Calculate resource limits (use max of language and problem limits)
-      time_limit = [self.programming_language.time_limit_sec, problem.time_limit_sec].max
-      memory_limit_mb = [self.programming_language.memory_limit_kb.to_i, problem.memory_limit_kb.to_i].max / 1024
-
-      debug!("#{__LINE__} Executing with nsjail: timeout=#{time_limit}s, memory=#{memory_limit_mb}MB")
-
-      # Execute using nsjail
-      result = NsjailExecutionService.new(
-        language_name: self.programming_language.name,
-        timeout_sec: time_limit,
-        memory_limit_mb: memory_limit_mb,
-        source_file: source_code_file,
-        input_file: input_file,
-        output_file: output_file
-      ).execute
-
-      debug!("#{__LINE__} Execution result: exit_code=#{result.exit_code}, timed_out=#{result.timed_out}")
-
-      # Check for time limit exceeded
-      if result.timed_out
+      # Map service result status to Submission status constants
+      case result[:status]
+      when "time_limit_exceeded"
         final_status = TIME_LIMIT_EXCEEDED
-      elsif result.oom_killed
+      when "memory_limit_exceeded"
         final_status = MEMORY_LIMIT_EXCEEDED
-      elsif !result.success?
+      when "runtime_error"
         final_status = RUNTIME_ERROR
-      end
-
-      # Read and compare output
-      output = result.stdout
-      expected_output = example.output
-
-      # Clean up temp files
-      begin
-        unless DEBUG
-          File.delete(input_file)
-          File.delete(output_file)
-        end
-      rescue StandardError => e
-        debug!("#{__LINE__} error deleting files: #{e.message}")
+      when "compilation_error"
+        final_status = COMPILATION_ERROR
+      when "passed"
+        # Continue to next example
+        next
+      when "presentation_error"
+        final_status = PRESENTATION_ERROR
+      when "wrong_answer"
+        final_status = WRONG_ANSWER + " (example #{index + 1})"
+      else
+        final_status = RUNTIME_ERROR
       end
 
       # Break if we already have a non-accepted status
       break if final_status != ACCEPTED
-
-      # Compare outputs
-      if output == expected_output
-        next
-      else
-        # Try with normalized whitespace
-        output_normalized = output.gsub(/\s+/, "")
-        expected_normalized = expected_output.gsub(/\s+/, "")
-
-        if output_normalized == expected_normalized
-          final_status = PRESENTATION_ERROR
-        else
-          final_status = WRONG_ANSWER + " (example #{index + 1})"
-        end
-        break
-      end
     end
-
-    # Clean up source file
-    File.delete(source_code_file) unless DEBUG
 
     time_used = Time.now - start_time
     self.update!(time_used: time_used)
@@ -129,112 +91,82 @@ class Submission < ApplicationRecord
   end
 
   def run_with_compiler!
-    uuid = SecureRandom.uuid
-    source_code_file = "/tmp/#{uuid}.#{self.programming_language.extension}"
-    File.write(source_code_file, self.source_code)
-
     problem = Problem.find self.problem_id
     start_time = Time.now
 
-    compiler_binary = self.programming_language.compiler_binary
-    compiler_flags = self.programming_language.compiler_flags
-    compiled_file = "/tmp/#{uuid}"
-
-    # Replace placeholders in compiler flags
-    flags_with_paths = compiler_flags.gsub("{compiled_file}", compiled_file)
-                                     .gsub("{source_file}", source_code_file)
-
-    # Split flags into array (handles spaces, but not quoted args - acceptable for our use case)
-    # This prevents command injection by passing arguments as separate array elements
-    compiler_args = flags_with_paths.split(/\s+/).reject(&:empty?)
-
-    debug!("#{__LINE__}: running #{compiler_binary} #{compiler_args.join(' ')}")
-
     self.update!(status: COMPILING)
 
-    # Compilation happens outside nsjail for now
-    # TODO: Move compilation inside nsjail in future iteration
-    # Use Open3.capture3 with array arguments to prevent command injection
-    stdout, stderr, status = Open3.capture3(compiler_binary, *compiler_args)
-
-    if !status.success?
-      self.update!(status: COMPILATION_ERROR)
-      File.delete(source_code_file) unless DEBUG
+    # Try to compile - if compilation fails, TestExecutionService will handle it
+    # We run the first test to trigger compilation and catch compilation errors early
+    first_example = problem.examples.order(:id).first
+    if first_example.nil?
+      self.update!(status: RUNTIME_ERROR)
       return
     end
 
+    service = SubmissionService.new(
+      source_code: self.source_code,
+      language: self.programming_language,
+      example: first_example,
+      problem: problem
+    )
+
+    begin
+      first_result = service.execute
+    rescue SubmissionService::CompilationError => e
+      self.update!(status: COMPILATION_ERROR)
+      return
+    end
+
+    # If compilation succeeded, continue with all examples
     final_status = ACCEPTED
 
     self.update!(status: RUNNING)
 
     problem.examples.order(:id).each_with_index do |example, index|
-      input_file = "/tmp/#{uuid}.in"
-      File.write(input_file, example.input)
+      # Skip first example if we already ran it (unless it failed)
+      if index == 0 && first_result[:status] == "passed"
+        next
+      elsif index == 0
+        result = first_result
+      else
+        # Use SubmissionService to run the test
+        service = SubmissionService.new(
+          source_code: self.source_code,
+          language: self.programming_language,
+          example: example,
+          problem: problem
+        )
 
-      output_file = "/tmp/#{uuid}_program.out"
-      File.write(output_file, "")
+        result = service.execute
+      end
 
-      # Calculate resource limits
-      time_limit = [self.programming_language.time_limit_sec, problem.time_limit_sec].max
-      memory_limit_mb = [self.programming_language.memory_limit_kb.to_i, problem.memory_limit_kb.to_i].max / 1024
+      debug!("#{__LINE__} Test #{index + 1} result: #{result[:status]}")
 
-      debug!("#{__LINE__} Executing compiled binary with nsjail: timeout=#{time_limit}s, memory=#{memory_limit_mb}MB")
-
-      # Execute compiled binary using nsjail
-      result = NsjailExecutionService.execute_compiled(
-        timeout_sec: time_limit,
-        memory_limit_mb: memory_limit_mb,
-        compiled_file: compiled_file,
-        input_file: input_file,
-        output_file: output_file
-      )
-
-      debug!("#{__LINE__} Execution result: exit_code=#{result.exit_code}, timed_out=#{result.timed_out}")
-
-      # Check for errors
-      if result.timed_out
+      # Map service result status to Submission status constants
+      case result[:status]
+      when "time_limit_exceeded"
         final_status = TIME_LIMIT_EXCEEDED
-      elsif result.oom_killed
+      when "memory_limit_exceeded"
         final_status = MEMORY_LIMIT_EXCEEDED
-      elsif !result.success?
+      when "runtime_error"
+        final_status = RUNTIME_ERROR
+      when "compilation_error"
+        final_status = COMPILATION_ERROR
+      when "passed"
+        # Continue to next example
+        next
+      when "presentation_error"
+        final_status = PRESENTATION_ERROR
+      when "wrong_answer"
+        final_status = WRONG_ANSWER + " (example #{index + 1})"
+      else
         final_status = RUNTIME_ERROR
       end
 
-      # Read and compare output
-      output = result.stdout
-      expected_output = example.output
-
-      # Clean up temp files
-      begin
-        unless DEBUG
-          File.delete(input_file)
-          File.delete(output_file)
-        end
-      rescue StandardError => e
-        debug!("#{__LINE__} error deleting files: #{e.message}")
-      end
-
+      # Break if we already have a non-accepted status
       break if final_status != ACCEPTED
-
-      # Compare outputs
-      if output == expected_output
-        next
-      else
-        output_normalized = output.gsub(/\s+/, "")
-        expected_normalized = expected_output.gsub(/\s+/, "")
-
-        if output_normalized == expected_normalized
-          final_status = PRESENTATION_ERROR
-        else
-          final_status = WRONG_ANSWER + " (example #{index + 1})"
-        end
-        break
-      end
     end
-
-    # Clean up
-    File.delete(source_code_file) unless DEBUG
-    File.delete(compiled_file) unless DEBUG
 
     time_used = Time.now - start_time
     self.update!(time_used: time_used)

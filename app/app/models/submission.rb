@@ -203,16 +203,45 @@ class Submission < ApplicationRecord
   end
 
   def update_user_problem_status
-    user_status = UserProblemStatus.find_or_initialize_by(user: user, problem: problem)
+    # Use database-level locking to prevent race conditions with concurrent submissions
+    # The unique constraint on [user_id, problem_id] ensures only one record exists
+    # This implementation uses blocking locks - the second user will wait for the first to finish
+    UserProblemStatus.transaction(requires_new: true) do
+      # First, try to find the record with a lock (this will wait if another transaction has it locked)
+      # If not found, create it within the same transaction
+      user_status = UserProblemStatus.where(user: user, problem: problem).lock.first
 
-    # If this submission is accepted, mark as solved
-    if status == ACCEPTED
-      user_status.status = 'solved'
-      user_status.save!
-    # Otherwise, if not already solved, mark as attempted
-    elsif user_status.status != 'solved'
-      user_status.status = 'attempted'
-      user_status.save!
+      if user_status.nil?
+        # Record doesn't exist, create it with initial values
+        # The unique constraint will prevent duplicates if two processes try simultaneously
+        begin
+          user_status = UserProblemStatus.create!(
+            user: user,
+            problem: problem,
+            status: 'attempted',
+            attempts: 0
+          )
+        rescue ActiveRecord::RecordNotUnique
+          # Another process created it between our check and create, fetch it with lock
+          user_status = UserProblemStatus.where(user: user, problem: problem).lock.first
+        end
+      end
+
+      # At this point, we have the record with an exclusive lock
+      # Other processes will wait here until we release the lock (end of transaction)
+
+      # If this submission is accepted, mark as solved
+      if status == ACCEPTED
+        user_status.status = 'solved'
+        user_status.first_solved_at ||= Time.current
+        user_status.save!
+      # Otherwise, if not already solved, mark as attempted and increment attempts
+      elsif user_status.status != 'solved'
+        user_status.status = 'attempted'
+        user_status.attempts = (user_status.attempts || 0) + 1
+        user_status.save!
+      end
     end
+    # Transaction commits here, releasing the lock so the next waiting process can proceed
   end
 end

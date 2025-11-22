@@ -15,6 +15,7 @@ RUN apt-get update -qq && \
       default-mysql-client \
       default-libmysqlclient-dev \
       python3 \
+      nodejs \
       # nsjail dependencies
       autoconf \
       bison \
@@ -69,6 +70,81 @@ RUN cp /usr/bin/python3 /chroot/usr/bin/ && \
 # Copy Python libraries
 RUN cp -r /usr/lib/python3* /chroot/usr/lib/ 2>/dev/null || true
 
+# Copy required binaries and libraries for Node.js
+RUN echo "=== Setting up Node.js in chroot ===" && \
+    if [ -f /usr/bin/node ]; then \
+      echo "Found Node.js at /usr/bin/node, copying to /chroot/usr/bin/node" && \
+      cp -v /usr/bin/node /chroot/usr/bin/node && \
+      chmod +x /chroot/usr/bin/node && \
+      echo "Node.js binary copied, checking if it exists in chroot:" && \
+      ls -la /chroot/usr/bin/node && \
+      echo "Copying Node.js shared libraries..." && \
+      # Copy all shared libraries that node depends on, preserving directory structure
+      ldd /usr/bin/node 2>/dev/null | grep "=> /" | awk '{print $3}' | xargs -I '{}' sh -c ' \
+        if [ -f "{}" ]; then \
+          mkdir -p /chroot$(dirname "{}") && \
+          cp -v "{}" /chroot"{}" 2>/dev/null || true; \
+        fi' && \
+      # Copy Node.js shared libraries if they exist
+      if [ -d /usr/lib/nodejs ]; then cp -r /usr/lib/nodejs /chroot/usr/lib/ 2>/dev/null || true; fi && \
+      if [ -d /usr/share/nodejs ]; then mkdir -p /chroot/usr/share && cp -r /usr/share/nodejs /chroot/usr/share/ 2>/dev/null || true; fi && \
+      echo "Node.js setup complete"; \
+    else \
+      echo "ERROR: /usr/bin/node not found!" && \
+      echo "Checking what's in /usr/bin:" && \
+      ls -la /usr/bin/node* 2>&1 | head -20 && \
+      exit 1; \
+    fi
+
+# Copy required binaries and libraries for Ruby
+RUN echo "=== Setting up Ruby in chroot ===" && \
+    mkdir -p /chroot/usr/local/lib && \
+    if [ -f /usr/local/bin/ruby ]; then \
+      echo "Found Ruby at /usr/local/bin/ruby, copying to /chroot/usr/bin/ruby" && \
+      cp -v /usr/local/bin/ruby /chroot/usr/bin/ruby && \
+      chmod +x /chroot/usr/bin/ruby && \
+      echo "Ruby binary copied, checking if it exists in chroot:" && \
+      ls -la /chroot/usr/bin/ruby && \
+      echo "Copying Ruby shared libraries..." && \
+      # Copy all Ruby shared libraries, preserving directory structure
+      ldd /usr/local/bin/ruby 2>/dev/null | grep "=> /" | awk '{print $3}' | xargs -I '{}' sh -c ' \
+        if [ -f "{}" ]; then \
+          mkdir -p /chroot$(dirname "{}") && \
+          cp -v "{}" /chroot"{}" 2>/dev/null || true; \
+        fi' && \
+      echo "Copying Ruby installation directory..." && \
+      # Copy Ruby installation directory
+      if [ -d /usr/local/lib/ruby ]; then \
+        cp -r /usr/local/lib/ruby /chroot/usr/local/lib/ && \
+        echo "Ruby lib directory copied"; \
+      else \
+        echo "Warning: /usr/local/lib/ruby not found"; \
+      fi && \
+      # Copy Ruby binary directory if it has additional executables
+      if [ -d /usr/local/bin ]; then \
+        mkdir -p /chroot/usr/local/bin && \
+        for bin in /usr/local/bin/ruby*; do \
+          if [ -f "$bin" ] && [ -x "$bin" ]; then \
+            cp "$bin" /chroot/usr/local/bin/ 2>/dev/null || true; \
+          fi; \
+        done; \
+      fi && \
+      echo "Ruby setup complete"; \
+    else \
+      echo "ERROR: /usr/local/bin/ruby not found!" && \
+      echo "Checking what's in /usr/local/bin:" && \
+      ls -la /usr/local/bin/ | head -20 && \
+      exit 1; \
+    fi
+
+# Copy GCC and G++ for compiled languages
+RUN cp /usr/bin/gcc /chroot/usr/bin/ && \
+    cp /usr/bin/g++ /chroot/usr/bin/ && \
+    cp /usr/bin/as /chroot/usr/bin/ && \
+    cp /usr/bin/ld /chroot/usr/bin/ && \
+    ldd /usr/bin/gcc | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /chroot/usr/lib/ 2>/dev/null || true && \
+    ldd /usr/bin/g++ | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /chroot/usr/lib/ 2>/dev/null || true
+
 # Copy essential libraries
 RUN cp -r /lib/x86_64-linux-gnu/* /chroot/lib/ 2>/dev/null || true && \
     cp -r /usr/lib/x86_64-linux-gnu/* /chroot/usr/lib/ 2>/dev/null || true && \
@@ -80,6 +156,18 @@ RUN rm -f /chroot/lib64/ld-linux-x86-64.so.2 && \
 
 # Create a nobody user in chroot (for running untrusted code)
 RUN echo "nobody:x:65534:65534:Nobody:/:/bin/false" > /chroot/etc/passwd
+
+# Verify that Ruby and Node.js binaries exist and work in chroot
+RUN echo "=== Verifying chroot setup ===" && \
+    echo "Checking if Ruby binary exists:" && \
+    ls -la /chroot/usr/bin/ruby 2>&1 || echo "ERROR: Ruby binary not found!" && \
+    echo "Checking if Node.js binary exists:" && \
+    ls -la /chroot/usr/bin/node 2>&1 || echo "ERROR: Node.js binary not found!" && \
+    echo "Testing Ruby in chroot:" && \
+    (chroot /chroot /usr/bin/ruby --version 2>&1 && echo "Ruby OK") || (echo "ERROR: Ruby failed in chroot" && exit 1) && \
+    echo "Testing Node.js in chroot:" && \
+    (chroot /chroot /usr/bin/node --version 2>&1 && echo "Node.js OK") || (echo "ERROR: Node.js failed in chroot" && exit 1) && \
+    echo "=== Chroot verification complete ==="
 
 # Set production environment
 ENV RAILS_ENV="development" \

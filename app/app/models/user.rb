@@ -6,7 +6,7 @@ class User < ApplicationRecord
          :rememberable, :validatable, :timeoutable
   
   # Roles enum: user (0), admin (1)
-  enum role: {
+  enum :role, {
     user: 0,
     admin: 1
   }

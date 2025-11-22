@@ -211,16 +211,24 @@ class NsjailExecutionService
 
   # Get interpreter path for language
   def get_interpreter_for_language
-    case @language_name.downcase
-    when "python", "python3", "python 3"
-      "/usr/bin/python3"
-    when "ruby"
-      "/usr/bin/ruby"
-    when "javascript", "node", "nodejs", "node.js"
-      "/usr/bin/node"
-    else
-      raise "Unsupported language: #{@language_name}"
+    lang = @language_name.downcase
+    
+    # Handle Python variations
+    if lang.include?("python")
+      return "/usr/bin/python3"
     end
+    
+    # Handle Ruby
+    if lang == "ruby"
+      return "/usr/bin/ruby"
+    end
+    
+    # Handle JavaScript/Node.js variations (including "javascript (nodejs)", "node", "nodejs", etc.)
+    if lang.include?("javascript") || lang.include?("node")
+      return "/usr/bin/node"
+    end
+    
+    raise "Unsupported language: #{@language_name}"
   end
 
   # Execute command and return exit code

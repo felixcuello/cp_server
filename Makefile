@@ -51,5 +51,8 @@ run:
 	rm -f ./app/tmp/pids/server.pid
 	docker compose run -v $(PWD)/app:/app --service-ports cp_server
 
+migrate:
+	docker compose run --rm cp_server bundle exec rails db:migrate
+
 shell:
 	docker compose run -v $(PWD)/app:/app --service-ports cp_server bash

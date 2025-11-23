@@ -4,8 +4,8 @@ CP Server
 ## Introducción
 
 El proyecto se trata de un servidor para practicar programación competitiva. La idea es que los alumnos de la materia
-"Introducción a la Programación Competitiva" de la Universidad de Palermo puedan practicar los ejercicios de la materia
-en un servidor.
+"Estructura de Datos y Algoritmos" de la Universidad de Palermo puedan practicar los ejercicios de la materia
+en un servidor donde los problemas estén controlados por nosotros.
 
 Además cada tanto haremos algunas contests para que los alumnos vayan practicando lo aprendido contrarreloj.
 
@@ -14,71 +14,12 @@ Además cada tanto haremos algunas contests para que los alumnos vayan practican
 En realidad la instalación por ahora es muy sencilla, son un par de containers de docker, para crear y correr los
 servicios de docker simplemente hay que correr `make` y leer la documentación que aparece en pantalla.
 
-## Pending
+## Lenguajes de Programación
+El siguiente es el listado de lenguajes de programación soportados. Para los contests y los envíos de los estudiantes
+sólo vamos a aceptar los lenguajes dados en la materia. Queremos que el servidor pueda utilizarse con otros lenguajes.
 
-- [X] Problemas
-  - [X] Crear la tabla para los problemas
-  - [X] Mostrar lista de problemas (#index)
-  - [X] Mostrar un problema (#show)
-  - [X] (UI/UX) Agregar estilos para mostrar el problema
-  - [X] (UI/UX) Agregar estilos para mostrar el listado de problemas
-  - [X] Filtrar lista de problemas
-    - [X] Por dificultad
-    - [X] Por tags
-  - [X] Crear una rake task para agregar problemas desde problems/problems.json
-    - [X] agregar problemas de ejemplo en problems/something.json
-    - [X] correr la rake task
-  - [X] Verificar alguna forma de mostrar el problema (markdown? / Latex?)
+Los lenguajes implementados hasta ahora son los siguientes:
 
-- [X] Ejecutar Problemas
-    - [X] Agregar una tabla para cada lenguaje de programación disponible
-        - [X] Nombre
-        - [X] Forma de ejecución
-    - [X] Agregar sidekiq (o algo por el estilo) para poder correr los tests en background
-        - [X] Agregar redis
-        - [X] Agregar sidekiq
-    - [X] Agregar un form de submission
-    - [X] Clean up del form luego del submission
-    - [X] Agregar un service object para encolar problemas
-    - [X] Hacer que sidekiq encole los problemas
-    - [X] Hacer que se ejecute el problema [interprete]
-    - [X] Chequear cómo verificar el output de una ejecución
-    - [X] Cambiar el estado de la submission de acuerdo al resultado
-      - [X] Presentation Error
-      - [X] Wrong Answer
-      - [X] Time Limit Exceeded
-      - [X] Memory Limit Exceeded
-      - [X] Running
-      - [X] Accepted
-
-    - [X] Profile
-        - [X] Mostrar el perfil de usuario (problemas resueltos, easy, medium and hard)
-        - [X] Mostrar los lenguajes usados
-
-    - [X] Hacer que se compile y ejecute el problema [compilado]
-
-- [ ] Refactor Submission Model
-    - [ ] Crear unit tests
-    - [ ] Buscar una forma de correr cosas de forma "isolated" sin necesidad de hacer docker on docker.
-    - [ ] Hacer una suerte de template object / dependency injection para ejecutar los problemas compilados o
-      interpretados
-
-- [ ] Contest
-  - [ ] Modificar los problemas para que tengan un hidden flag (que sea false por defecto)
-  - [ ] Cuando hay problemas que van al contest arrancan como hidden hasta que empieza el contest
-    - [ ] No se pueden ver ni siquiera sabiendo el ID si están hidden
-  - [ ] El contest se tiene que iniciar con un sidekiq job que manda el flag hidden de los problemas a false
-  - [ ] Crear el modelo de contest
-  - [ ] asignar problemas al contest (nuevos o existentes)
-  - [ ] Crear contest (con fecha de inicio y fin)
-    - [ ] cuando arranca el contest se corre un job de sidekiq
-  - [ ] Agregar usuarios al contest
-  - [ ] Mostrar tabla de posiciones
-    - [ ] el contest tiene una tabla especial de "contest - submissions" que se adiciona a la tabla de submissions
-      normal
-    - [ ] con esta tabla de submissions se calculan los standings en tiempo real
-
-- [ ] Agregar lenguajes
     - [X] Ruby
     - [X] C
     - [X] C++
@@ -87,4 +28,8 @@ servicios de docker simplemente hay que correr `make` y leer la documentación q
     - [ ] Go
     - [ ] Java
 
-- INTERESTING!!! => https://github.com/morris821028/UVa/
+## Ejecución en Sandbox
+La ejecución de los problemas se realiza en un sandbox para evitar que haya usuarios maliciosos perjudicando el servidor o intentando romper los envíos de otros jugdadores. Toda la ejecución se hace con [nsjail](https://nsjail.dev/). Este es un servidor semi-público, con lo cual todos los usuarios ingresados están registrados a mano, por lo que cualquier intento de romper el server es causa suficiente para eliminar las cuentas.
+
+## Problemas
+Va a haber problemas de todo tipo, pero mayormente son problemas de algoritmos para estudiantes de las carreras de Computación.

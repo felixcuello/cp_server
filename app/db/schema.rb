@@ -10,12 +10,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_16_000003) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_23_000004) do
   create_table "constraints", charset: "utf8", force: :cascade do |t|
     t.bigint "problem_id", null: false
     t.text "description", null: false
     t.integer "sort_order", null: false
     t.index ["problem_id"], name: "index_constraints_on_problem_id"
+  end
+
+  create_table "contest_participants", charset: "utf8", force: :cascade do |t|
+    t.bigint "contest_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "joined_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contest_id", "user_id"], name: "index_contest_participants_on_contest_id_and_user_id", unique: true
+    t.index ["contest_id"], name: "index_contest_participants_on_contest_id"
+    t.index ["user_id"], name: "index_contest_participants_on_user_id"
+  end
+
+  create_table "contests", charset: "utf8", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.text "rules"
+    t.datetime "start_time", null: false
+    t.datetime "end_time", null: false
+    t.integer "penalty_minutes", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["end_time"], name: "index_contests_on_end_time"
+    t.index ["start_time"], name: "index_contests_on_start_time"
   end
 
   create_table "examples", charset: "utf8", force: :cascade do |t|
@@ -46,7 +70,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_16_000003) do
     t.datetime "updated_at", null: false
     t.integer "total_submissions", default: 0, null: false
     t.integer "accepted_submissions", default: 0, null: false
+    t.bigint "contest_id"
+    t.boolean "hidden", default: false, null: false
     t.index ["accepted_submissions"], name: "index_problems_on_accepted_submissions"
+    t.index ["contest_id"], name: "index_problems_on_contest_id"
+    t.index ["hidden"], name: "index_problems_on_hidden"
     t.index ["total_submissions"], name: "index_problems_on_total_submissions"
   end
 
@@ -75,6 +103,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_16_000003) do
     t.string "status", default: "queued", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "contest_id"
+    t.index ["contest_id"], name: "index_submissions_on_contest_id"
     t.index ["problem_id"], name: "index_submissions_on_problem_id"
     t.index ["programming_language_id"], name: "index_submissions_on_programming_language_id"
     t.index ["user_id"], name: "index_submissions_on_user_id"
@@ -123,9 +153,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_16_000003) do
   end
 
   add_foreign_key "constraints", "problems"
+  add_foreign_key "contest_participants", "contests"
+  add_foreign_key "contest_participants", "users"
   add_foreign_key "examples", "problems"
   add_foreign_key "problem_tags", "problems"
   add_foreign_key "problem_tags", "tags"
+  add_foreign_key "problems", "contests"
+  add_foreign_key "submissions", "contests"
   add_foreign_key "submissions", "problems"
   add_foreign_key "submissions", "programming_languages"
   add_foreign_key "submissions", "users"

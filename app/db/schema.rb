@@ -10,12 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_16_000003) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_23_000001) do
   create_table "constraints", charset: "utf8", force: :cascade do |t|
     t.bigint "problem_id", null: false
     t.text "description", null: false
     t.integer "sort_order", null: false
     t.index ["problem_id"], name: "index_constraints_on_problem_id"
+  end
+
+  create_table "contests", charset: "utf8", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.text "rules"
+    t.datetime "start_time", null: false
+    t.datetime "end_time", null: false
+    t.integer "penalty_minutes", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["end_time"], name: "index_contests_on_end_time"
+    t.index ["start_time"], name: "index_contests_on_start_time"
   end
 
   create_table "examples", charset: "utf8", force: :cascade do |t|

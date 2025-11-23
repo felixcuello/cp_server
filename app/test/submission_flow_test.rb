@@ -41,7 +41,8 @@ problem = Problem.create!(
   time_limit_sec: 5,
   memory_limit_kb: 262144,
   total_submissions: 0,
-  accepted_submissions: 0
+  accepted_submissions: 0,
+  hidden: false
 )
 
 # Add example

@@ -4,18 +4,19 @@ class ProblemController < AuthenticatedController
   before_action :difficulty, only: %i[index]
 
   def index
-    @problems = Problem.includes(:tags, :user_problem_statuses)
-    
+    # Filter out hidden problems for non-admins
+    @problems = Problem.visible_to_user(current_user).includes(:tags, :user_problem_statuses, :contest)
+
     # Filter by difficulty
     if params[:difficulty]
       @problems = @problems.where(difficulty: @difficulty)
     end
-    
+
     # Filter by tag
     if params[:tag]
       @problems = @problems.where(tags: { name: params[:tag] })
     end
-    
+
     # Filter by status
     if params[:status] && current_user
       case params[:status]
@@ -31,13 +32,13 @@ class ProblemController < AuthenticatedController
         @problems = @problems.where.not(id: solved_ids)
       end
     end
-    
+
     # Search
     if params[:search].present?
       search_term = "%#{params[:search]}%"
       @problems = @problems.where("title LIKE ? OR id = ?", search_term, params[:search].to_i)
     end
-    
+
     # Sorting
     case params[:sort]
     when 'acceptance_asc'
@@ -53,40 +54,69 @@ class ProblemController < AuthenticatedController
     else
       @problems = @problems.order(id: :asc)
     end
-    
+
     # Pagination would go here (for now, limit to 100)
     @problems = @problems.limit(100)
-    
+
     # Get all tags for filter
     @all_tags = Tag.order(:name)
   end
 
   def show
-    @problem = Problem.find(params[:id])
+    @problem = Problem.find_by(id: params[:id])
+
+    # Return 404 if problem doesn't exist
+    unless @problem
+      raise ActiveRecord::RecordNotFound
+    end
+
+    # Check if problem is hidden and user is not admin
+    if @problem.hidden? && !current_user.admin?
+      # Check if problem belongs to a contest and user has access
+      if @problem.contest
+        access_service = ContestAccessService.new(@problem.contest, current_user)
+        unless access_service.can_view_problem?(@problem)
+          raise ActiveRecord::RecordNotFound
+        end
+      else
+        # Hidden problem not in contest - only admins can see
+        raise ActiveRecord::RecordNotFound
+      end
+    end
+
+    # Add contest context
+    @contest = @problem.contest
+    if @contest
+      @access_service = ContestAccessService.new(@contest, current_user)
+      @is_participant = @contest.user_participating?(current_user)
+      @contest_active = @contest.active?
+    end
+
     @languages = ProgrammingLanguage.order(:name)
-    
+
     # Get user's status for this problem
     if current_user
       @user_status = UserProblemStatus.find_by(user: current_user, problem: @problem)
-      
+
       # Get user's submission history for this problem
       @user_submissions = Submission.where(user: current_user, problem: @problem)
                                     .order(created_at: :desc)
                                     .limit(10)
-      
+
       # Get best submission
       @best_submission = Submission.where(user: current_user, problem: @problem, status: 'accepted')
                                    .order(time_used: :asc)
                                    .first
     end
-    
+
     # Get problem statistics
     @total_submissions = @problem.total_submissions
     @total_accepted = @problem.accepted_submissions
     @acceptance_rate = @problem.acceptance_rate
-    
-    # Get similar problems (same tags, similar difficulty)
-    @similar_problems = Problem.joins(:tags)
+
+    # Get similar problems (same tags, similar difficulty) - only visible ones
+    @similar_problems = Problem.visible_to_user(current_user)
+                               .joins(:tags)
                                .where(tags: { id: @problem.tags.pluck(:id) })
                                .where.not(id: @problem.id)
                                .where(difficulty: @problem.difficulty)
@@ -95,14 +125,34 @@ class ProblemController < AuthenticatedController
   end
 
   def recent_submission
-    @problem = Problem.find(params[:id])
-    
+    @problem = Problem.find_by(id: params[:id])
+
+    # Return 404 if problem doesn't exist or user cannot access
+    unless @problem
+      render json: { submission_id: nil, error: "Problem not found" }, status: :not_found
+      return
+    end
+
+    # Check access (same logic as show action)
+    if @problem.hidden? && !current_user.admin?
+      if @problem.contest
+        access_service = ContestAccessService.new(@problem.contest, current_user)
+        unless access_service.can_view_problem?(@problem)
+          render json: { submission_id: nil, error: "Problem not found" }, status: :not_found
+          return
+        end
+      else
+        render json: { submission_id: nil, error: "Problem not found" }, status: :not_found
+        return
+      end
+    end
+
     if current_user
       # Get the most recent submission for this user and problem
       recent_submission = Submission.where(user: current_user, problem: @problem)
                                     .order(created_at: :desc)
                                     .first
-      
+
       if recent_submission
         render json: { submission_id: recent_submission.id }
       else

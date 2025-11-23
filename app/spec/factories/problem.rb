@@ -9,6 +9,7 @@ FactoryBot.define do
     time_limit_sec { 1.0 }       # 1 second
     total_submissions { 0 }
     accepted_submissions { 0 }
+    hidden { false }  # Tests typically use visible problems unless testing hidden behavior
     # Don't set constraints here - it's a has_many association
     # Create associated constraints separately if needed in specific tests
   end

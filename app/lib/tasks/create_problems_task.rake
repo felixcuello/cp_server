@@ -24,15 +24,25 @@ namespace :problems do
       tags = data["tags"]
       examples = data["examples"]
       constraints = data["constraints"]
-      memory_limit_kb = data["memory_limit_kb"].to_i
+      
+      # Handle both memory_limit_kb and memory_limit_mb for compatibility
+      memory_limit_kb = if data["memory_limit_mb"]
+                          data["memory_limit_mb"].to_i * 1024
+                        else
+                          data["memory_limit_kb"].to_i
+                        end
       time_limit_sec = data["time_limit_sec"].to_i
+      
+      # Read hidden field from JSON, defaulting to true if not present
+      hidden = data.key?("hidden") ? data["hidden"] : true
 
       problem = Problem.create!(
         title: title,
         description: description,
         difficulty: difficulty.to_sym,
         memory_limit_kb: memory_limit_kb,
-        time_limit_sec: time_limit_sec
+        time_limit_sec: time_limit_sec,
+        hidden: hidden
       )
 
       tags.each do |tag|

@@ -20,13 +20,13 @@ sólo vamos a aceptar los lenguajes dados en la materia. Queremos que el servido
 
 Los lenguajes implementados hasta ahora son los siguientes:
 
-    - [X] Ruby
-    - [X] C
-    - [X] C++
-    - [X] Javascript
-    - [X] Python
-    - [ ] Go
-    - [ ] Java
+- [X] Ruby
+- [X] C
+- [X] C++
+- [X] Javascript
+- [X] Python
+- [ ] Go
+- [ ] Java
 
 ## Ejecución en Sandbox
 La ejecución de los problemas se realiza en un sandbox para evitar que haya usuarios maliciosos perjudicando el servidor o intentando romper los envíos de otros jugdadores. Toda la ejecución se hace con [nsjail](https://nsjail.dev/). Este es un servidor semi-público, con lo cual todos los usuarios ingresados están registrados a mano, por lo que cualquier intento de romper el server es causa suficiente para eliminar las cuentas.

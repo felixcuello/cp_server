@@ -1,0 +1,128 @@
+<div class="page-container submissions-page">
+  <div class="page-header">
+    <h1 class="page-title">Submissions - <%= @contest.name %></h1>
+    <div class="header-actions">
+      <%= link_to "Back to Contest", contest_path(@contest), class: "btn-secondary", data: { turbo: false } %>
+      <%= link_to "Standings", standings_contest_path(@contest), class: "btn-secondary", data: { turbo: false } %>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="submissions-filters-panel">
+    <%= form_with url: submissions_contest_path(@contest), method: :get, class: "filter-form", data: { turbo: false } do |f| %>
+      <div class="filter-grid">
+        <% if current_user.admin? %>
+          <div class="filter-item">
+            <label class="filter-label">User</label>
+            <%= select_tag :user_id,
+                options_for_select([['All Users', '']] + @contest.participants.map { |u| [u.alias, u.id] }, params[:user_id]),
+                class: 'filter-select' %>
+          </div>
+        <% end %>
+
+        <div class="filter-item">
+          <label class="filter-label">Problem</label>
+          <%= select_tag :problem_id,
+              options_for_select([['All Problems', '']] + @contest.problems.map { |p| ["#{p.id}. #{p.title}", p.id] }, params[:problem_id]),
+              class: 'filter-select' %>
+        </div>
+
+        <div class="filter-item">
+          <label class="filter-label">Status</label>
+          <%= select_tag :status,
+              options_for_select([
+                ['All Statuses', 'all'],
+                ['Accepted', 'accepted'],
+                ['Wrong Answer', 'wrong answer'],
+                ['Time Limit Exceeded', 'time limit exceeded'],
+                ['Runtime Error', 'runtime error'],
+                ['Compilation Error', 'compilation error']
+              ], params[:status] || 'all'),
+              class: 'filter-select' %>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <%= submit_tag "Apply Filters", class: "btn-apply" %>
+        <%= link_to "Clear Filters", submissions_contest_path(@contest), class: "btn-clear" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Submissions List -->
+  <div class="submissions-list">
+    <% if @submissions.any? %>
+      <% @submissions.each do |submission| %>
+        <div class="submission-card"
+             onclick="window.location='<%= submission_detail_path(submission) %>'">
+          
+          <div class="submission-card-header">
+            <div class="submission-problem-info">
+              <span class="problem-number">#<%= submission.problem.id %></span>
+              <%= link_to submission.problem.title, problem_path(submission.problem), class: "problem-title-link", data: { turbo: false } %>
+            </div>
+            <div class="submission-status-badge <%= submission.status.downcase.gsub(/\s+/, '-') %>">
+              <%= submission.status.titleize %>
+            </div>
+          </div>
+
+          <div class="submission-card-footer">
+            <div class="submission-meta">
+              <% if current_user.admin? %>
+                <span class="meta-item">
+                  <span class="meta-icon">👤</span>
+                  <%= link_to submission.user.alias, user_path(alias: submission.user.alias), class: "user-link", onclick: "event.stopPropagation();" %>
+                </span>
+              <% end %>
+              <span class="meta-item">
+                <span class="meta-icon">💻</span>
+                <span class="language-name"><%= submission.programming_language.name %></span>
+              </span>
+              <span class="meta-item">
+                <span class="meta-icon">⏱️</span>
+                <span class="time-text"><%= time_ago_in_words(submission.created_at) %> ago</span>
+              </span>
+              <% if submission.time_used %>
+                <span class="meta-item">
+                  <span class="meta-icon">⚡</span>
+                  <span class="runtime-text"><%= (submission.time_used * 1000).round %> ms</span>
+                </span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="empty-state">
+        <div class="empty-icon">📝</div>
+        <div class="empty-title">No submissions found</div>
+        <div class="empty-text">Try adjusting your filters</div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Pagination -->
+  <% if @total_pages > 1 %>
+    <div class="pagination-container">
+      <% if @page > 1 %>
+        <%= link_to submissions_contest_path(@contest, params.permit(:user_id, :problem_id, :status).merge(page: @page - 1)), class: "pagination-btn" do %>
+          <span>← Previous</span>
+        <% end %>
+      <% else %>
+        <span class="pagination-btn disabled">← Previous</span>
+      <% end %>
+
+      <div class="pagination-info">
+        Page <strong><%= @page %></strong> of <strong><%= @total_pages %></strong>
+      </div>
+
+      <% if @page < @total_pages %>
+        <%= link_to submissions_contest_path(@contest, params.permit(:user_id, :problem_id, :status).merge(page: @page + 1)), class: "pagination-btn" do %>
+          <span>Next →</span>
+        <% end %>
+      <% else %>
+        <span class="pagination-btn disabled">Next →</span>
+      <% end %>
+    </div>
+  <% end %>
+</div>

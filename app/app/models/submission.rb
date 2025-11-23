@@ -6,6 +6,7 @@ class Submission < ApplicationRecord
   belongs_to :problem
   belongs_to :programming_language
   belongs_to :user
+  belongs_to :contest, optional: true
 
   validates :source_code, presence: true, length: { maximum: 1_000_000 } # 1MB limit
   validates :status, presence: true
@@ -19,6 +20,16 @@ class Submission < ApplicationRecord
   # This prevents mass assignment attacks where someone tries to submit as another user
   before_validation :ensure_user_id_matches_user_association, on: :create
   before_save :prevent_user_id_change, if: :persisted?
+  before_save :set_contest_id_from_problem
+
+  # Scope: Returns submissions for a specific contest
+  scope :for_contest, ->(contest) { where(contest_id: contest.id) }
+
+  # Scope: Returns submissions that are part of a contest
+  scope :contest_submissions, -> { where.not(contest_id: nil) }
+
+  # Scope: Returns submissions not part of a contest
+  scope :regular_submissions, -> { where(contest_id: nil) }
 
   # Update problem statistics after submission status changes
   after_save :update_problem_statistics, if: :saved_change_to_status?
@@ -227,6 +238,13 @@ class Submission < ApplicationRecord
       self.user_id = user_id_was
       Rails.logger.warn("Attempted to change user_id on submission #{id} from #{user_id_was} to #{user_id}. Blocked.")
       errors.add(:user_id, "cannot be changed after submission is created")
+    end
+  end
+
+  # Automatically set contest_id from problem if not already set
+  def set_contest_id_from_problem
+    if contest_id.nil? && problem.present? && problem.contest_id.present?
+      self.contest_id = problem.contest_id
     end
   end
 

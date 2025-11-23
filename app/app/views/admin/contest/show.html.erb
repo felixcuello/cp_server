@@ -1,0 +1,119 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Manage Contest: <%= @contest.name %></h1>
+    <div class="header-actions">
+      <%= link_to "Edit", edit_admin_contest_path(@contest), class: "btn-secondary", data: { turbo: false } %>
+      <%= link_to "View Public Page", contest_path(@contest), class: "btn-secondary", data: { turbo: false } %>
+      <%= link_to "Back to Contests", admin_contests_path, class: "btn-secondary" %>
+    </div>
+  </div>
+
+  <!-- Contest Info -->
+  <div class="admin-section">
+    <h2 class="section-title">Contest Information</h2>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Name:</span>
+        <span class="info-value"><%= @contest.name %></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Start Time:</span>
+        <span class="info-value"><%= @contest.start_time.strftime("%Y-%m-%d %H:%M:%S") %></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">End Time:</span>
+        <span class="info-value"><%= @contest.end_time.strftime("%Y-%m-%d %H:%M:%S") %></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Penalty:</span>
+        <span class="info-value"><%= @contest.penalty_minutes %> minutes</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Status:</span>
+        <span class="info-value">
+          <% if @contest.active? %>
+            <span class="status-badge active">Active</span>
+          <% elsif @contest.upcoming? %>
+            <span class="status-badge upcoming">Upcoming</span>
+          <% else %>
+            <span class="status-badge ended">Ended</span>
+          <% end %>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Problem Section -->
+  <div class="admin-section">
+    <h2 class="section-title">Add Problem to Contest</h2>
+    <%= form_with url: add_problem_admin_contest_path(@contest), method: :post, class: "admin-form", data: { turbo: false } do |f| %>
+      <div class="form-group">
+        <%= label_tag :problem_id, "Select Problem", class: "form-label" %>
+        <%= select_tag :problem_id, 
+            options_from_collection_for_select(@all_problems, :id, ->(p) { "#{p.id}. #{p.title}" }),
+            { prompt: "Choose a problem...", class: "form-select" } %>
+      </div>
+      <%= submit_tag "Add Problem", class: "btn-primary" %>
+    <% end %>
+  </div>
+
+  <!-- Problems in Contest -->
+  <div class="admin-section">
+    <h2 class="section-title">Problems in Contest (<%= @problems.count %>)</h2>
+    
+    <% if @problems.any? %>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Difficulty</th>
+            <th>Hidden</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @problems.each do |problem| %>
+            <tr>
+              <td><%= problem.id %></td>
+              <td>
+                <%= link_to problem.title, problem_path(problem), data: { turbo: false } %>
+              </td>
+              <td>
+                <span class="problem-difficulty-<%= problem.difficulty %>">
+                  <%= problem.difficulty.capitalize %>
+                </span>
+              </td>
+              <td>
+                <% if problem.hidden? %>
+                  <span class="status-badge warning">Hidden</span>
+                <% else %>
+                  <span class="status-badge success">Visible</span>
+                <% end %>
+              </td>
+              <td>
+                <%= link_to problem.hidden? ? "Show" : "Hide", 
+                    toggle_problem_visibility_admin_contests_path(problem_id: problem.id),
+                    method: :post,
+                    class: "btn-small btn-secondary",
+                    data: { turbo: false } %>
+                <%= link_to "Remove", 
+                    remove_problem_admin_contest_path(@contest, problem_id: problem.id),
+                    method: :post,
+                    data: { confirm: "Remove this problem from the contest?" },
+                    class: "btn-small btn-danger",
+                    data: { turbo: false } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="empty-state">
+        <div class="empty-icon">📝</div>
+        <div class="empty-title">No problems in this contest</div>
+        <div class="empty-text">Add problems using the form above</div>
+      </div>
+    <% end %>
+  </div>
+</div>

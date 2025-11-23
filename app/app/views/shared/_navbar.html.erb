@@ -71,11 +71,10 @@
           <span>Submissions</span>
         <% end %>
         
-        <div class="drawer-link drawer-link-disabled">
+        <%= link_to contests_path, class: "drawer-link" do %>
           <span class="drawer-icon">🏆</span>
           <span>Contests</span>
-          <span class="coming-soon">Coming Soon</span>
-        </div>
+        <% end %>
         
         <%= link_to user_path(alias: current_user.alias), class: "drawer-link" do %>
           <span class="drawer-icon">👤</span>

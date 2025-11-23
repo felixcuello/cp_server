@@ -52,6 +52,35 @@
   <body class="main-body">
     <% unless request.headers["Turbo-Frame"] || request.path == "/users/sign_in" %>
       <%= render partial: 'shared/navbar' %>
+      
+      <!-- Upcoming Contest Banner -->
+      <% if user_signed_in? %>
+        <% upcoming_contest = Contest.where('start_time > ?', Time.current).order(:start_time).first %>
+        <% if upcoming_contest %>
+          <div class="upcoming-contest-banner" data-controller="contest-countdown" 
+               data-contest-countdown-start-time-value="<%= upcoming_contest.start_time.to_i * 1000 %>">
+            <div class="banner-content">
+              <div class="banner-left">
+                <span class="banner-icon">🏆</span>
+                <div class="banner-text">
+                  <strong><%= link_to upcoming_contest.name, contest_path(upcoming_contest), class: "banner-link", data: { turbo: false } %></strong>
+                  <span class="banner-date">starts <%= upcoming_contest.start_time.strftime("%B %d, %Y at %I:%M %p") %></span>
+                </div>
+              </div>
+              <div class="banner-countdown">
+                <span class="countdown-label">Starts in:</span>
+                <span class="countdown-value" data-contest-countdown-target="days">00</span>d
+                <span class="countdown-value" data-contest-countdown-target="hours">00</span>h
+                <span class="countdown-value" data-contest-countdown-target="minutes">00</span>m
+                <span class="countdown-value" data-contest-countdown-target="seconds">00</span>s
+              </div>
+              <div class="banner-right">
+                <%= link_to "View Contest", contest_path(upcoming_contest), class: "banner-button", data: { turbo: false } %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
     <% end %>
     
     <div id="flash-messages">

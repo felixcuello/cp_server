@@ -1,0 +1,74 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Standings - <%= @contest.name %></h1>
+    <div class="header-actions">
+      <%= link_to "Back to Contest", contest_path(@contest), class: "btn-secondary", data: { turbo: false } %>
+      <%= link_to "Submissions", submissions_contest_path(@contest), class: "btn-secondary", data: { turbo: false } %>
+    </div>
+  </div>
+
+  <div class="contest-section">
+    <div class="standings-table-container">
+      <table class="standings-table">
+        <thead>
+          <tr>
+            <th class="center" style="width: 60px;">Rank</th>
+            <th>User</th>
+            <th class="center" style="width: 120px;">Solved</th>
+            <th class="center" style="width: 150px;">Total Time</th>
+            <% if @standings.any? && @standings.first[:problem_details].any? %>
+              <% @standings.first[:problem_details].each_with_index do |problem_stat, index| %>
+                <th class="center" style="width: 100px;">
+                  <%= problem_stat[:problem].id %>
+                </th>
+              <% end %>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% @standings.each_with_index do |standing, index| %>
+            <tr class="<%= 'current-user-row' if standing[:user].id == current_user&.id %>">
+              <td class="center rank-cell">
+                <strong><%= standing[:rank] %></strong>
+              </td>
+              <td>
+                <%= link_to standing[:user_alias], user_path(alias: standing[:user_alias]), class: "user-link", data: { turbo: false } %>
+                <div class="user-name"><%= standing[:user_name] %></div>
+              </td>
+              <td class="center">
+                <span class="problems-solved-badge"><%= standing[:problems_solved] %></span>
+              </td>
+              <td class="center">
+                <span class="total-time"><%= standing[:total_time] %> min</span>
+              </td>
+              <% standing[:problem_details].each do |problem_stat| %>
+                <td class="center problem-cell">
+                  <% if problem_stat[:solved] %>
+                    <div class="problem-solved-indicator" title="Solved in <%= problem_stat[:time_to_solve] %> min with <%= problem_stat[:incorrect_attempts] %> wrong attempts">
+                      <span class="solved-mark">✓</span>
+                      <div class="problem-time"><%= problem_stat[:total_time] %> min</div>
+                    </div>
+                  <% elsif problem_stat[:incorrect_attempts] > 0 %>
+                    <div class="problem-attempted-indicator" title="<%= problem_stat[:incorrect_attempts] %> wrong attempts">
+                      <span class="attempted-mark">-<%= problem_stat[:incorrect_attempts] %></span>
+                    </div>
+                  <% else %>
+                    <span class="problem-not-attempted">—</span>
+                  <% end %>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <% if @standings.empty? %>
+        <div class="empty-state">
+          <div class="empty-icon">📊</div>
+          <div class="empty-title">No standings yet</div>
+          <div class="empty-text">Participants will appear here once they start solving problems</div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

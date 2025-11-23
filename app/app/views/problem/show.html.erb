@@ -1,6 +1,31 @@
 <div class="page-container">
   <div class="problem-detail-container" data-controller="submission-modal" data-submission-modal-problem-id-value="<%= @problem.id %>">
     
+    <!-- Contest Banner -->
+    <% if @contest %>
+      <div class="contest-banner">
+        <div class="contest-banner-content">
+          <div>
+            <strong>Contest:</strong> 
+            <%= link_to @contest.name, contest_path(@contest), class: "contest-link", data: { turbo: false } %>
+            <% if @contest_active %>
+              <span class="contest-status-badge active">Active</span>
+            <% elsif @contest.ended? %>
+              <span class="contest-status-badge ended">Ended</span>
+            <% else %>
+              <span class="contest-status-badge upcoming">Upcoming</span>
+            <% end %>
+          </div>
+          <div class="contest-banner-actions">
+            <%= link_to "View Contest", contest_path(@contest), class: "btn-secondary btn-small", data: { turbo: false } %>
+            <% if @is_participant && (@contest_active || @contest.ended?) %>
+              <%= link_to "Standings", standings_contest_path(@contest), class: "btn-secondary btn-small", data: { turbo: false } %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    
     <!-- Submission Modal -->
     <div class="submission-modal-backdrop" 
          data-submission-modal-target="modal" 

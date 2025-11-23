@@ -22,8 +22,30 @@ Rails.application.routes.draw do
   get "submissions/:id", to: "submission#show", as: "submission_detail"
   post "submissions/submit", to: "submission#submit", as: "problem_submission"
   post "submissions/test", to: "submission#test", as: "problem_test"
+  get "contests/:contest_id/submissions", to: "submission#contest_submissions", as: "contest_submissions"
+
+  resources :contests, only: [:index, :show], controller: 'contest' do
+    member do
+      post :join
+      get :standings
+      get :submissions
+    end
+  end
 
   get 'user/:alias', to: 'user#show', as: 'user'
+
+  # Admin namespace
+  namespace :admin do
+    resources :contests, controller: 'contest' do
+      member do
+        post :add_problem
+        post :remove_problem
+      end
+      collection do
+        post :toggle_problem_visibility
+      end
+    end
+  end
 
   require 'sidekiq/web'
   # Protect Sidekiq web UI - only accessible to admin users

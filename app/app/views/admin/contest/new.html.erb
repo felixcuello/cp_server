@@ -1,0 +1,8 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">New Contest</h1>
+    <%= link_to "Back to Contests", admin_contests_path, class: "btn-secondary" %>
+  </div>
+
+  <%= render "form", contest: @contest %>
+</div>

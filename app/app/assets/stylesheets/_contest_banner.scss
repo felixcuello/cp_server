@@ -1,0 +1,135 @@
+// Upcoming Contest Banner
+
+.upcoming-contest-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 99; // Just below navbar (z-index: 100)
+
+  .banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+  }
+
+  .banner-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .banner-icon {
+    font-size: 24px;
+  }
+
+  .banner-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .banner-link {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+      text-decoration: underline;
+    }
+  }
+
+  .banner-date {
+    font-size: 0.9em;
+    opacity: 0.9;
+  }
+
+  .banner-countdown {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .countdown-label {
+    font-size: 0.9em;
+    opacity: 0.9;
+  }
+
+  .countdown-value {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    min-width: 32px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+  }
+
+  .banner-right {
+    display: flex;
+    align-items: center;
+  }
+
+  .banner-button {
+    background-color: white;
+    color: #667eea;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.9);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+// Mobile adjustments
+@media (max-width: 768px) {
+  .upcoming-contest-banner {
+    padding: 10px 15px;
+
+    .banner-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .banner-left {
+      width: 100%;
+    }
+
+    .banner-countdown {
+      width: 100%;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .banner-right {
+      width: 100%;
+    }
+
+    .banner-button {
+      width: 100%;
+      text-align: center;
+    }
+  }
+}

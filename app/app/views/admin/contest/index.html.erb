@@ -1,0 +1,55 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Manage Contests</h1>
+    <%= link_to "New Contest", new_admin_contest_path, class: "btn-primary" %>
+  </div>
+
+  <div class="admin-table-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Status</th>
+          <th>Problems</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @contests.each do |contest| %>
+          <tr>
+            <td><%= link_to contest.name, admin_contest_path(contest), data: { turbo: false } %></td>
+            <td><%= contest.start_time.strftime("%Y-%m-%d %H:%M") %></td>
+            <td><%= contest.end_time.strftime("%Y-%m-%d %H:%M") %></td>
+            <td>
+              <% if contest.active? %>
+                <span class="status-badge active">Active</span>
+              <% elsif contest.upcoming? %>
+                <span class="status-badge upcoming">Upcoming</span>
+              <% else %>
+                <span class="status-badge ended">Ended</span>
+              <% end %>
+            </td>
+            <td><%= contest.problems.count %></td>
+            <td>
+              <%= link_to "Edit", edit_admin_contest_path(contest), class: "btn-small btn-secondary", data: { turbo: false } %>
+              <%= link_to "View", contest_path(contest), class: "btn-small btn-secondary", data: { turbo: false } %>
+              <%= link_to "Delete", admin_contest_path(contest), method: :delete, 
+                  data: { confirm: "Are you sure? This will remove the contest association from all problems." },
+                  class: "btn-small btn-danger" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if @contests.empty? %>
+      <div class="empty-state">
+        <div class="empty-icon">🏆</div>
+        <div class="empty-title">No contests yet</div>
+        <div class="empty-text">Create your first contest to get started</div>
+      </div>
+    <% end %>
+  </div>
+</div>

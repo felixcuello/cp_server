@@ -34,6 +34,19 @@ Rails.application.routes.draw do
 
   get 'user/:alias', to: 'user#show', as: 'user'
 
+  # Admin namespace
+  namespace :admin do
+    resources :contests, controller: 'contest' do
+      member do
+        post :add_problem
+        post :remove_problem
+      end
+      collection do
+        post :toggle_problem_visibility
+      end
+    end
+  end
+
   require 'sidekiq/web'
   # Protect Sidekiq web UI - only accessible to admin users
   mount Sidekiq::Web => '/sidekiq', constraints: AdminConstraint.new

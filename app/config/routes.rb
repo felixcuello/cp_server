@@ -24,7 +24,7 @@ Rails.application.routes.draw do
   post "submissions/test", to: "submission#test", as: "problem_test"
   get "contests/:contest_id/submissions", to: "submission#contest_submissions", as: "contest_submissions"
 
-  resources :contests, only: [:index, :show] do
+  resources :contests, only: [:index, :show], controller: 'contest' do
     member do
       post :join
       get :standings

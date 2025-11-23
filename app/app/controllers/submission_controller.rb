@@ -3,6 +3,7 @@
 require 'open3'
 
 class SubmissionController < AuthenticatedController
+  include ContestAuthorization
   def index
     @submissions = Submission.includes(:user, :problem, :programming_language, :contest)
                              .order(created_at: :desc)

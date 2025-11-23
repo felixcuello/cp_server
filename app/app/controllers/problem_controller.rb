@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 class ProblemController < AuthenticatedController
+  include ContestAuthorization
+
   before_action :difficulty, only: %i[index]
+  before_action :ensure_admin_or_contest_active, only: [:show, :recent_submission]
 
   def index
     # Filter out hidden problems for non-admins
@@ -63,26 +66,7 @@ class ProblemController < AuthenticatedController
   end
 
   def show
-    @problem = Problem.find_by(id: params[:id])
-
-    # Return 404 if problem doesn't exist
-    unless @problem
-      raise ActiveRecord::RecordNotFound
-    end
-
-    # Check if problem is hidden and user is not admin
-    if @problem.hidden? && !current_user.admin?
-      # Check if problem belongs to a contest and user has access
-      if @problem.contest
-        access_service = ContestAccessService.new(@problem.contest, current_user)
-        unless access_service.can_view_problem?(@problem)
-          raise ActiveRecord::RecordNotFound
-        end
-      else
-        # Hidden problem not in contest - only admins can see
-        raise ActiveRecord::RecordNotFound
-      end
-    end
+    @problem = Problem.find(params[:id])
 
     # Add contest context
     @contest = @problem.contest
@@ -125,28 +109,8 @@ class ProblemController < AuthenticatedController
   end
 
   def recent_submission
-    @problem = Problem.find_by(id: params[:id])
-
-    # Return 404 if problem doesn't exist or user cannot access
-    unless @problem
-      render json: { submission_id: nil, error: "Problem not found" }, status: :not_found
-      return
-    end
-
-    # Check access (same logic as show action)
-    if @problem.hidden? && !current_user.admin?
-      if @problem.contest
-        access_service = ContestAccessService.new(@problem.contest, current_user)
-        unless access_service.can_view_problem?(@problem)
-          render json: { submission_id: nil, error: "Problem not found" }, status: :not_found
-          return
-        end
-      else
-        render json: { submission_id: nil, error: "Problem not found" }, status: :not_found
-        return
-      end
-    end
-
+    @problem = Problem.find(params[:id])
+    
     if current_user
       # Get the most recent submission for this user and problem
       recent_submission = Submission.where(user: current_user, problem: @problem)

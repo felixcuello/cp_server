@@ -1,0 +1,247 @@
+<div class="page-container">
+  <div class="contest-show-header">
+    <div>
+      <h1 class="page-title"><%= @contest.name %></h1>
+      <div class="contest-status-badge <%= @contest.active? ? 'active' : @contest.upcoming? ? 'upcoming' : 'ended' %>">
+        <%= @contest.active? ? 'Active' : @contest.upcoming? ? 'Upcoming' : 'Ended' %>
+      </div>
+    </div>
+    <div class="contest-actions">
+      <% if @contest.active? || @contest.ended? %>
+        <%= link_to "Standings", standings_contest_path(@contest), class: "btn-primary", data: { turbo: false } %>
+        <%= link_to "Submissions", submissions_contest_path(@contest), class: "btn-secondary", data: { turbo: false } %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Contest Description -->
+  <% if @contest.description.present? %>
+    <div class="contest-section">
+      <h2 class="section-title">Description</h2>
+      <div class="contest-description-content">
+        <%= simple_format(@contest.description) %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Contest Rules -->
+  <% if @contest.rules.present? %>
+    <div class="contest-section">
+      <h2 class="section-title">Rules</h2>
+      <div class="contest-rules-content">
+        <%= simple_format(@contest.rules) %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Contest Info -->
+  <div class="contest-section">
+    <h2 class="section-title">Contest Information</h2>
+    <div class="contest-info-grid">
+      <div class="info-item">
+        <span class="info-label">Start Time:</span>
+        <span class="info-value"><%= @contest.start_time.strftime("%B %d, %Y at %I:%M %p") %></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">End Time:</span>
+        <span class="info-value"><%= @contest.end_time.strftime("%B %d, %Y at %I:%M %p") %></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Duration:</span>
+        <span class="info-value"><%= @contest.duration_minutes %> minutes</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Penalty:</span>
+        <span class="info-value"><%= @contest.penalty_minutes %> minutes per incorrect submission</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Countdown Timer -->
+  <% if @contest.upcoming? %>
+    <div class="contest-section">
+      <h2 class="section-title">Contest Starts In</h2>
+      <div class="countdown-container" data-controller="contest-countdown" 
+           data-contest-countdown-start-time-value="<%= @contest.start_time.to_i * 1000 %>">
+        <div class="countdown-display">
+          <div class="countdown-unit">
+            <span class="countdown-value" data-contest-countdown-target="days">0</span>
+            <span class="countdown-label">Days</span>
+          </div>
+          <div class="countdown-separator">:</div>
+          <div class="countdown-unit">
+            <span class="countdown-value" data-contest-countdown-target="hours">0</span>
+            <span class="countdown-label">Hours</span>
+          </div>
+          <div class="countdown-separator">:</div>
+          <div class="countdown-unit">
+            <span class="countdown-value" data-contest-countdown-target="minutes">0</span>
+            <span class="countdown-label">Minutes</span>
+          </div>
+          <div class="countdown-separator">:</div>
+          <div class="countdown-unit">
+            <span class="countdown-value" data-contest-countdown-target="seconds">0</span>
+            <span class="countdown-label">Seconds</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% elsif @contest.active? %>
+    <div class="contest-section">
+      <h2 class="section-title">Time Remaining</h2>
+      <div class="countdown-container" data-controller="contest-countdown" 
+           data-contest-countdown-end-time-value="<%= @contest.end_time.to_i * 1000 %>">
+        <div class="countdown-display">
+          <div class="countdown-unit">
+            <span class="countdown-value" data-contest-countdown-target="days">0</span>
+            <span class="countdown-label">Days</span>
+          </div>
+          <div class="countdown-separator">:</div>
+          <div class="countdown-unit">
+            <span class="countdown-value" data-contest-countdown-target="hours">0</span>
+            <span class="countdown-label">Hours</span>
+          </div>
+          <div class="countdown-separator">:</div>
+          <div class="countdown-unit">
+            <span class="countdown-value" data-contest-countdown-target="minutes">0</span>
+            <span class="countdown-label">Minutes</span>
+          </div>
+          <div class="countdown-separator">:</div>
+          <div class="countdown-unit">
+            <span class="countdown-value" data-contest-countdown-target="seconds">0</span>
+            <span class="countdown-label">Seconds</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Join/Leave Button -->
+  <div class="contest-section">
+    <% if @is_participant %>
+      <div class="participant-badge">
+        <span>✓ You are participating in this contest</span>
+      </div>
+    <% elsif @access_service.can_join? %>
+      <%= form_with url: join_contest_path(@contest), method: :post, data: { turbo: false } do |f| %>
+        <%= f.submit "Join Contest", class: "btn-primary btn-large" %>
+      <% end %>
+    <% elsif @contest.ended? %>
+      <div class="info-message">
+        This contest has ended. You can view the standings and problems.
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Problems List -->
+  <% if (@contest.active? || @contest.ended? || current_user.admin?) && @problems.any? %>
+    <div class="contest-section">
+      <h2 class="section-title">Problems</h2>
+      <div class="problems-list">
+        <table class="problems-table">
+          <thead>
+            <tr>
+              <th style="width: 60px;">ID</th>
+              <th>Title</th>
+              <th class="center" style="width: 120px;">Difficulty</th>
+              <% if @is_participant && (@contest.active? || @contest.ended?) %>
+                <th class="center" style="width: 100px;">Status</th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <% @problems.each do |problem| %>
+              <tr onclick="window.location='<%= problem_path(problem) %>'">
+                <td class="center"><strong><%= problem.id %></strong></td>
+                <td>
+                  <%= link_to problem.title, problem_path(problem), data: { turbo: false } %>
+                </td>
+                <td class="center">
+                  <span class="problem-difficulty-<%= problem.difficulty %>">
+                    <%= problem.difficulty.capitalize %>
+                  </span>
+                </td>
+                <% if @is_participant && (@contest.active? || @contest.ended?) %>
+                  <td class="center">
+                    <% if current_user %>
+                      <% user_status = problem.user_problem_statuses.find_by(user: current_user) %>
+                      <% if user_status&.status == 'solved' %>
+                        <span class="problem-status solved">✓ Solved</span>
+                      <% elsif user_status&.status == 'attempted' %>
+                        <span class="problem-status attempted">○ Attempted</span>
+                      <% else %>
+                        <span class="problem-status unattempted">—</span>
+                      <% end %>
+                    <% end %>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% elsif @contest.upcoming? && !current_user.admin? %>
+    <div class="contest-section">
+      <div class="info-message">
+        Problems will be available when the contest starts.
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  // Contest Countdown Timer
+  document.addEventListener('DOMContentLoaded', function() {
+    const countdownController = document.querySelector('[data-controller="contest-countdown"]');
+    if (!countdownController) return;
+
+    const startTime = countdownController.dataset.contestCountdownStartTimeValue;
+    const endTime = countdownController.dataset.contestCountdownEndTimeValue;
+    const targetTime = startTime ? parseInt(startTime) : parseInt(endTime);
+    const isStartCountdown = !!startTime;
+
+    const daysEl = countdownController.querySelector('[data-contest-countdown-target="days"]');
+    const hoursEl = countdownController.querySelector('[data-contest-countdown-target="hours"]');
+    const minutesEl = countdownController.querySelector('[data-contest-countdown-target="minutes"]');
+    const secondsEl = countdownController.querySelector('[data-contest-countdown-target="seconds"]');
+
+    function updateCountdown() {
+      const now = Date.now();
+      const diff = targetTime - now;
+
+      if (diff <= 0) {
+        // Countdown reached zero
+        daysEl.textContent = '0';
+        hoursEl.textContent = '0';
+        minutesEl.textContent = '0';
+        secondsEl.textContent = '0';
+
+        if (isStartCountdown) {
+          // Reload page with random delay (200-1500ms)
+          const delay = Math.random() * 1300 + 200;
+          setTimeout(function() {
+            window.location.reload();
+          }, delay);
+        }
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      daysEl.textContent = days.toString().padStart(2, '0');
+      hoursEl.textContent = hours.toString().padStart(2, '0');
+      minutesEl.textContent = minutes.toString().padStart(2, '0');
+      secondsEl.textContent = seconds.toString().padStart(2, '0');
+    }
+
+    // Update immediately
+    updateCountdown();
+
+    // Update every second
+    setInterval(updateCountdown, 1000);
+  });
+</script>

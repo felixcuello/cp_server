@@ -43,6 +43,15 @@
               options_for_select([['All Languages', 'all']] + @all_languages.map { |l| [l.name, l.id] }, params[:language] || 'all'),
               class: 'filter-select' %>
         </div>
+
+        <% if @all_contests %>
+          <div class="filter-item">
+            <label class="filter-label">Contest</label>
+            <%= select_tag :contest_id,
+                options_for_select([['All Contests', 'all']] + @all_contests.map { |c| [c.name, c.id] }, params[:contest_id] || 'all'),
+                class: 'filter-select' %>
+          </div>
+        <% end %>
         
         <% if @show_all %>
           <div class="filter-item">
@@ -68,7 +77,7 @@
 
       <div class="filter-actions">
         <%= submit_tag "Apply Filters", class: "btn-apply" %>
-        <%= link_to "Clear Filters", submission_path(show_all: @show_all ? 'true' : nil), class: "btn-clear" %>
+        <%= link_to "Clear Filters", submission_path(show_all: @show_all ? 'true' : nil, contest_id: params[:contest_id]), class: "btn-clear" %>
       </div>
     <% end %>
   </div>
@@ -98,6 +107,11 @@
             <div class="submission-problem-info">
               <span class="problem-number">#<%= submission.problem.id %></span>
               <%= link_to submission.problem.title, problem_path(submission.problem), class: "problem-title-link", data: { turbo: false } %>
+              <% if submission.contest %>
+                <span class="contest-badge-small" title="Contest: <%= submission.contest.name %>">
+                  🏆 Contest
+                </span>
+              <% end %>
             </div>
             <div class="submission-status-badge <%= submission.status.downcase.gsub(/\s+/, '-') %>">
               <%= status_icon(submission.status) %>
@@ -147,7 +161,7 @@
   <% if @total_pages > 1 %>
     <div class="pagination-container">
       <% if @page > 1 %>
-        <%= link_to submission_path(params.permit(:status, :language, :problem, :my_submissions).merge(page: @page - 1)), class: "pagination-btn" do %>
+        <%= link_to submission_path(params.permit(:status, :language, :problem, :my_submissions, :contest_id, :show_all).merge(page: @page - 1)), class: "pagination-btn" do %>
           <span>← Previous</span>
         <% end %>
       <% else %>
@@ -159,7 +173,7 @@
       </div>
 
       <% if @page < @total_pages %>
-        <%= link_to submission_path(params.permit(:status, :language, :problem, :my_submissions).merge(page: @page + 1)), class: "pagination-btn" do %>
+        <%= link_to submission_path(params.permit(:status, :language, :problem, :my_submissions, :contest_id, :show_all).merge(page: @page + 1)), class: "pagination-btn" do %>
           <span>Next →</span>
         <% end %>
       <% else %>

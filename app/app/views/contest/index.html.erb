@@ -1,0 +1,132 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Contests</h1>
+  </div>
+
+  <!-- Upcoming Contests -->
+  <% if @upcoming_contests.any? %>
+    <div class="contest-section">
+      <h2 class="contest-section-title">Upcoming Contests</h2>
+      <div class="contest-list">
+        <% @upcoming_contests.each do |contest| %>
+          <div class="contest-card">
+            <div class="contest-card-header">
+              <h3 class="contest-name">
+                <%= link_to contest.name, contest_path(contest), data: { turbo: false } %>
+              </h3>
+              <span class="contest-badge upcoming">Upcoming</span>
+            </div>
+            <div class="contest-card-body">
+              <p class="contest-description"><%= truncate(contest.description, length: 150) if contest.description.present? %></p>
+              <div class="contest-meta">
+                <div class="contest-meta-item">
+                  <span class="meta-label">Starts:</span>
+                  <span class="meta-value"><%= contest.start_time.strftime("%B %d, %Y at %I:%M %p") %></span>
+                </div>
+                <div class="contest-meta-item">
+                  <span class="meta-label">Ends:</span>
+                  <span class="meta-value"><%= contest.end_time.strftime("%B %d, %Y at %I:%M %p") %></span>
+                </div>
+                <div class="contest-meta-item">
+                  <span class="meta-label">Duration:</span>
+                  <span class="meta-value"><%= contest.duration_minutes %> minutes</span>
+                </div>
+              </div>
+            </div>
+            <div class="contest-card-footer">
+              <%= link_to "View Contest", contest_path(contest), class: "btn-primary", data: { turbo: false } %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Active Contests -->
+  <% if @active_contests.any? %>
+    <div class="contest-section">
+      <h2 class="contest-section-title">Active Contests</h2>
+      <div class="contest-list">
+        <% @active_contests.each do |contest| %>
+          <div class="contest-card">
+            <div class="contest-card-header">
+              <h3 class="contest-name">
+                <%= link_to contest.name, contest_path(contest), data: { turbo: false } %>
+              </h3>
+              <span class="contest-badge active">Active</span>
+            </div>
+            <div class="contest-card-body">
+              <p class="contest-description"><%= truncate(contest.description, length: 150) if contest.description.present? %></p>
+              <div class="contest-meta">
+                <div class="contest-meta-item">
+                  <span class="meta-label">Started:</span>
+                  <span class="meta-value"><%= contest.start_time.strftime("%B %d, %Y at %I:%M %p") %></span>
+                </div>
+                <div class="contest-meta-item">
+                  <span class="meta-label">Ends:</span>
+                  <span class="meta-value"><%= contest.end_time.strftime("%B %d, %Y at %I:%M %p") %></span>
+                </div>
+                <div class="contest-meta-item">
+                  <span class="meta-label">Duration:</span>
+                  <span class="meta-value"><%= contest.duration_minutes %> minutes</span>
+                </div>
+              </div>
+            </div>
+            <div class="contest-card-footer">
+              <%= link_to "View Contest", contest_path(contest), class: "btn-primary", data: { turbo: false } %>
+              <%= link_to "Standings", standings_contest_path(contest), class: "btn-secondary", data: { turbo: false } %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Past Contests -->
+  <% if @past_contests.any? %>
+    <div class="contest-section">
+      <h2 class="contest-section-title">Past Contests</h2>
+      <div class="contest-list">
+        <% @past_contests.each do |contest| %>
+          <div class="contest-card">
+            <div class="contest-card-header">
+              <h3 class="contest-name">
+                <%= link_to contest.name, contest_path(contest), data: { turbo: false } %>
+              </h3>
+              <span class="contest-badge ended">Ended</span>
+            </div>
+            <div class="contest-card-body">
+              <p class="contest-description"><%= truncate(contest.description, length: 150) if contest.description.present? %></p>
+              <div class="contest-meta">
+                <div class="contest-meta-item">
+                  <span class="meta-label">Started:</span>
+                  <span class="meta-value"><%= contest.start_time.strftime("%B %d, %Y at %I:%M %p") %></span>
+                </div>
+                <div class="contest-meta-item">
+                  <span class="meta-label">Ended:</span>
+                  <span class="meta-value"><%= contest.end_time.strftime("%B %d, %Y at %I:%M %p") %></span>
+                </div>
+                <div class="contest-meta-item">
+                  <span class="meta-label">Duration:</span>
+                  <span class="meta-value"><%= contest.duration_minutes %> minutes</span>
+                </div>
+              </div>
+            </div>
+            <div class="contest-card-footer">
+              <%= link_to "View Contest", contest_path(contest), class: "btn-primary", data: { turbo: false } %>
+              <%= link_to "Standings", standings_contest_path(contest), class: "btn-secondary", data: { turbo: false } %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @upcoming_contests.empty? && @active_contests.empty? && @past_contests.empty? %>
+    <div class="empty-state">
+      <div class="empty-icon">🏆</div>
+      <div class="empty-title">No contests available</div>
+      <div class="empty-text">Check back later for upcoming contests</div>
+    </div>
+  <% end %>
+</div>

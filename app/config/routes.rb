@@ -22,6 +22,15 @@ Rails.application.routes.draw do
   get "submissions/:id", to: "submission#show", as: "submission_detail"
   post "submissions/submit", to: "submission#submit", as: "problem_submission"
   post "submissions/test", to: "submission#test", as: "problem_test"
+  get "contests/:contest_id/submissions", to: "submission#contest_submissions", as: "contest_submissions"
+
+  resources :contests, only: [:index, :show] do
+    member do
+      post :join
+      get :standings
+      get :submissions
+    end
+  end
 
   get 'user/:alias', to: 'user#show', as: 'user'
 

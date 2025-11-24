@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+require 'open3'
+
 # Service for executing user code in an isolated nsjail sandbox
 # This provides security through Linux namespaces, cgroups, and seccomp
 class NsjailExecutionService
@@ -56,7 +59,7 @@ class NsjailExecutionService
       interpreter = get_interpreter_for_language
       interpreter_path_in_chroot = interpreter
       full_path = File.join(CHROOT_PATH, interpreter_path_in_chroot[1..-1]) # Remove leading /
-      
+
       unless File.exist?(full_path)
         result.stderr = "ERROR: Interpreter not found in chroot. Expected: #{full_path}\n"
         result.stderr += "Chroot contents of /usr/bin: #{Dir.glob(File.join(CHROOT_PATH, 'usr/bin/*')).join(', ')}\n" if Dir.exist?(File.join(CHROOT_PATH, 'usr/bin'))
@@ -73,19 +76,66 @@ class NsjailExecutionService
     # Build the nsjail command
     command = build_nsjail_command
 
-    # Execute with timeout
+    # Execute with timeout and measure CPU time
     begin
-      # Run the command and capture output
-      exit_code = execute_command(command)
+      # Check if /usr/bin/time is available, otherwise fall back to wall-clock time
+      time_binary = "/usr/bin/time"
+      use_cpu_time = File.exist?(time_binary)
+
+      if use_cpu_time
+        # Use /usr/bin/time to measure CPU time and execute in one go
+        # Format: %U = user CPU time, %S = system CPU time, %e = elapsed time, %x = exit status
+        # /usr/bin/time writes to stderr, so we capture stderr separately
+        # Use Open3 to properly handle stdout/stderr streams
+        time_command = "#{time_binary} -f 'TIME_STATS:%U %S %e %x' #{command}"
+        stdout_str, stderr_str, status = Open3.capture3(time_command)
+
+        exit_code = status.exitstatus
+
+        # Parse timing stats from stderr
+        timing_stats = nil
+        if stderr_str =~ /TIME_STATS:(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+)/
+          user_time = $1.to_f
+          system_time = $2.to_f
+          elapsed_time = $3.to_f
+          exit_code_from_time = $4.to_i
+
+          # Use exit code from /usr/bin/time if available (more reliable)
+          exit_code = exit_code_from_time if exit_code_from_time != 0 || exit_code == 0
+
+          # Use CPU time (user + system) in milliseconds - this is more accurate
+          # as it measures actual CPU time used, not wall-clock time
+          timing_stats = ((user_time + system_time) * 1000).to_i
+        end
+
+        # Store any stderr output (excluding timing info)
+        if stderr_str.present? && !stderr_str.match(/TIME_STATS:/)
+          result.stderr = stderr_str
+        end
+      else
+        # Fallback: execute command normally and use wall-clock time
+        stdout_str, stderr_str, status = Open3.capture3(command)
+        exit_code = status.exitstatus
+
+        if stderr_str.present?
+          result.stderr = stderr_str
+        end
+      end
 
       result.exit_code = exit_code
-      result.execution_time_ms = ((Time.now - start_time) * 1000).to_i
+
+      if use_cpu_time && timing_stats
+        result.execution_time_ms = timing_stats
+      else
+        # Fallback: use wall-clock time (includes nsjail overhead)
+        result.execution_time_ms = ((Time.now - start_time) * 1000).to_i
+      end
 
       # Check for specific error conditions
-      result.timed_out = (exit_code == 137 || exit_code == 124) # SIGKILL or timeout
-      result.oom_killed = (exit_code == 137) # Could also be OOM
+      result.timed_out = (result.exit_code == 137 || result.exit_code == 124) # SIGKILL or timeout
+      result.oom_killed = (result.exit_code == 137) # Could also be OOM
 
-      # Read output if file exists
+      # Read output from file (the program's stdout is redirected to the output file inside nsjail)
       if File.exist?(@output_file)
         result.stdout = File.read(@output_file)
       end
@@ -93,6 +143,11 @@ class NsjailExecutionService
     rescue => e
       result.stderr = "Execution error: #{e.message}"
       result.exit_code = 1
+      # Use wall-clock time as fallback
+      result.execution_time_ms = ((Time.now - start_time) * 1000).to_i
+    ensure
+      # Clean up time stats file if it still exists
+      File.delete(@time_stats_file) rescue nil
     end
 
     result
@@ -126,13 +181,63 @@ class NsjailExecutionService
     command = build_nsjail_command_for_binary(binary_path)
 
     begin
-      exit_code = execute_command(command)
+      # Check if /usr/bin/time is available, otherwise fall back to wall-clock time
+      time_binary = "/usr/bin/time"
+      use_cpu_time = File.exist?(time_binary)
+
+      if use_cpu_time
+        # Use /usr/bin/time to measure CPU time and execute in one go
+        # Format: %U = user CPU time, %S = system CPU time, %e = elapsed time, %x = exit status
+        # /usr/bin/time writes to stderr, so we capture stderr separately
+        # Use Open3 to properly handle stdout/stderr streams
+        time_command = "#{time_binary} -f 'TIME_STATS:%U %S %e %x' #{command}"
+        stdout_str, stderr_str, status = Open3.capture3(time_command)
+
+        exit_code = status.exitstatus
+
+        # Parse timing stats from stderr
+        timing_stats = nil
+        if stderr_str =~ /TIME_STATS:(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+)/
+          user_time = $1.to_f
+          system_time = $2.to_f
+          elapsed_time = $3.to_f
+          exit_code_from_time = $4.to_i
+
+          # Use exit code from /usr/bin/time if available (more reliable)
+          exit_code = exit_code_from_time if exit_code_from_time != 0 || exit_code == 0
+
+          # Use CPU time (user + system) in milliseconds - this is more accurate
+          # as it measures actual CPU time used, not wall-clock time
+          timing_stats = ((user_time + system_time) * 1000).to_i
+        end
+
+        # Store any stderr output (excluding timing info)
+        if stderr_str.present? && !stderr_str.match(/TIME_STATS:/)
+          result.stderr = stderr_str
+        end
+      else
+        # Fallback: execute command normally and use wall-clock time
+        stdout_str, stderr_str, status = Open3.capture3(command)
+        exit_code = status.exitstatus
+
+        if stderr_str.present?
+          result.stderr = stderr_str
+        end
+      end
 
       result.exit_code = exit_code
-      result.execution_time_ms = ((Time.now - start_time) * 1000).to_i
-      result.timed_out = (exit_code == 137 || exit_code == 124)
-      result.oom_killed = (exit_code == 137)
 
+      if use_cpu_time && timing_stats
+        result.execution_time_ms = timing_stats
+      else
+        # Fallback: use wall-clock time (includes nsjail overhead)
+        result.execution_time_ms = ((Time.now - start_time) * 1000).to_i
+      end
+
+      result.timed_out = (result.exit_code == 137 || result.exit_code == 124)
+      result.oom_killed = (result.exit_code == 137)
+
+      # Read output from file (the program's stdout is redirected to the output file inside nsjail)
       if File.exist?(@output_file)
         result.stdout = File.read(@output_file)
       end
@@ -140,6 +245,8 @@ class NsjailExecutionService
     rescue => e
       result.stderr = "Execution error: #{e.message}"
       result.exit_code = 1
+      # Use wall-clock time as fallback
+      result.execution_time_ms = ((Time.now - start_time) * 1000).to_i
     end
 
     result
@@ -212,22 +319,22 @@ class NsjailExecutionService
   # Get interpreter path for language
   def get_interpreter_for_language
     lang = @language_name.downcase
-    
+
     # Handle Python variations
     if lang.include?("python")
       return "/usr/bin/python3"
     end
-    
+
     # Handle Ruby
     if lang == "ruby"
       return "/usr/bin/ruby"
     end
-    
+
     # Handle JavaScript/Node.js variations (including "javascript (nodejs)", "node", "nodejs", etc.)
     if lang.include?("javascript") || lang.include?("node")
       return "/usr/bin/node"
     end
-    
+
     raise "Unsupported language: #{@language_name}"
   end
 
@@ -237,4 +344,5 @@ class NsjailExecutionService
     system(command)
     $?.exitstatus
   end
+
 end

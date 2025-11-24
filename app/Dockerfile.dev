@@ -16,6 +16,7 @@ RUN apt-get update -qq && \
       default-libmysqlclient-dev \
       python3 \
       nodejs \
+      time \
       # nsjail dependencies
       autoconf \
       bison \

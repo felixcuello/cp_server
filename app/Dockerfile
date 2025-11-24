@@ -30,6 +30,7 @@ RUN apt-get update -qq && \
       gcc g++ make \
       default-mysql-client \
       default-libmysqlclient-dev \
+      time \
       # nsjail dependencies (needed for code execution isolation)
       autoconf \
       bison \

@@ -70,8 +70,6 @@ class SubmissionService
 
     Rails.logger.info "Executing with nsjail: timeout=#{time_limit}s, memory=#{memory_limit_mb}MB"
 
-    @start_time = Time.now
-
     if language.compiler_binary.present?
       # Execute compiled binary
       @execution_result = NsjailExecutionService.execute_compiled(
@@ -93,8 +91,10 @@ class SubmissionService
       ).execute
     end
 
-    @runtime = Time.now - @start_time
-    Rails.logger.info "Execution result: exit_code=#{@execution_result.exit_code}, timed_out=#{@execution_result.timed_out}, oom_killed=#{@execution_result.oom_killed}"
+    # Use execution time from nsjail result (in milliseconds), convert to seconds
+    # This is more accurate as it measures the actual execution time
+    @runtime = @execution_result.execution_time_ms / 1000.0
+    Rails.logger.info "Execution result: exit_code=#{@execution_result.exit_code}, timed_out=#{@execution_result.timed_out}, oom_killed=#{@execution_result.oom_killed}, execution_time_ms=#{@execution_result.execution_time_ms}"
   end
 
   def compare_outputs

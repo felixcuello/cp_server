@@ -59,9 +59,9 @@ class Submission < ApplicationRecord
 
   def run_with_interpreter!
     problem = Problem.find self.problem_id
-    start_time = Time.now
 
     final_status = ACCEPTED
+    max_runtime = 0.0  # Track maximum runtime across all test cases
 
     self.update!(status: RUNNING)
     problem.examples.order(:id).each_with_index do |example, index|
@@ -75,6 +75,11 @@ class Submission < ApplicationRecord
 
       result = service.execute
       debug!("#{__LINE__} Test #{index + 1} result: #{result[:status]}")
+
+      # Track maximum runtime (in seconds) - this represents the slowest test case
+      # The runtime from result is in milliseconds, convert to seconds
+      test_runtime = (result[:runtime] || 0) / 1000.0
+      max_runtime = [max_runtime, test_runtime].max
 
       # Map service result status to Submission status constants
       case result[:status]
@@ -101,14 +106,13 @@ class Submission < ApplicationRecord
       break if final_status != ACCEPTED
     end
 
-    time_used = Time.now - start_time
-    self.update!(time_used: time_used)
+    # Use maximum runtime from test cases (most accurate representation)
+    self.update!(time_used: max_runtime)
     self.update!(status: final_status)
   end
 
   def run_with_compiler!
     problem = Problem.find self.problem_id
-    start_time = Time.now
 
     self.update!(status: COMPILING)
 
@@ -136,12 +140,16 @@ class Submission < ApplicationRecord
 
     # If compilation succeeded, continue with all examples
     final_status = ACCEPTED
+    max_runtime = 0.0  # Track maximum runtime across all test cases
 
     self.update!(status: RUNNING)
 
     problem.examples.order(:id).each_with_index do |example, index|
       # Skip first example if we already ran it (unless it failed)
       if index == 0 && first_result[:status] == "passed"
+        # Track runtime from first result
+        test_runtime = (first_result[:runtime] || 0) / 1000.0
+        max_runtime = [max_runtime, test_runtime].max
         next
       elsif index == 0
         result = first_result
@@ -158,6 +166,11 @@ class Submission < ApplicationRecord
       end
 
       debug!("#{__LINE__} Test #{index + 1} result: #{result[:status]}")
+
+      # Track maximum runtime (in seconds) - this represents the slowest test case
+      # The runtime from result is in milliseconds, convert to seconds
+      test_runtime = (result[:runtime] || 0) / 1000.0
+      max_runtime = [max_runtime, test_runtime].max
 
       # Map service result status to Submission status constants
       case result[:status]
@@ -184,8 +197,8 @@ class Submission < ApplicationRecord
       break if final_status != ACCEPTED
     end
 
-    time_used = Time.now - start_time
-    self.update!(time_used: time_used)
+    # Use maximum runtime from test cases (most accurate representation)
+    self.update!(time_used: max_runtime)
     self.update!(status: final_status)
   end
 

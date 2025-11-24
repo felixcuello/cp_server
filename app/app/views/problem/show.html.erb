@@ -1,12 +1,12 @@
 <div class="page-container">
   <div class="problem-detail-container" data-controller="submission-modal" data-submission-modal-problem-id-value="<%= @problem.id %>">
-    
+
     <!-- Contest Banner -->
     <% if @contest %>
       <div class="contest-banner">
         <div class="contest-banner-content">
           <div>
-            <strong>Contest:</strong> 
+            <strong>Contest:</strong>
             <%= link_to @contest.name, contest_path(@contest), class: "contest-link", data: { turbo: false } %>
             <% if @contest_active %>
               <span class="contest-status-badge active">Active</span>
@@ -25,48 +25,51 @@
         </div>
       </div>
     <% end %>
-    
+
     <!-- Submission Modal -->
-    <div class="submission-modal-backdrop" 
-         data-submission-modal-target="modal" 
+    <div class="submission-modal-backdrop"
+         data-submission-modal-target="modal"
          data-action="click->submission-modal#closeOnBackdrop"
          tabindex="-1">
       <div class="submission-modal">
         <button class="modal-close-btn" data-action="click->submission-modal#close">
           ×
         </button>
-        
+
         <div class="modal-icon-container">
           <div class="modal-icon" data-submission-modal-target="icon">✓</div>
         </div>
-        
+
         <h2 class="modal-title" data-submission-modal-target="title">Success!</h2>
         <p class="modal-message" data-submission-modal-target="message">Your solution passed all test cases!</p>
-        
+
         <div class="modal-actions">
-          <button class="modal-btn modal-btn-secondary" 
+          <button class="modal-btn modal-btn-secondary"
                   data-submission-modal-target="tryAgainBtn"
                   data-action="click->submission-modal#tryAgain">
             Try Again
           </button>
-          <button class="modal-btn modal-btn-primary" 
+          <button class="modal-btn modal-btn-primary"
                   data-submission-modal-target="viewSubmissionsBtn"
                   data-action="click->submission-modal#viewSubmissions">
             View Submissions
           </button>
         </div>
-        
+
         <div class="modal-hint">
           Press <kbd>ESC</kbd> to close or <kbd>Enter</kbd> to view submissions
         </div>
       </div>
     </div>
-    
+
     <!-- Split View: Description | Code Editor -->
-    <div class="problem-split-view">
-      
+    <div class="problem-split-view"
+         data-controller="resize">
+
       <!-- Left Pane: Problem Description with Tabs -->
-      <div class="problem-description-pane" data-controller="problem-tabs">
+      <div class="problem-description-pane"
+           data-controller="problem-tabs"
+           data-resize-target="leftPane">
         <!-- Tabs -->
         <div class="problem-tabs">
           <button class="tab active" data-tab="description" data-problem-tabs-target="tab" data-action="click->problem-tabs#switch">
@@ -78,53 +81,53 @@
             </button>
           <% end %>
         </div>
-        
+
         <!-- Description Tab -->
         <div class="tab-panel active" data-panel="description" data-problem-tabs-target="panel">
           <!-- Problem Header -->
           <div class="problem-detail-header">
             <h1><%= @problem.id %>. <%= @problem.title %></h1>
-            
+
             <div class="problem-meta">
               <span class="problem-difficulty-<%= @problem.difficulty %>">
                 <%= @problem.difficulty.capitalize %>
               </span>
-              
+
               <% @problem.tags.each do |tag| %>
                 <span class="problem-tag"><%= tag.name %></span>
               <% end %>
-              
+
               <div class="meta-item">
                 <strong>Time Limit:</strong> <%= @problem.time_limit_sec %> sec
               </div>
-              
+
               <div class="meta-item">
                 <strong>Memory Limit:</strong> <%= @problem.memory_limit_kb %> KB
               </div>
             </div>
           </div>
-          
+
           <!-- Problem Description (Markdown) -->
           <div class="problem-content">
             <%= markdown(@problem.description) %>
           </div>
-          
+
           <!-- Examples -->
           <div class="examples-section">
             <h2>Examples</h2>
-            
+
             <% @problem.examples.where(is_hidden: false).each_with_index do |example, idx| %>
               <div class="example-card">
                 <div class="example-header">
                   <h4>Example <%= idx + 1 %></h4>
                 </div>
-                
+
                 <div class="example-content">
                   <div class="example-block">
                     <h5>Input:</h5>
                     <div class="example-code"><%= example.input %></div>
                   </div>
-                  
+
                   <div class="example-block">
                     <h5>Output:</h5>
                     <div class="example-code"><%= example.output %></div>
@@ -133,7 +136,7 @@
               </div>
             <% end %>
           </div>
-          
+
           <!-- Constraints -->
           <div class="problem-content">
             <h2>Constraints</h2>
@@ -143,7 +146,7 @@
               <% end %>
             </ul>
           </div>
-          
+
           <!-- Problem Statistics -->
           <div class="problem-stats">
             <div class="stat-item">
@@ -159,7 +162,7 @@
               <div class="stat-value"><%= @acceptance_rate %>%</div>
             </div>
           </div>
-          
+
           <!-- Similar Problems -->
           <% if @similar_problems.any? %>
             <div class="similar-problems">
@@ -177,19 +180,19 @@
             </div>
           <% end %>
         </div>
-        
+
         <!-- Submissions Tab -->
         <% if @user_submissions&.any? %>
           <div class="tab-panel" data-panel="submissions" data-problem-tabs-target="panel">
             <h2>My Submissions</h2>
-            
+
             <% if @best_submission %>
               <div style="padding: 15px; background-color: var(--status-accepted); color: white; border-radius: 8px; margin-bottom: 20px;">
-                <strong>✓ Best Submission:</strong> 
+                <strong>✓ Best Submission:</strong>
                 <%= @best_submission.time_used.round(3) %> sec in <%= @best_submission.programming_language.name %>
               </div>
             <% end %>
-            
+
             <div class="submission-history">
               <% @user_submissions.each do |submission| %>
                 <%= link_to submission_detail_path(submission), class: "submission-item-link" do %>
@@ -213,13 +216,17 @@
           </div>
         <% end %>
       </div>
-      
+
+      <!-- Horizontal Resizer -->
+      <div class="problem-split-resizer" data-resize-target="resizer"></div>
+
       <!-- Right Pane: Code Editor -->
-      <div class="problem-editor-pane" 
-           data-controller="code-editor" 
-           data-code-editor-problem-id-value="<%= @problem.id %>">
-        
-        <div class="editor-section">
+      <div class="problem-editor-pane"
+           data-controller="code-editor"
+           data-code-editor-problem-id-value="<%= @problem.id %>"
+           data-resize-target="rightPane">
+
+        <div class="editor-section" data-resize-target="topPane">
           <!-- Editor Header -->
           <div class="editor-header">
             <span style="font-weight: 600; color: var(--text-heading);">Code</span>
@@ -231,10 +238,10 @@
               <% end %>
             </select>
           </div>
-          
+
           <!-- Monaco Editor Container -->
           <div class="editor-container" data-code-editor-target="editor"></div>
-          
+
           <!-- Editor Footer with Test and Submit Buttons -->
           <div class="editor-footer">
             <button class="btn-test" data-action="click->code-editor#test">
@@ -248,13 +255,19 @@
             </button>
           </div>
         </div>
-        
+
+        <!-- Vertical Resizer -->
+        <div class="editor-vertical-resizer" data-resize-target="verticalResizer"></div>
+
         <!-- Test Results Section (inside controller scope) -->
-        <div class="test-results-container" data-code-editor-target="testResults" style="display: none;">
+        <div class="test-results-container"
+             data-code-editor-target="testResults"
+             data-resize-target="bottomPane"
+             style="display: none;">
           <!-- Results will be inserted here by JavaScript -->
         </div>
       </div>
-      
+
     </div>
   </div>
 </div>
@@ -264,12 +277,12 @@
 <script>
   // Configure and load Monaco Editor
   if (typeof require !== 'undefined') {
-    require.config({ 
-      paths: { 
-        vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' 
+    require.config({
+      paths: {
+        vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs'
       }
     });
-    
+
     // Make Monaco globally available
     window.monacoLoaded = new Promise((resolve) => {
       require(['vs/editor/editor.main'], function() {

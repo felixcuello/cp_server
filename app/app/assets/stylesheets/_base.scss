@@ -20,11 +20,11 @@ body {
 a {
   color: var(--text-link);
   text-decoration: none;
-  
+
   &:visited {
     color: var(--text-link-visited);
   }
-  
+
   &:hover {
     text-decoration: underline;
   }
@@ -35,9 +35,17 @@ a {
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
-  
+
   @media (max-width: 768px) {
     padding: 15px;
+  }
+
+  // Full width for problem detail page
+  &:has(.problem-detail-container) {
+    max-width: 100%;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
   }
 }
 
@@ -48,7 +56,7 @@ a {
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
-  
+
   @media (max-width: 968px) {
     flex-direction: column;
   }

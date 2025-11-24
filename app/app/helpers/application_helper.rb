@@ -47,12 +47,15 @@ module ApplicationHelper
   # Map language names to Prism.js class names
   def language_class(language_name)
     mapping = {
+      'Python 3' => 'python',
       'Python' => 'python',
       'Python3' => 'python',
+      'Javascript (NodeJS)' => 'javascript',
       'JavaScript' => 'javascript',
       'Node.js' => 'javascript',
       'Ruby' => 'ruby',
       'C' => 'c',
+      'C++11' => 'cpp',
       'C++' => 'cpp',
       'C++ 11' => 'cpp',
       'Java' => 'java',

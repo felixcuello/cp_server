@@ -229,31 +229,31 @@
         <div class="editor-section" data-resize-target="topPane">
           <!-- Editor Header -->
           <div class="editor-header">
-            <span style="font-weight: 600; color: var(--text-heading);">Code</span>
-            <select data-code-editor-target="languageSelect" data-action="change->code-editor#changeLanguage">
-              <% @languages.each_with_index do |language, index| %>
-                <option value="<%= language.id %>" data-lang="<%= language.name.downcase %>" <%= 'selected' if index == 0 %>>
-                  <%= language.name %>
-                </option>
-              <% end %>
-            </select>
+            <div class="editor-header-left">
+              <span style="font-weight: 600; color: var(--text-heading);">Code</span>
+              <select data-code-editor-target="languageSelect" data-action="change->code-editor#changeLanguage">
+                <% @languages.each_with_index do |language, index| %>
+                  <option value="<%= language.id %>" data-lang="<%= language.name.downcase %>" <%= 'selected' if index == 0 %>>
+                    <%= language.name %>
+                  </option>
+                <% end %>
+              </select>
+            </div>
+            <div class="editor-header-actions">
+              <button class="btn-test" data-action="click->code-editor#test">
+                ▶ Run Code
+              </button>
+              <button class="btn-secondary" data-action="click->code-editor#resetCode">
+                🔄 Reset Code
+              </button>
+              <button class="btn-primary" data-action="click->code-editor#submit">
+                Submit Solution
+              </button>
+            </div>
           </div>
 
           <!-- Monaco Editor Container -->
           <div class="editor-container" data-code-editor-target="editor"></div>
-
-          <!-- Editor Footer with Test and Submit Buttons -->
-          <div class="editor-footer">
-            <button class="btn-test" data-action="click->code-editor#test">
-              ▶ Run Code
-            </button>
-            <button class="btn-secondary" data-action="click->code-editor#resetCode">
-              🔄 Reset Code
-            </button>
-            <button class="btn-primary" data-action="click->code-editor#submit">
-              Submit Solution
-            </button>
-          </div>
         </div>
 
         <!-- Vertical Resizer -->

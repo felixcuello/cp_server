@@ -13,7 +13,7 @@
   justify-content: center;
   z-index: 9999;
   backdrop-filter: blur(4px);
-  
+
   &.active {
     display: flex;
   }
@@ -28,7 +28,7 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   position: relative;
   animation: modalSlideIn 0.3s ease-out;
-  
+
   .modal-close-btn {
     position: absolute;
     top: 15px;
@@ -45,19 +45,19 @@
     justify-content: center;
     border-radius: 50%;
     transition: all 0.2s ease;
-    
+
     &:hover {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);
     }
   }
-  
+
   .modal-icon-container {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
   }
-  
+
   .modal-icon {
     width: 80px;
     height: 80px;
@@ -67,32 +67,32 @@
     justify-content: center;
     font-size: 3em;
     font-weight: bold;
-    
+
     &.success {
       background-color: rgba(76, 175, 80, 0.15);
       color: var(--status-accepted);
       border: 3px solid var(--status-accepted);
     }
-    
+
     &.error {
       background-color: rgba(244, 67, 54, 0.15);
       color: var(--status-wrong);
       border: 3px solid var(--status-wrong);
     }
-    
+
     &.warning {
       background-color: rgba(255, 193, 7, 0.15);
       color: #FFC107;
       border: 3px solid #FFC107;
     }
-    
+
     &.queued {
       background-color: rgba(33, 150, 243, 0.15);
       color: #2196F3;
       border: 3px solid #2196F3;
     }
   }
-  
+
   .modal-title {
     text-align: center;
     font-size: 1.8em;
@@ -100,7 +100,7 @@
     margin-bottom: 12px;
     font-weight: 700;
   }
-  
+
   .modal-message {
     text-align: center;
     font-size: 1.1em;
@@ -108,13 +108,13 @@
     margin-bottom: 30px;
     line-height: 1.6;
   }
-  
+
   .modal-actions {
     display: flex;
     gap: 12px;
     margin-bottom: 20px;
   }
-  
+
   .modal-btn {
     flex: 1;
     padding: 14px 24px;
@@ -125,38 +125,38 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: Arial, sans-serif;
-    
+
     &.modal-btn-primary {
       background-color: var(--status-accepted);
       color: white;
-      
+
       &:hover {
         opacity: 0.9;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
       }
     }
-    
+
     &.modal-btn-secondary {
       background-color: var(--bg-secondary);
       color: var(--text-primary);
       border: 1px solid var(--border-primary);
-      
+
       &:hover {
         background-color: var(--bg-tertiary);
       }
     }
-    
+
     &:active {
       transform: translateY(0);
     }
   }
-  
+
   .modal-hint {
     text-align: center;
     font-size: 0.85em;
     color: var(--text-secondary);
-    
+
     kbd {
       background-color: var(--code-bg);
       padding: 2px 8px;
@@ -185,14 +185,18 @@
   flex-direction: column;
   height: calc(100vh - 100px);
   gap: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 // Split pane layout
 .problem-split-view {
   display: flex;
-  gap: 20px;
+  gap: 0;
   height: 100%;
-  
+  width: 100%;
+  position: relative;
+
   @media (max-width: 1200px) {
     flex-direction: column;
     height: auto;
@@ -201,27 +205,55 @@
 
 // Left pane - Problem description
 .problem-description-pane {
-  flex: 1;
-  min-width: 0;
+  flex: 0 0 50%;
+  min-width: 300px;
+  max-width: calc(100% - 300px);
   overflow-y: auto;
   background-color: var(--bg-secondary);
-  border-radius: 8px;
+  border-radius: 8px 0 0 8px;
   padding: 30px;
-  
+
   @media (max-width: 1200px) {
+    flex: 1;
+    max-width: 100%;
     max-height: 600px;
+    border-radius: 8px;
+  }
+}
+
+// Horizontal resizer between description and editor
+.problem-split-resizer {
+  flex: 0 0 4px;
+  background-color: var(--border-primary);
+  cursor: col-resize;
+  position: relative;
+  z-index: 10;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--text-heading);
+  }
+
+  @media (max-width: 1200px) {
+    display: none;
   }
 }
 
 // Right pane - Code editor
 .problem-editor-pane {
   flex: 1;
-  min-width: 0;
+  min-width: 300px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  overflow-y: auto;
+  gap: 0;
+  overflow: hidden;
   max-height: 100%;
+  border-radius: 0 8px 8px 0;
+
+  @media (max-width: 1200px) {
+    border-radius: 8px;
+    margin-top: 20px;
+  }
 }
 
 // Tabs
@@ -230,7 +262,7 @@
   gap: 5px;
   border-bottom: 2px solid var(--border-primary);
   margin-bottom: 20px;
-  
+
   .tab {
     padding: 12px 20px;
     background: none;
@@ -242,12 +274,12 @@
     cursor: pointer;
     border-bottom: 3px solid transparent;
     transition: all 0.2s ease;
-    
+
     &:hover {
       color: var(--text-primary);
       background-color: var(--bg-tertiary);
     }
-    
+
     &.active {
       color: var(--text-heading);
       border-bottom-color: var(--text-heading);
@@ -257,7 +289,7 @@
 
 .tab-panel {
   display: none;
-  
+
   &.active {
     display: block;
   }
@@ -266,7 +298,7 @@
 // Problem header
 .problem-detail-header {
   margin-bottom: 25px;
-  
+
   h1 {
     font-family: Arial, sans-serif;
     font-size: 1.8em;
@@ -274,18 +306,18 @@
     color: var(--text-heading);
     margin-bottom: 15px;
   }
-  
+
   .problem-meta {
     display: flex;
     align-items: center;
     gap: 15px;
     flex-wrap: wrap;
   }
-  
+
   .meta-item {
     font-size: 0.9em;
     color: var(--text-secondary);
-    
+
     strong {
       color: var(--text-primary);
     }
@@ -298,26 +330,26 @@
   font-size: 1em;
   line-height: 1.6;
   color: var(--text-primary);
-  
+
   h2, h3, h4 {
     color: var(--text-heading);
     margin-top: 25px;
     margin-bottom: 15px;
   }
-  
+
   p {
     margin-bottom: 15px;
   }
-  
+
   ul, ol {
     padding-left: 30px;
     margin-bottom: 15px;
-    
+
     li {
       margin-bottom: 8px;
     }
   }
-  
+
   code {
     background-color: var(--code-bg);
     padding: 2px 6px;
@@ -326,20 +358,20 @@
     font-size: 0.9em;
     color: var(--text-primary);
   }
-  
+
   pre {
     background-color: var(--code-bg);
     padding: 15px;
     border-radius: 5px;
     overflow-x: auto;
     margin-bottom: 15px;
-    
+
     code {
       background: none;
       padding: 0;
     }
   }
-  
+
   // Syntax highlighting (Rouge)
   .highlight {
     background-color: var(--code-bg);
@@ -347,7 +379,7 @@
     padding: 15px;
     overflow-x: auto;
   }
-  
+
   blockquote {
     border-left: 3px solid var(--text-heading);
     padding-left: 15px;
@@ -355,7 +387,7 @@
     color: var(--text-secondary);
     font-style: italic;
   }
-  
+
   strong, b {
     font-weight: bold;
     color: var(--text-heading);
@@ -365,7 +397,7 @@
 // Examples section
 .examples-section {
   margin-top: 30px;
-  
+
   h2 {
     color: var(--text-heading);
     margin-bottom: 20px;
@@ -378,23 +410,23 @@
   border-radius: 8px;
   padding: 15px;
   margin-bottom: 12px;
-  
+
   .example-header {
     margin-bottom: 12px;
-    
+
     h4 {
       margin: 0;
       color: var(--text-heading);
       font-size: 1em;
     }
   }
-  
+
   .example-content {
     display: flex;
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .example-block {
     h5 {
       font-size: 0.8em;
@@ -403,7 +435,7 @@
       margin-bottom: 6px;
       letter-spacing: 0.5px;
     }
-    
+
     .example-code {
       background-color: var(--code-bg);
       padding: 8px 10px;
@@ -426,11 +458,11 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: Arial, sans-serif;
-  
+
   &:hover {
     background-color: var(--bg-tertiary);
   }
-  
+
   &.copied {
     background-color: var(--status-accepted);
     color: white;
@@ -440,13 +472,23 @@
 
 // Code editor section
 .editor-section {
-  flex: 0 0 auto;
+  flex: 1;
+  min-height: 300px;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-secondary);
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--border-primary);
+  border-bottom: 1px solid var(--border-primary);
+
+  // When vertical resizer is visible (test results shown), adjust sizing and border radius
+  .problem-editor-pane:has(.editor-vertical-resizer[style*="display: block"]) & {
+    flex: 0 0 50%;
+    max-height: calc(100% - 200px);
+    border-radius: 8px 8px 0 0;
+    border-bottom: none;
+  }
 }
 
 .editor-header {
@@ -456,7 +498,7 @@
   padding: 15px 20px;
   border-bottom: 1px solid var(--border-primary);
   background-color: var(--bg-tertiary);
-  
+
   select {
     padding: 8px 12px;
     background-color: var(--bg-secondary);
@@ -466,12 +508,12 @@
     font-family: Arial, sans-serif;
     font-size: 0.95em;
     cursor: pointer;
-    
+
     &:focus {
       outline: none;
       border-color: var(--text-heading);
     }
-    
+
     option {
       background-color: var(--bg-secondary);
       color: var(--text-primary);
@@ -493,7 +535,7 @@
   justify-content: flex-end;
   gap: 10px;
   background-color: var(--bg-tertiary);
-  
+
   button {
     padding: 10px 30px;
     font-family: Arial, sans-serif;
@@ -502,42 +544,42 @@
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.2s ease;
-    
+
     &.btn-primary {
       background-color: var(--status-accepted);
       color: white;
       border: none;
-      
+
       &:hover {
         opacity: 0.9;
         transform: translateY(-1px);
       }
-      
+
       &:active {
         transform: translateY(0);
       }
     }
-    
+
     &.btn-test {
       background-color: #2196F3;
       color: white;
       border: none;
-      
+
       &:hover {
         opacity: 0.9;
         transform: translateY(-1px);
       }
-      
+
       &:active {
         transform: translateY(0);
       }
     }
-    
+
     &.btn-secondary {
       background-color: var(--bg-secondary);
       color: var(--text-primary);
       border: 1px solid var(--border-primary);
-      
+
       &:hover {
         background-color: var(--bg-tertiary);
       }
@@ -545,14 +587,25 @@
   }
 }
 
+// Vertical resizer between editor and test results
+.editor-vertical-resizer {
+  flex: 0 0 4px;
+  background-color: var(--border-primary);
+  cursor: row-resize;
+  position: relative;
+  z-index: 10;
+  transition: background-color 0.2s ease;
+  display: none; // Hidden by default, shown via JavaScript when test results are visible
+}
+
 // Test Results Container
 .test-results-container {
-  flex: 0 0 auto;
+  flex: 1;
+  min-height: 200px;
   background-color: var(--bg-secondary);
-  border-radius: 8px;
+  border-radius: 0 0 8px 8px;
   border: 1px solid var(--border-primary);
   padding: 15px;
-  max-height: 500px;
   overflow-y: auto;
 }
 
@@ -562,12 +615,12 @@
   align-items: center;
   gap: 12px;
   padding: 30px 20px;
-  
+
   .spinner {
     font-size: 2.5em;
     animation: spin 1s linear infinite;
   }
-  
+
   color: var(--text-secondary);
   font-size: 1em;
 }
@@ -585,12 +638,12 @@
   background-color: rgba(244, 67, 54, 0.1);
   border: 1px solid var(--status-wrong);
   border-radius: 5px;
-  
+
   .error-icon {
     font-size: 1.5em;
     color: var(--status-wrong);
   }
-  
+
   .error-message {
     color: var(--text-primary);
     font-size: 1em;
@@ -606,19 +659,19 @@
   margin-bottom: 15px;
   font-size: 1.1em;
   font-weight: bold;
-  
+
   &.passed {
     background-color: rgba(76, 175, 80, 0.15);
     color: var(--status-accepted);
     border: 1px solid var(--status-accepted);
   }
-  
+
   &.failed {
     background-color: rgba(244, 67, 54, 0.15);
     color: var(--status-wrong);
     border: 1px solid var(--status-wrong);
   }
-  
+
   .status-icon {
     font-size: 1.3em;
   }
@@ -635,15 +688,15 @@
   border-radius: 6px;
   border: 1px solid var(--border-primary);
   overflow: hidden;
-  
+
   &.passed {
     border-left: 3px solid var(--status-accepted);
   }
-  
+
   &.failed {
     border-left: 3px solid var(--status-wrong);
   }
-  
+
   .test-case-header {
     display: flex;
     align-items: center;
@@ -651,32 +704,32 @@
     padding: 10px 15px;
     background-color: var(--bg-secondary);
     border-bottom: 1px solid var(--border-primary);
-    
+
     .test-icon {
       font-size: 1.1em;
       font-weight: bold;
     }
-    
+
     .test-title {
       flex: 1;
       font-weight: 600;
       color: var(--text-heading);
       font-size: 0.95em;
     }
-    
+
     .test-runtime {
       font-family: monospace;
       color: var(--text-secondary);
       font-size: 0.85em;
     }
   }
-  
+
   .test-case-body {
     padding: 12px 15px;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    
+
     .test-section {
       .test-label {
         font-size: 0.75em;
@@ -686,7 +739,7 @@
         font-weight: 600;
         letter-spacing: 0.5px;
       }
-      
+
       .test-value {
         background-color: var(--code-bg);
         padding: 8px 10px;
@@ -700,17 +753,17 @@
         color: var(--text-primary);
         max-height: 120px;
         overflow-y: auto;
-        
+
         &.correct {
           border-color: var(--status-accepted);
         }
-        
+
         &.incorrect {
           border-color: var(--status-wrong);
         }
       }
     }
-    
+
     .test-error {
       padding: 10px;
       background-color: rgba(244, 67, 54, 0.1);
@@ -721,18 +774,18 @@
       white-space: pre-wrap;
       word-break: break-word;
       font-size: 0.85em;
-      
+
       strong {
         color: var(--status-wrong);
         font-family: Arial, sans-serif;
       }
     }
   }
-  
+
   &.passed .test-icon {
     color: var(--status-accepted);
   }
-  
+
   &.failed .test-icon {
     color: var(--status-wrong);
   }
@@ -747,11 +800,11 @@
   border-radius: 8px;
   margin-top: 25px;
   border: 1px solid var(--border-primary);
-  
+
   .stat-item {
     flex: 1;
     text-align: center;
-    
+
     .stat-label {
       font-size: 0.85em;
       color: var(--text-secondary);
@@ -759,7 +812,7 @@
       margin-bottom: 5px;
       letter-spacing: 0.5px;
     }
-    
+
     .stat-value {
       font-size: 1.5em;
       font-weight: bold;
@@ -771,13 +824,13 @@
 // Similar problems
 .similar-problems {
   margin-top: 30px;
-  
+
   h3 {
     font-size: 1.2em;
     color: var(--text-heading);
     margin-bottom: 15px;
   }
-  
+
   .similar-problem-item {
     padding: 12px 15px;
     background-color: var(--bg-tertiary);
@@ -788,18 +841,18 @@
     justify-content: space-between;
     align-items: center;
     transition: all 0.2s ease;
-    
+
     &:hover {
       background-color: var(--bg-primary);
       cursor: pointer;
       border-color: var(--text-heading);
     }
-    
+
     a {
       color: var(--text-primary);
       text-decoration: none;
       flex: 1;
-      
+
       &:hover {
         color: var(--text-heading);
         text-decoration: none;
@@ -815,10 +868,10 @@
     color: inherit;
     display: block;
     transition: all 0.2s ease;
-    
+
     &:hover {
       transform: translateY(-2px);
-      
+
       .submission-item {
         background-color: var(--bg-secondary);
         border-color: var(--text-heading);
@@ -826,7 +879,7 @@
       }
     }
   }
-  
+
   .submission-item {
     padding: 15px;
     background-color: var(--bg-tertiary);
@@ -838,19 +891,19 @@
     align-items: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    
+
     .submission-info {
       display: flex;
       gap: 20px;
       align-items: center;
       flex-wrap: wrap;
-      
+
       .submission-lang {
         font-family: monospace;
         color: var(--text-secondary);
         font-size: 0.9em;
       }
-      
+
       .submission-time {
         font-size: 0.9em;
         color: var(--text-secondary);

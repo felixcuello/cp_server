@@ -465,14 +465,17 @@ export default class extends Controller {
   getMonacoLanguage(lang) {
     const mapping = {
       'python': 'python',
+      'python 3': 'python',
       'python3': 'python',
       'javascript': 'javascript',
+      'javascript (nodejs)': 'javascript',
       'nodejs': 'javascript',
       'node.js': 'javascript',
       'ruby': 'ruby',
       'c': 'c',
       'cpp': 'cpp',
       'c++': 'cpp',
+      'c++11': 'cpp',
       'cpp11': 'cpp',
       'c++ 11': 'cpp',
       'java': 'java',

@@ -2,6 +2,7 @@
 
 require 'securerandom'
 require 'open3'
+require 'timeout'
 
 # Service for executing user code in an isolated nsjail sandbox
 # This provides security through Linux namespaces, cgroups, and seccomp
@@ -77,6 +78,10 @@ class NsjailExecutionService
     command = build_nsjail_command
 
     # Execute with timeout and measure CPU time
+    # Add Ruby-level timeout as a safety net in case nsjail fails to enforce limits
+    # Use timeout_sec + 2 seconds buffer to allow nsjail to handle cleanup
+    ruby_timeout_sec = @timeout_sec + 2
+
     begin
       # Check if /usr/bin/time is available, otherwise fall back to wall-clock time
       time_binary = "/usr/bin/time"
@@ -87,8 +92,12 @@ class NsjailExecutionService
         # Format: %U = user CPU time, %S = system CPU time, %e = elapsed time, %x = exit status
         # /usr/bin/time writes to stderr, so we capture stderr separately
         # Use Open3 to properly handle stdout/stderr streams
+        # Wrap in Ruby timeout as safety net
         time_command = "#{time_binary} -f 'TIME_STATS:%U %S %e %x' #{command}"
-        stdout_str, stderr_str, status = Open3.capture3(time_command)
+
+        stdout_str, stderr_str, status = Timeout.timeout(ruby_timeout_sec) do
+          Open3.capture3(time_command)
+        end
 
         exit_code = status.exitstatus
 
@@ -114,7 +123,10 @@ class NsjailExecutionService
         end
       else
         # Fallback: execute command normally and use wall-clock time
-        stdout_str, stderr_str, status = Open3.capture3(command)
+        # Wrap in Ruby timeout as safety net
+        stdout_str, stderr_str, status = Timeout.timeout(ruby_timeout_sec) do
+          Open3.capture3(command)
+        end
         exit_code = status.exitstatus
 
         if stderr_str.present?
@@ -140,6 +152,13 @@ class NsjailExecutionService
         result.stdout = File.read(@output_file)
       end
 
+    rescue Timeout::Error => e
+      # Ruby-level timeout was triggered - this means nsjail failed to enforce the limit
+      Rails.logger.error "Ruby-level timeout triggered after #{ruby_timeout_sec}s (nsjail may have failed to enforce limit)"
+      result.stderr = "Execution timeout: Process exceeded time limit of #{@timeout_sec}s"
+      result.exit_code = 124  # Standard timeout exit code
+      result.timed_out = true
+      result.execution_time_ms = ((Time.now - start_time) * 1000).to_i
     rescue => e
       result.stderr = "Execution error: #{e.message}"
       result.exit_code = 1
@@ -180,6 +199,10 @@ class NsjailExecutionService
 
     command = build_nsjail_command_for_binary(binary_path)
 
+    # Add Ruby-level timeout as a safety net in case nsjail fails to enforce limits
+    # Use timeout_sec + 2 seconds buffer to allow nsjail to handle cleanup
+    ruby_timeout_sec = @timeout_sec + 2
+
     begin
       # Check if /usr/bin/time is available, otherwise fall back to wall-clock time
       time_binary = "/usr/bin/time"
@@ -190,8 +213,12 @@ class NsjailExecutionService
         # Format: %U = user CPU time, %S = system CPU time, %e = elapsed time, %x = exit status
         # /usr/bin/time writes to stderr, so we capture stderr separately
         # Use Open3 to properly handle stdout/stderr streams
+        # Wrap in Ruby timeout as safety net
         time_command = "#{time_binary} -f 'TIME_STATS:%U %S %e %x' #{command}"
-        stdout_str, stderr_str, status = Open3.capture3(time_command)
+
+        stdout_str, stderr_str, status = Timeout.timeout(ruby_timeout_sec) do
+          Open3.capture3(time_command)
+        end
 
         exit_code = status.exitstatus
 
@@ -217,7 +244,10 @@ class NsjailExecutionService
         end
       else
         # Fallback: execute command normally and use wall-clock time
-        stdout_str, stderr_str, status = Open3.capture3(command)
+        # Wrap in Ruby timeout as safety net
+        stdout_str, stderr_str, status = Timeout.timeout(ruby_timeout_sec) do
+          Open3.capture3(command)
+        end
         exit_code = status.exitstatus
 
         if stderr_str.present?
@@ -242,6 +272,13 @@ class NsjailExecutionService
         result.stdout = File.read(@output_file)
       end
 
+    rescue Timeout::Error => e
+      # Ruby-level timeout was triggered - this means nsjail failed to enforce the limit
+      Rails.logger.error "Ruby-level timeout triggered after #{ruby_timeout_sec}s (nsjail may have failed to enforce limit)"
+      result.stderr = "Execution timeout: Process exceeded time limit of #{@timeout_sec}s"
+      result.exit_code = 124  # Standard timeout exit code
+      result.timed_out = true
+      result.execution_time_ms = ((Time.now - start_time) * 1000).to_i
     rescue => e
       result.stderr = "Execution error: #{e.message}"
       result.exit_code = 1
@@ -271,7 +308,7 @@ class NsjailExecutionService
       "--cwd", WORKSPACE_PATH,                     # Set working directory
       "--time_limit", @timeout_sec.to_s,          # Wall-time timeout
       "--max_cpus", "1",                           # Limit to 1 CPU
-      "--rlimit_as", (@memory_limit_mb * 1024 * 1024).to_s,  # Memory limit (soft)
+      "--rlimit_as", (@memory_limit_mb * 1024 * 1024).to_s,  # Memory limit (address space, hard limit)
       "--rlimit_core", "0",                        # No core dumps
       "--rlimit_fsize", (MAX_FILE_SIZE_MB * 1024 * 1024).to_s,  # Max file size
       "--rlimit_nofile", MAX_FILE_DESCRIPTORS.to_s,  # Max file descriptors
@@ -301,7 +338,7 @@ class NsjailExecutionService
       "--cwd", WORKSPACE_PATH,
       "--time_limit", @timeout_sec.to_s,
       "--max_cpus", "1",
-      "--rlimit_as", (@memory_limit_mb * 1024 * 1024).to_s,
+      "--rlimit_as", (@memory_limit_mb * 1024 * 1024).to_s,  # Memory limit (address space, hard limit)
       "--rlimit_core", "0",
       "--rlimit_fsize", (MAX_FILE_SIZE_MB * 1024 * 1024).to_s,
       "--rlimit_nofile", MAX_FILE_DESCRIPTORS.to_s,

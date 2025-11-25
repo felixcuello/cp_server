@@ -102,16 +102,16 @@
   --navbar-text: #e0e0e0;
   --navbar-border: #505050;
   
-  // Difficulty badges (dark mode - slightly muted for better contrast)
-  --difficulty-easy-bg: #00cc75;
+  // Difficulty badges (dark mode - darker backgrounds for better contrast)
+  --difficulty-easy-bg: #008050;
   --difficulty-easy-text: #00ff90;
-  --difficulty-medium-bg: #d4c000;
+  --difficulty-medium-bg: #8a7000;
   --difficulty-medium-text: #ffeb3b;
-  --difficulty-hard-bg: #d84315;
+  --difficulty-hard-bg: #8b2810;
   --difficulty-hard-text: #ff8a65;
   
   // Problem tags
-  --tag-bg: #00a8cc;
+  --tag-bg: #006080;
   --tag-text: #e0f7ff;
   
   // Submission status colors (adjusted for dark mode)

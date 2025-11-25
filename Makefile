@@ -49,7 +49,7 @@ down:
 
 run:
 	rm -f ./app/tmp/pids/server.pid
-	docker compose run -v $(PWD)/app:/app --service-ports cp_server
+	docker compose run --rm -v $(PWD)/app:/app --service-ports cp_server
 
 up:
 	docker compose up -d --remove-orphans
@@ -58,4 +58,4 @@ migrate:
 	docker compose run --rm cp_server bundle exec rails db:migrate
 
 shell:
-	docker compose run -v $(PWD)/app:/app --service-ports cp_server bash
+	docker compose run --rm -v $(PWD)/app:/app --service-ports cp_server bash

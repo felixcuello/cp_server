@@ -61,10 +61,9 @@ jobs:
         key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
         script: |
           cd /root/github/cp_server/
-          make down || echo "Container not running, continuing..."
           git pull
           make build
+          docker compose up -d --remove-orphans || { echo "Failed to start the container"; exit 1; }
           make migrate || { echo "Migration failed"; exit 1; }
-          make up || { echo "Failed to start the container"; exit 1; }
           echo "Deployment completed successfully!"
 

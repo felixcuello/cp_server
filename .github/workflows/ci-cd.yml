@@ -63,7 +63,7 @@ jobs:
           cd /root/github/cp_server/
           git pull
           make build
-          make down
+          make down || echo "Container not running, continuing..."
           make migrate || { echo "Migration failed"; exit 1; }
           make up || { echo "Failed to start the container"; exit 1; }
           echo "Deployment completed successfully!"

@@ -12,15 +12,15 @@
 
 .problem-difficulty-easy {
   display: inline-block;
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 3px;
+  padding-bottom: 3px;
   background-color: var(--difficulty-easy-bg);
   color: var(--difficulty-easy-text);
   border-radius: 20px;
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: 0.75em;
   font-weight: bold;
   line-height: 1;
   box-shadow: 0 0 1px var(--shadow-color);
@@ -29,15 +29,15 @@
 
 .problem-difficulty-medium {
   display: inline-block;
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 3px;
+  padding-bottom: 3px;
   background-color: var(--difficulty-medium-bg);
   color: var(--difficulty-medium-text);
   border-radius: 20px;
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: 0.75em;
   font-weight: bold;
   line-height: 1;
   box-shadow: 0 0 1px var(--shadow-color);
@@ -46,15 +46,15 @@
 
 .problem-difficulty-hard {
   display: inline-block;
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 3px;
+  padding-bottom: 3px;
   background-color: var(--difficulty-hard-bg);
   color: var(--difficulty-hard-text);
   border-radius: 20px;
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: 0.75em;
   font-weight: bold;
   line-height: 1;
   box-shadow: 0 0 1px var(--shadow-color);

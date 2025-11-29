@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_29_091903) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_29_123512) do
   create_table "constraints", charset: "utf8", force: :cascade do |t|
     t.bigint "problem_id", null: false
     t.text "description", null: false
@@ -72,6 +72,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_29_091903) do
     t.integer "accepted_submissions", default: 0, null: false
     t.bigint "contest_id"
     t.boolean "hidden", default: true, null: false
+    t.boolean "ignore_output_line_order", default: false, null: false
     t.index ["accepted_submissions"], name: "index_problems_on_accepted_submissions"
     t.index ["contest_id"], name: "index_problems_on_contest_id"
     t.index ["hidden"], name: "index_problems_on_hidden"

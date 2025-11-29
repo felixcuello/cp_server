@@ -126,7 +126,18 @@ class SubmissionService
       actual_output = @execution_result.stdout
       expected_output = example.output
 
-      if actual_output == expected_output
+      # Check if outputs match based on problem's ignore_output_line_order flag
+      outputs_match = if problem.ignore_output_line_order
+        # Sort lines before comparison for problems where line order doesn't matter
+        actual_lines = actual_output.strip.split("\n").sort
+        expected_lines = expected_output.strip.split("\n").sort
+        actual_lines == expected_lines
+      else
+        # Exact match for regular problems
+        actual_output == expected_output
+      end
+
+      if outputs_match
         {
           status: "passed",
           output: actual_output,

@@ -36,13 +36,17 @@ namespace :problems do
       # Read hidden field from JSON, defaulting to true if not present
       hidden = data.key?("hidden") ? data["hidden"] : true
 
+      # Read ignore_output_line_order field from JSON, defaulting to false if not present
+      ignore_output_line_order = data.key?("ignore_output_line_order") ? data["ignore_output_line_order"] : false
+
       problem = Problem.create!(
         title: title,
         description: description,
         difficulty: difficulty.to_sym,
         memory_limit_kb: memory_limit_kb,
         time_limit_sec: time_limit_sec,
-        hidden: hidden
+        hidden: hidden,
+        ignore_output_line_order: ignore_output_line_order
       )
 
       tags.each do |tag|
@@ -112,13 +116,17 @@ namespace :problems do
         # Read hidden field from JSON, defaulting to true if not present
         hidden = data.key?("hidden") ? data["hidden"] : true
 
+        # Read ignore_output_line_order field from JSON, defaulting to false if not present
+        ignore_output_line_order = data.key?("ignore_output_line_order") ? data["ignore_output_line_order"] : false
+
         problem.update!(
           title: title,
           description: description,
           difficulty: difficulty.to_sym,
           memory_limit_kb: memory_limit_kb,
           time_limit_sec: time_limit_sec,
-          hidden: hidden
+          hidden: hidden,
+          ignore_output_line_order: ignore_output_line_order
         )
 
         tags.each do |tag_name|

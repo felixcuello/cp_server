@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_23_000005) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_29_091903) do
   create_table "constraints", charset: "utf8", force: :cascade do |t|
     t.bigint "problem_id", null: false
     t.text "description", null: false
@@ -44,7 +44,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_23_000005) do
 
   create_table "examples", charset: "utf8", force: :cascade do |t|
     t.text "input"
-    t.text "output"
+    t.text "output", size: :medium
     t.integer "sort_order"
     t.boolean "is_hidden", default: true, null: false
     t.bigint "problem_id", null: false

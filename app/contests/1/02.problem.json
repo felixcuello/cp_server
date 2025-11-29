@@ -1,0 +1,42 @@
+{
+  "title": "Palindrome Number",
+  "description": "Given an integer <b>x</b>, return true if <b>x</b> is a palindrome, and false otherwise.\n\nAn integer is a palindrome when it reads the same forward and backward.\n\nFor example, 121 is a palindrome while 123 is not.\n\n<h3>Input Format</h3>\nA single integer <b>x</b>.\n\n<h3>Output Format</h3>\nPrint <code>true</code> if the number is a palindrome, otherwise print <code>false</code>.",
+  "difficulty": "easy",
+  "hidden": true,
+  "memory_limit_kb": 1024,
+  "time_limit_sec": 1,
+  "tags": [
+    "math",
+    "string"
+  ],
+  "examples": [
+    {
+      "input": "121\n",
+      "output": "true\n",
+      "is_hidden": false
+    },
+    {
+      "input": "-121\n",
+      "output": "false\n",
+      "is_hidden": false
+    },
+    {
+      "input": "10\n",
+      "output": "false\n",
+      "is_hidden": false
+    },
+    {
+      "input": "12321\n",
+      "output": "true\n",
+      "is_hidden": true
+    },
+    {
+      "input": "0\n",
+      "output": "true\n",
+      "is_hidden": true
+    }
+  ],
+  "constraints": [
+    "-2^31 <= x <= 2^31 - 1"
+  ]
+}

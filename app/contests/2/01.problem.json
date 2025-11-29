@@ -1,0 +1,29 @@
+{
+  "title": "Binary Tree Maximum Path Sum",
+  "description": "A path in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence at most once.\n\nThe path sum of a path is the sum of the node's values in the path.\n\nGiven the root of a binary tree, return the maximum path sum of any non-empty path.\n\n<h3>Input Format</h3>\nThe first line contains <b>n</b>, the number of nodes.\nThe next <b>n</b> lines contain three integers each: <code>node_value left_child_index right_child_index</code>.\nUse -1 to indicate a null child. The root is at index 0.\n\n<h3>Output Format</h3>\nPrint a single integer representing the maximum path sum.",
+  "difficulty": "hard",
+  "hidden": true,
+  "memory_limit_kb": 4096,
+  "time_limit_sec": 3,
+  "tags": [
+    "tree",
+    "dfs",
+    "dp"
+  ],
+  "examples": [
+    {
+      "input": "3\n1 1 2\n2 -1 -1\n3 -1 -1\n",
+      "output": "6\n",
+      "is_hidden": false
+    },
+    {
+      "input": "5\n-10 1 2\n9 -1 -1\n20 3 4\n15 -1 -1\n7 -1 -1\n",
+      "output": "42\n",
+      "is_hidden": false
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 3 * 10^4",
+    "-1000 <= node value <= 1000"
+  ]
+}

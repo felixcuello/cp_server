@@ -1,0 +1,39 @@
+{
+  "title": "Longest Common Prefix",
+  "description": "Write a function to find the longest common prefix string amongst an array of strings.\n\nIf there is no common prefix, return an empty string.\n\n<h3>Input Format</h3>\nThe first line contains an integer <b>n</b> (the number of strings).\nThe next <b>n</b> lines each contain a string.\n\n<h3>Output Format</h3>\nPrint the longest common prefix. If there is no common prefix, print an empty line.",
+  "difficulty": "medium",
+  "hidden": true,
+  "memory_limit_kb": 2048,
+  "time_limit_sec": 2,
+  "tags": [
+    "string",
+    "trie"
+  ],
+  "examples": [
+    {
+      "input": "3\nflower\nflow\nflight\n",
+      "output": "fl\n",
+      "is_hidden": false
+    },
+    {
+      "input": "3\ndog\nracecar\ncar\n",
+      "output": "\n",
+      "is_hidden": false
+    },
+    {
+      "input": "1\nalone\n",
+      "output": "alone\n",
+      "is_hidden": true
+    },
+    {
+      "input": "2\nabc\nabc\n",
+      "output": "abc\n",
+      "is_hidden": true
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 200",
+    "0 <= string length <= 200",
+    "Strings consist of only lowercase English letters"
+  ]
+}

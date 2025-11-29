@@ -1,0 +1,36 @@
+{
+  "title": "Median of Two Sorted Arrays",
+  "description": "Given two sorted arrays <b>nums1</b> and <b>nums2</b> of size <b>m</b> and <b>n</b> respectively, return the median of the two sorted arrays.\n\nThe overall run time complexity should be O(log(m+n)).\n\n<h3>Input Format</h3>\nThe first line contains two integers <b>m</b> and <b>n</b> (the sizes of the two arrays).\nThe second line contains <b>m</b> space-separated integers representing nums1.\nThe third line contains <b>n</b> space-separated integers representing nums2.\n\n<h3>Output Format</h3>\nPrint the median as a floating-point number with 1 decimal place.",
+  "difficulty": "hard",
+  "hidden": true,
+  "memory_limit_kb": 2048,
+  "time_limit_sec": 2,
+  "tags": [
+    "array",
+    "binarysearch",
+    "divide&conquer"
+  ],
+  "examples": [
+    {
+      "input": "2 1\n1 3\n2\n",
+      "output": "2.0\n",
+      "is_hidden": false
+    },
+    {
+      "input": "2 2\n1 2\n3 4\n",
+      "output": "2.5\n",
+      "is_hidden": false
+    },
+    {
+      "input": "0 1\n\n1\n",
+      "output": "1.0\n",
+      "is_hidden": true
+    }
+  ],
+  "constraints": [
+    "0 <= m <= 1000",
+    "0 <= n <= 1000",
+    "1 <= m + n <= 2000",
+    "-10^6 <= nums1[i], nums2[i] <= 10^6"
+  ]
+}

@@ -15,6 +15,20 @@ body {
 .main-body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
+  // Add padding for fixed navbar (approximately 60px height)
+  padding-top: 60px;
+  
+  // When contest banner is present, add more padding
+  &:has(.upcoming-contest-banner) {
+    padding-top: 120px; // Contest banner (~60px) + Navbar (~60px)
+  }
+  
+  // Mobile adjustments
+  @media (max-width: 768px) {
+    &:has(.upcoming-contest-banner) {
+      padding-top: 200px; // Contest banner wraps on mobile (~140px) + Navbar (~60px)
+    }
+  }
 }
 
 a {

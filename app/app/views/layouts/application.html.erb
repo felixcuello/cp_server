@@ -51,8 +51,6 @@
 
   <body class="main-body">
     <% unless request.headers["Turbo-Frame"] || request.path == "/users/sign_in" %>
-      <%= render partial: 'shared/navbar' %>
-      
       <!-- Upcoming Contest Banner -->
       <% if user_signed_in? %>
         <% upcoming_contest = Contest.where('start_time > ?', Time.current).order(:start_time).first %>
@@ -81,6 +79,8 @@
           </div>
         <% end %>
       <% end %>
+      
+      <%= render partial: 'shared/navbar' %>
     <% end %>
     
     <div id="flash-messages">

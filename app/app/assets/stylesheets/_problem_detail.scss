@@ -183,10 +183,24 @@
 .problem-detail-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 100px);
+  height: calc(100vh - 120px); // Account for navbar (60px) + any margin
   gap: 0;
   width: 100%;
   max-width: 100%;
+  
+  // When contest banner is present, account for additional height
+  .main-body:has(.upcoming-contest-banner) & {
+    height: calc(100vh - 180px); // Account for contest banner (60px) + navbar (60px) + margin (60px)
+  }
+  
+  @media (max-width: 768px) {
+    height: auto; // On mobile, let it be auto height
+    min-height: calc(100vh - 200px);
+    
+    .main-body:has(.upcoming-contest-banner) & {
+      min-height: calc(100vh - 260px);
+    }
+  }
 }
 
 // Split pane layout

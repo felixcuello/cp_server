@@ -1,0 +1,8 @@
+{
+  "name": "CONTEST_NAME_HERE",
+  "description": "Brief description of the contest. What level is it for? What topics does it cover?",
+  "rules": "Contest rules:\n- Standard ICPC scoring rules apply\n- Each wrong submission adds penalty minutes\n- Problems are ranked by number of accepted submissions\n- Ties broken by total time (submission time + penalties)\n- You can submit in any supported language",
+  "start_time": "2026-01-01T10:00:00Z",
+  "end_time": "2026-01-01T12:00:00Z",
+  "penalty_minutes": 20
+}

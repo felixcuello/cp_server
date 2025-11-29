@@ -1,12 +1,20 @@
 // Modern Navbar with Hamburger Menu (all screen sizes)
 
 .navbar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 100;
   background-color: var(--navbar-bg);
   border-bottom: 1px solid var(--border-primary);
   box-shadow: 0 2px 4px var(--shadow-light);
+  
+  // When contest banner is present, position navbar below it
+  .main-body:has(.upcoming-contest-banner) & {
+    top: 60px; // Height of contest banner
+  }
 }
 
 .navbar-content {
@@ -262,6 +270,13 @@
 
 // Mobile adjustments (if needed)
 @media (max-width: 768px) {
+  .navbar {
+    // When contest banner is present on mobile, position navbar below it
+    .main-body:has(.upcoming-contest-banner) & {
+      top: 140px; // Increased height of contest banner on mobile due to wrapping
+    }
+  }
+  
   .navbar-logo {
     font-size: 1.1em;
   }

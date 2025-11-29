@@ -176,6 +176,30 @@
   padding: 10px;
 }
 
+// Flash messages container
+#flash-messages {
+  position: fixed;
+  top: 60px; // Below navbar by default
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 102; // Above both navbar and contest banner
+  width: 90%;
+  max-width: 600px;
+  pointer-events: none; // Allow clicking through the container
+  
+  // When contest banner is present
+  .main-body:has(.upcoming-contest-banner) & {
+    top: 120px; // Below both contest banner and navbar
+  }
+  
+  // Mobile adjustments
+  @media (max-width: 768px) {
+    .main-body:has(.upcoming-contest-banner) & {
+      top: 200px; // Account for wrapped contest banner on mobile
+    }
+  }
+}
+
 .flash {
   padding: 15px;
   margin: 10px 0;
@@ -184,6 +208,8 @@
   text-align: center;
   font-weight: bold;
   text-transform: uppercase;
+  pointer-events: auto; // Allow clicking on the flash message itself
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 .flash.notice {
   font-face: Arial, sans-serif;

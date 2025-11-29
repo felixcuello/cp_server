@@ -1,24 +1,48 @@
-<div class="page-container">
-  <div class="contest-show-header">
-    <div>
-      <h1 class="page-title"><%= @contest.name %></h1>
-      <div class="contest-status-badge <%= @contest.active? ? 'active' : @contest.upcoming? ? 'upcoming' : 'ended' %>">
+<div class="contest-page">
+  <!-- Header Section -->
+  <div class="contest-header">
+    <h1 class="contest-title"><%= @contest.name %></h1>
+    
+    <div class="contest-meta">
+      <div class="contest-badge <%= @contest.active? ? 'active' : @contest.upcoming? ? 'upcoming' : 'ended' %>">
         <%= @contest.active? ? 'Active' : @contest.upcoming? ? 'Upcoming' : 'Ended' %>
       </div>
+      
+      <div class="contest-time-info">
+        <span class="time-icon">📅</span>
+        <span><%= @contest.start_time.strftime("%b %d, %Y %I:%M %p") %> - <%= @contest.end_time.strftime("%b %d, %Y %I:%M %p") %></span>
+      </div>
+      
+      <div class="contest-time-info">
+        <span class="time-icon">⏱️</span>
+        <span><%= @contest.duration_minutes %> minutes</span>
+      </div>
     </div>
+    
+    <!-- Action Buttons -->
     <div class="contest-actions">
+      <% if @is_participant %>
+        <div class="participant-badge">
+          <span>✓ You are registered</span>
+        </div>
+      <% elsif @access_service.can_join? %>
+        <%= form_with url: join_contest_path(@contest), method: :post, data: { turbo: false } do |f| %>
+          <%= f.submit "Register", class: "btn btn-primary btn-large" %>
+        <% end %>
+      <% end %>
+      
       <% if @contest.active? || @contest.ended? %>
-        <%= link_to "Standings", standings_contest_path(@contest), class: "btn-primary", data: { turbo: false } %>
-        <%= link_to "Submissions", submissions_contest_path(@contest), class: "btn-secondary", data: { turbo: false } %>
+        <%= link_to "Standings", standings_contest_path(@contest), class: "btn btn-secondary", data: { turbo: false } %>
+        <%= link_to "My Submissions", submissions_contest_path(@contest), class: "btn btn-secondary", data: { turbo: false } %>
       <% end %>
     </div>
   </div>
 
   <!-- Contest Description -->
   <% if @contest.description.present? %>
-    <div class="contest-section">
-      <h2 class="section-title">Description</h2>
-      <div class="contest-description-content">
+    <div class="contest-card">
+      <h2 class="card-title">About</h2>
+      <div class="card-content">
         <%= simple_format(@contest.description) %>
       </div>
     </div>
@@ -26,165 +50,93 @@
 
   <!-- Contest Rules -->
   <% if @contest.rules.present? %>
-    <div class="contest-section">
-      <h2 class="section-title">Rules</h2>
-      <div class="contest-rules-content">
+    <div class="contest-card">
+      <h2 class="card-title">Rules</h2>
+      <div class="card-content">
         <%= simple_format(@contest.rules) %>
       </div>
     </div>
   <% end %>
 
   <!-- Contest Info -->
-  <div class="contest-section">
-    <h2 class="section-title">Contest Information</h2>
+  <div class="contest-card">
+    <h2 class="card-title">Contest Details</h2>
     <div class="contest-info-grid">
       <div class="info-item">
-        <span class="info-label">Start Time:</span>
+        <span class="info-label">Start Time</span>
         <span class="info-value"><%= @contest.start_time.strftime("%B %d, %Y at %I:%M %p") %></span>
       </div>
       <div class="info-item">
-        <span class="info-label">End Time:</span>
+        <span class="info-label">End Time</span>
         <span class="info-value"><%= @contest.end_time.strftime("%B %d, %Y at %I:%M %p") %></span>
       </div>
       <div class="info-item">
-        <span class="info-label">Duration:</span>
+        <span class="info-label">Duration</span>
         <span class="info-value"><%= @contest.duration_minutes %> minutes</span>
       </div>
       <div class="info-item">
-        <span class="info-label">Penalty:</span>
-        <span class="info-value"><%= @contest.penalty_minutes %> minutes per incorrect submission</span>
+        <span class="info-label">Penalty</span>
+        <span class="info-value"><%= @contest.penalty_minutes %> minutes per wrong submission</span>
       </div>
     </div>
-  </div>
-
-  <!-- Countdown Timer -->
-  <% if @contest.upcoming? %>
-    <div class="contest-section">
-      <h2 class="section-title">Contest Starts In</h2>
-      <div class="countdown-container" data-controller="contest-countdown" 
-           data-contest-countdown-start-time-value="<%= @contest.start_time.to_i * 1000 %>">
-        <div class="countdown-display">
-          <div class="countdown-unit">
-            <span class="countdown-value" data-contest-countdown-target="days">0</span>
-            <span class="countdown-label">Days</span>
-          </div>
-          <div class="countdown-separator">:</div>
-          <div class="countdown-unit">
-            <span class="countdown-value" data-contest-countdown-target="hours">0</span>
-            <span class="countdown-label">Hours</span>
-          </div>
-          <div class="countdown-separator">:</div>
-          <div class="countdown-unit">
-            <span class="countdown-value" data-contest-countdown-target="minutes">0</span>
-            <span class="countdown-label">Minutes</span>
-          </div>
-          <div class="countdown-separator">:</div>
-          <div class="countdown-unit">
-            <span class="countdown-value" data-contest-countdown-target="seconds">0</span>
-            <span class="countdown-label">Seconds</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  <% elsif @contest.active? %>
-    <div class="contest-section">
-      <h2 class="section-title">Time Remaining</h2>
-      <div class="countdown-container" data-controller="contest-countdown" 
-           data-contest-countdown-end-time-value="<%= @contest.end_time.to_i * 1000 %>">
-        <div class="countdown-display">
-          <div class="countdown-unit">
-            <span class="countdown-value" data-contest-countdown-target="days">0</span>
-            <span class="countdown-label">Days</span>
-          </div>
-          <div class="countdown-separator">:</div>
-          <div class="countdown-unit">
-            <span class="countdown-value" data-contest-countdown-target="hours">0</span>
-            <span class="countdown-label">Hours</span>
-          </div>
-          <div class="countdown-separator">:</div>
-          <div class="countdown-unit">
-            <span class="countdown-value" data-contest-countdown-target="minutes">0</span>
-            <span class="countdown-label">Minutes</span>
-          </div>
-          <div class="countdown-separator">:</div>
-          <div class="countdown-unit">
-            <span class="countdown-value" data-contest-countdown-target="seconds">0</span>
-            <span class="countdown-label">Seconds</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  <% end %>
-
-  <!-- Join/Leave Button -->
-  <div class="contest-section">
-    <% if @is_participant %>
-      <div class="participant-badge">
-        <span>✓ You are participating in this contest</span>
-      </div>
-    <% elsif @access_service.can_join? %>
-      <%= form_with url: join_contest_path(@contest), method: :post, data: { turbo: false } do |f| %>
-        <%= f.submit "Join Contest", class: "btn-primary btn-large" %>
-      <% end %>
-    <% elsif @contest.ended? %>
-      <div class="info-message">
-        This contest has ended. You can view the standings and problems.
-      </div>
-    <% end %>
   </div>
 
   <!-- Problems List -->
   <% if (@contest.active? || @contest.ended? || current_user.admin?) && @problems.any? %>
-    <div class="contest-section">
-      <h2 class="section-title">Problems</h2>
-      <div class="problems-list">
-        <table class="problems-table">
-          <thead>
-            <tr>
-              <th style="width: 60px;">ID</th>
-              <th>Title</th>
-              <th class="center" style="width: 120px;">Difficulty</th>
+    <div class="contest-card">
+      <h2 class="card-title">Problems</h2>
+      <table class="contest-problems-table">
+        <thead>
+          <tr>
+            <th style="width: 80px;">ID</th>
+            <th>Title</th>
+            <th class="center" style="width: 120px;">Difficulty</th>
+            <% if @is_participant && (@contest.active? || @contest.ended?) %>
+              <th class="center" style="width: 100px;">Status</th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% @problems.each do |problem| %>
+            <tr onclick="window.location='<%= problem_path(problem) %>'">
+              <td class="center problem-id" data-label="ID"><%= problem.id %></td>
+              <td class="problem-title-cell" data-label="Title">
+                <%= link_to problem.title, problem_path(problem), data: { turbo: false } %>
+              </td>
+              <td class="center" data-label="Difficulty">
+                <span class="problem-difficulty-badge <%= problem.difficulty %>">
+                  <%= problem.difficulty.capitalize %>
+                </span>
+              </td>
               <% if @is_participant && (@contest.active? || @contest.ended?) %>
-                <th class="center" style="width: 100px;">Status</th>
+                <td class="center" data-label="Status">
+                  <% if current_user %>
+                    <% user_status = problem.user_problem_statuses.find_by(user: current_user) %>
+                    <% if user_status&.status == 'solved' %>
+                      <span class="problem-status-badge solved">✓ Solved</span>
+                    <% elsif user_status&.status == 'attempted' %>
+                      <span class="problem-status-badge attempted">○ Attempted</span>
+                    <% else %>
+                      <span class="problem-status-badge unattempted">—</span>
+                    <% end %>
+                  <% end %>
+                </td>
               <% end %>
             </tr>
-          </thead>
-          <tbody>
-            <% @problems.each do |problem| %>
-              <tr onclick="window.location='<%= problem_path(problem) %>'">
-                <td class="center"><strong><%= problem.id %></strong></td>
-                <td>
-                  <%= link_to problem.title, problem_path(problem), data: { turbo: false } %>
-                </td>
-                <td class="center">
-                  <span class="problem-difficulty-<%= problem.difficulty %>">
-                    <%= problem.difficulty.capitalize %>
-                  </span>
-                </td>
-                <% if @is_participant && (@contest.active? || @contest.ended?) %>
-                  <td class="center">
-                    <% if current_user %>
-                      <% user_status = problem.user_problem_statuses.find_by(user: current_user) %>
-                      <% if user_status&.status == 'solved' %>
-                        <span class="problem-status solved">✓ Solved</span>
-                      <% elsif user_status&.status == 'attempted' %>
-                        <span class="problem-status attempted">○ Attempted</span>
-                      <% else %>
-                        <span class="problem-status unattempted">—</span>
-                      <% end %>
-                    <% end %>
-                  </td>
-                <% end %>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
+          <% end %>
+        </tbody>
+      </table>
     </div>
   <% elsif @contest.upcoming? && !current_user.admin? %>
-    <div class="contest-section">
+    <div class="contest-card">
       <div class="info-message">
-        Problems will be available when the contest starts.
+        📋 Problems will be revealed when the contest starts.
+      </div>
+    </div>
+  <% elsif @contest.ended? %>
+    <div class="contest-card">
+      <div class="info-message">
+        This contest has ended. You can view the standings and problems.
       </div>
     </div>
   <% end %>

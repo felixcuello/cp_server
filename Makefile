@@ -13,6 +13,13 @@ all:
 	@echo "  make run                                  # Ejecutar el proyecto [para desarrollar]"
 	@echo "  make down                                 # Detener los containers"
 	@echo "  make shell                                # Acceder al contenedor"
+	@echo "  make migrate                              # Ejecutar migraciones de base de datos"
+	@echo ""
+	@echo "  CONTEST MANAGEMENT:"
+	@echo "  make contest-new NUM=3 [PROBLEMS=3]       # Crear nuevo contest con templates"
+	@echo "  make contests-create                      # Importar contests desde contests/"
+	@echo "  make contests-update                      # Actualizar contests existentes"
+	@echo "  make contests-destroy                     # Borrar todos los contests"
 	@echo ""
 
 # Esto sólo construye para desarrollo
@@ -59,3 +66,16 @@ migrate:
 
 shell:
 	docker compose run --rm -v $(PWD)/app:/app --service-ports cp_server bash
+
+contest-new:
+	@./create_contest.sh $(NUM) $(PROBLEMS)
+
+contests-create:
+	docker compose run --rm cp_server bundle exec rake contests:create
+
+contests-update:
+	docker compose run --rm cp_server bundle exec rake contests:create:force
+
+contests-destroy:
+	docker compose run --rm cp_server bundle exec rake contests:destroy
+

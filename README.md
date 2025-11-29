@@ -14,6 +14,28 @@ Además cada tanto haremos algunas contests para que los alumnos vayan practican
 En realidad la instalación por ahora es muy sencilla, son un par de containers de docker, para crear y correr los
 servicios de docker simplemente hay que correr `make` y leer la documentación que aparece en pantalla.
 
+## Contests y Problemas
+
+El servidor soporta dos formas de organizar problemas:
+
+1. **Problemas Standalone** (directorio `app/problems/`): Problemas individuales no asociados a ningún contest
+2. **Problemas de Contest** (directorio `app/contests/`): Problemas organizados por contest con metadata completa
+
+Para más información sobre cómo crear y gestionar contests, ver [CONTESTS.md](CONTESTS.md).
+
+### Comandos Rápidos
+
+```bash
+# Crear contests desde app/contests/
+make contests-create
+
+# Actualizar contests existentes
+make contests-update
+
+# Ver todos los comandos disponibles
+make
+```
+
 ## Lenguajes de Programación
 El siguiente es el listado de lenguajes de programación soportados. Para los contests y los envíos de los estudiantes
 sólo vamos a aceptar los lenguajes dados en la materia. Queremos que el servidor pueda utilizarse con otros lenguajes.

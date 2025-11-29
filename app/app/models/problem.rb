@@ -26,22 +26,36 @@ class Problem < ApplicationRecord
   scope :for_contest, ->(contest) { where(contest_id: contest.id) }
 
   # Scope: Returns problems visible to a specific user
-  # Visible if: not hidden, OR user is admin, OR (problem belongs to active contest and user is participant)
+  # Visible if:
+  # - User is admin (sees all)
+  # - Non-hidden problems that are NOT in a contest OR contest has ended
+  # - Problems in active contests where user is participant
   scope :visible_to_user, ->(user) {
     if user&.admin?
       # Admins can see all problems (hidden or not)
       all
     else
       # Regular users can see:
-      # - Non-hidden problems
-      # - Problems in active contests where they are participants
+      # 1. Non-hidden problems that are NOT in contests
+      # 2. Non-hidden problems in ENDED contests
+      # 3. Problems in ACTIVE contests where they are participants
       now = Time.current
+      
+      # Active contests where user is a participant
       active_contest_ids = Contest.where('start_time <= ? AND end_time >= ?', now, now)
                                    .joins(:contest_participants)
                                    .where(contest_participants: { user_id: user&.id })
                                    .pluck(:id)
       
-      where(hidden: false).or(where(contest_id: active_contest_ids))
+      # Ended contests (problems become public)
+      ended_contest_ids = Contest.where('end_time < ?', now).pluck(:id)
+      
+      # Combine conditions:
+      # - Not hidden AND (no contest OR contest has ended)
+      # - OR in an active contest where user participates
+      where(hidden: false, contest_id: nil)
+        .or(where(hidden: false, contest_id: ended_contest_ids))
+        .or(where(contest_id: active_contest_ids))
     end
   }
   

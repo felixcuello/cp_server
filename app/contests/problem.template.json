@@ -1,0 +1,35 @@
+{
+  "title": "Problem Title Here",
+  "description": "Problem statement goes here. You can use HTML tags like <b>bold</b>, <code>code</code>, and <h3>headings</h3>.\n\nDescribe the problem clearly:\n- What is the input?\n- What should the output be?\n- What are the constraints?\n\n<h3>Input Format</h3>\nDescribe the input format line by line.\n\n<h3>Output Format</h3>\nDescribe the expected output.",
+  "difficulty": "easy",
+  "hidden": true,
+  "memory_limit_kb": 2048,
+  "time_limit_sec": 2,
+  "tags": [
+    "array",
+    "hash-table",
+    "two-pointers"
+  ],
+  "examples": [
+    {
+      "input": "sample input here\n",
+      "output": "expected output here\n",
+      "is_hidden": false
+    },
+    {
+      "input": "another test case\n",
+      "output": "another output\n",
+      "is_hidden": false
+    },
+    {
+      "input": "hidden test case\n",
+      "output": "hidden output\n",
+      "is_hidden": true
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 10^4",
+    "-10^9 <= array[i] <= 10^9",
+    "Add more constraints as needed"
+  ]
+}

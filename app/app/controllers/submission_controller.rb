@@ -21,38 +21,6 @@ class SubmissionController < AuthenticatedController
       @submissions = @submissions.where(user: current_user)
     end
 
-    # Filter by specific user (when showing all)
-    if params[:user_id].present? && params[:user_id] != 'all' && @show_all
-      @submissions = @submissions.where(user_id: params[:user_id])
-    end
-
-    # Filter by status
-    if params[:status].present? && params[:status] != 'all'
-      @submissions = @submissions.where(status: params[:status])
-    end
-
-    # Filter by language
-    if params[:language].present? && params[:language] != 'all'
-      @submissions = @submissions.where(programming_language_id: params[:language])
-    end
-
-    # Filter by problem
-    if params[:problem].present? && params[:problem] != 'all'
-      @submissions = @submissions.where(problem_id: params[:problem])
-    end
-
-    # Filter by time range
-    if params[:time_range].present? && params[:time_range] != 'all'
-      case params[:time_range]
-      when 'today'
-        @submissions = @submissions.where('created_at >= ?', Time.zone.now.beginning_of_day)
-      when 'week'
-        @submissions = @submissions.where('created_at >= ?', 1.week.ago)
-      when 'month'
-        @submissions = @submissions.where('created_at >= ?', 1.month.ago)
-      end
-    end
-
     # Pagination
     @page = (params[:page] || 1).to_i
     @per_page = 20
@@ -60,23 +28,6 @@ class SubmissionController < AuthenticatedController
     @total_pages = (@total_count / @per_page.to_f).ceil
 
     @submissions = @submissions.offset((@page - 1) * @per_page).limit(@per_page)
-
-    # For filters
-    @all_languages = ProgrammingLanguage.order(:name)
-    @all_problems = Problem.order(:id)
-    @all_users = User.order(:alias) if @show_all
-    @all_contests = Contest.order(:start_time) if @show_all || params[:contest_id].present?
-    @statuses = [
-      Submission::ACCEPTED,
-      Submission::WRONG_ANSWER,
-      Submission::TIME_LIMIT_EXCEEDED,
-      Submission::RUNTIME_ERROR,
-      Submission::COMPILATION_ERROR,
-      Submission::MEMORY_LIMIT_EXCEEDED,
-      Submission::PRESENTATION_ERROR,
-      Submission::RUNNING,
-      Submission::ENQUEUED
-    ].uniq
   end
 
   def contest_submissions

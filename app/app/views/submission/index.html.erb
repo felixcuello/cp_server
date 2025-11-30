@@ -17,81 +17,6 @@
     </div>
   </div>
 
-  <!-- Filters Section (always visible) -->
-  <div class="submissions-filters-panel">
-    <%= form_with url: submission_path, method: :get, class: "filter-form", data: { turbo: false } do |f| %>
-      <%= hidden_field_tag :show_all, @show_all ? 'true' : nil %>
-      
-      <div class="filter-grid">
-        <div class="filter-item">
-          <label class="filter-label">Result</label>
-          <%= select_tag :status, 
-              options_for_select([['All Results', 'all']] + @statuses.map { |s| [s.titleize, s] }, params[:status] || 'all'),
-              class: 'filter-select' %>
-        </div>
-
-        <div class="filter-item">
-          <label class="filter-label">Problem</label>
-          <%= select_tag :problem,
-              options_for_select([['All Problems', 'all']] + @all_problems.map { |p| ["#{p.id}. #{p.title}", p.id] }, params[:problem] || 'all'),
-              class: 'filter-select' %>
-        </div>
-
-        <div class="filter-item">
-          <label class="filter-label">Language</label>
-          <%= select_tag :language,
-              options_for_select([['All Languages', 'all']] + @all_languages.map { |l| [l.name, l.id] }, params[:language] || 'all'),
-              class: 'filter-select' %>
-        </div>
-
-        <% if @all_contests %>
-          <div class="filter-item">
-            <label class="filter-label">Contest</label>
-            <%= select_tag :contest_id,
-                options_for_select([['All Contests', 'all']] + @all_contests.map { |c| [c.name, c.id] }, params[:contest_id] || 'all'),
-                class: 'filter-select' %>
-          </div>
-        <% end %>
-        
-        <% if @show_all %>
-          <div class="filter-item">
-            <label class="filter-label">User</label>
-            <%= select_tag :user_id,
-                options_for_select([['All Users', 'all']] + @all_users.map { |u| [u.alias, u.id] }, params[:user_id] || 'all'),
-                class: 'filter-select' %>
-          </div>
-        <% end %>
-        
-        <div class="filter-item">
-          <label class="filter-label">Time Range</label>
-          <%= select_tag :time_range,
-              options_for_select([
-                ['All Time', 'all'],
-                ['Today', 'today'],
-                ['This Week', 'week'],
-                ['This Month', 'month']
-              ], params[:time_range] || 'all'),
-              class: 'filter-select' %>
-        </div>
-      </div>
-
-      <div class="filter-actions">
-        <%= submit_tag "Apply Filters", class: "btn-apply" %>
-        <%= link_to "Clear Filters", submission_path(show_all: @show_all ? 'true' : nil, contest_id: params[:contest_id]), class: "btn-clear" %>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Results Info -->
-  <div class="submissions-info-bar">
-    <span class="results-count">
-      Showing <strong><%= @submissions.count %></strong> of <strong><%= @total_count %></strong> submissions
-    </span>
-    <% if params[:status].present? || params[:language].present? || params[:problem].present? || params[:my_submissions] == 'true' %>
-      <span class="filtered-badge">Filtered</span>
-    <% end %>
-  </div>
-
   <!-- Submissions List -->
   <div class="submissions-list">
     <% if @submissions.any? %>
@@ -148,11 +73,7 @@
       <div class="empty-state">
         <div class="empty-icon">📝</div>
         <div class="empty-title">No submissions found</div>
-        <% if params[:status].present? || params[:language].present? || params[:problem].present? %>
-          <div class="empty-text">Try adjusting your filters or clearing them</div>
-        <% else %>
-          <div class="empty-text">Start solving problems to see your submissions here</div>
-        <% end %>
+        <div class="empty-text">Start solving problems to see your submissions here</div>
       </div>
     <% end %>
   </div>
@@ -161,7 +82,7 @@
   <% if @total_pages > 1 %>
     <div class="pagination-container">
       <% if @page > 1 %>
-        <%= link_to submission_path(params.permit(:status, :language, :problem, :my_submissions, :contest_id, :show_all).merge(page: @page - 1)), class: "pagination-btn" do %>
+        <%= link_to submission_path(show_all: @show_all ? 'true' : nil, page: @page - 1), class: "pagination-btn" do %>
           <span>← Previous</span>
         <% end %>
       <% else %>
@@ -173,7 +94,7 @@
       </div>
 
       <% if @page < @total_pages %>
-        <%= link_to submission_path(params.permit(:status, :language, :problem, :my_submissions, :contest_id, :show_all).merge(page: @page + 1)), class: "pagination-btn" do %>
+        <%= link_to submission_path(show_all: @show_all ? 'true' : nil, page: @page + 1), class: "pagination-btn" do %>
           <span>Next →</span>
         <% end %>
       <% else %>

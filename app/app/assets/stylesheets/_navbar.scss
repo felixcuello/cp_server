@@ -21,7 +21,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
+  padding: 8px 20px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -29,13 +29,13 @@
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
 // Hamburger Button
@@ -43,7 +43,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
+  padding: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -56,13 +56,13 @@
   }
   
   .hamburger-icon {
-    font-size: 24px;
+    font-size: 20px;
   }
 }
 
 // Logo
 .navbar-logo {
-  font-size: 1.3em;
+  font-size: 1.1em;
   font-weight: bold;
   color: var(--text-heading);
   text-decoration: none;
@@ -78,9 +78,9 @@
   background: none;
   border: 1px solid var(--border-primary);
   cursor: pointer;
-  padding: 6px 12px;
+  padding: 4px 10px;
   border-radius: 5px;
-  font-size: 20px;
+  font-size: 18px;
   transition: all 0.2s ease;
   
   &:hover {
@@ -103,9 +103,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
   border: 1px solid var(--border-primary);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -117,21 +117,21 @@
   }
   
   .user-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    border-radius: 5px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9em;
+    font-size: 0.8em;
     font-weight: 700;
     color: white;
   }
   
   .user-name {
     font-family: Arial, sans-serif;
-    font-size: 0.75em;
+    font-size: 0.7em;
     color: var(--text-primary);
     font-weight: 500;
     white-space: nowrap;
@@ -278,19 +278,19 @@
   }
   
   .navbar-logo {
-    font-size: 1.1em;
+    font-size: 1em;
   }
   
   .user-menu {
-    padding: 6px;
+    padding: 5px;
     
     .user-name {
       display: none; // Hide username on very small screens, keep avatar only
     }
     
     .user-avatar {
-      width: 32px;
-      height: 32px;
+      width: 26px;
+      height: 26px;
     }
   }
 }

@@ -3,7 +3,7 @@
 .upcoming-contest-banner {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 12px 20px;
+  padding: 8px 0;
   border-bottom: 2px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: fixed;
@@ -12,39 +12,42 @@
   right: 0;
   width: 100%;
   z-index: 101; // Above navbar (z-index: 100)
+  box-sizing: border-box;
 
   .banner-content {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: 16px;
     max-width: 1400px;
     margin: 0 auto;
+    padding: 0 20px;
     flex-wrap: wrap;
+    box-sizing: border-box;
   }
 
   .banner-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     flex: 1;
     min-width: 200px;
   }
 
   .banner-icon {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .banner-text {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
   }
 
   .banner-link {
     color: white;
     text-decoration: none;
-    font-size: 1.1em;
+    font-size: 1em;
     font-weight: bold;
     transition: opacity 0.2s ease;
 
@@ -55,31 +58,32 @@
   }
 
   .banner-date {
-    font-size: 0.9em;
+    font-size: 0.85em;
     opacity: 0.9;
   }
 
   .banner-countdown {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     font-weight: 600;
     white-space: nowrap;
   }
 
   .countdown-label {
-    font-size: 0.9em;
+    font-size: 0.85em;
     opacity: 0.9;
   }
 
   .countdown-value {
     background-color: rgba(255, 255, 255, 0.2);
-    padding: 4px 8px;
+    padding: 3px 6px;
     border-radius: 4px;
     font-weight: bold;
-    min-width: 32px;
+    min-width: 28px;
     text-align: center;
     font-family: 'Courier New', monospace;
+    font-size: 0.95em;
   }
 
   .banner-right {
@@ -90,10 +94,11 @@
   .banner-button {
     background-color: white;
     color: #667eea;
-    padding: 8px 16px;
-    border-radius: 6px;
+    padding: 6px 12px;
+    border-radius: 5px;
     text-decoration: none;
     font-weight: 600;
+    font-size: 0.9em;
     transition: all 0.2s ease;
     white-space: nowrap;
 
@@ -108,12 +113,11 @@
 // Mobile adjustments
 @media (max-width: 768px) {
   .upcoming-contest-banner {
-    padding: 10px 15px;
-
     .banner-content {
       flex-direction: column;
       align-items: flex-start;
-      gap: 12px;
+      gap: 10px;
+      padding: 0 15px;
     }
 
     .banner-left {

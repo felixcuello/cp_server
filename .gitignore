@@ -1,2 +1,2 @@
 .env.development
-app/problems/*.json
+app/problems/

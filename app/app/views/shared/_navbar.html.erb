@@ -3,7 +3,7 @@
   <!-- Top Navbar -->
   <nav class="navbar">
     <div class="navbar-content">
-      <!-- Left: Hamburger + Logo -->
+      <!-- Left: Hamburger (mobile only) + Logo + Desktop Nav Links -->
       <div class="navbar-left">
         <% if user_signed_in? %>
           <button 
@@ -14,12 +14,21 @@
           </button>
         <% end %>
         <%= link_to "CP Server", home_path, class: "navbar-logo" %>
+        
+        <!-- Desktop Navigation Links (hidden on mobile) -->
+        <% if user_signed_in? %>
+          <div class="navbar-desktop-links">
+            <%= link_to "Problems", problems_path, class: "navbar-link" %>
+            <%= link_to "Submissions", submission_path, class: "navbar-link" %>
+            <%= link_to "Contests", contests_path, class: "navbar-link" %>
+          </div>
+        <% end %>
       </div>
       
-      <!-- Right: User Menu + Theme Toggle -->
+      <!-- Right: User Menu + Theme Toggle (desktop only) -->
       <div class="navbar-right">
         <button 
-          class="theme-toggle-button" 
+          class="theme-toggle-button navbar-desktop-only" 
           data-action="click->theme#toggle"
           data-theme-target="icon"
           title="Toggle theme">
@@ -27,7 +36,7 @@
         </button>
         
         <% if user_signed_in? %>
-          <%= link_to user_path(alias: current_user.alias), class: "user-menu-link" do %>
+          <%= link_to user_path(alias: current_user.alias), class: "user-menu-link navbar-desktop-only" do %>
             <div class="user-menu">
               <div class="user-avatar">
                 <%= current_user.alias[0..1].upcase %>
@@ -48,10 +57,10 @@
       data-action="click->drawer#closeOnOverlay">
     </div>
     
-    <!-- Side Drawer -->
+    <!-- Side Drawer (mobile only) -->
     <aside class="drawer" data-drawer-target="drawer">
       <div class="drawer-header">
-        <h2 class="drawer-title">Navigation</h2>
+        <h2 class="drawer-title">Menu</h2>
         <button 
           class="drawer-close" 
           data-action="click->drawer#close"
@@ -61,6 +70,19 @@
       </div>
       
       <nav class="drawer-nav">
+        <!-- Profile Section (mobile only) -->
+        <%= link_to user_path(alias: current_user.alias), class: "drawer-link drawer-profile-link" do %>
+          <div class="drawer-user-avatar">
+            <%= current_user.alias[0..1].upcase %>
+          </div>
+          <div class="drawer-user-info">
+            <span class="drawer-user-name"><%= current_user.alias %></span>
+            <span class="drawer-user-label">View Profile</span>
+          </div>
+        <% end %>
+        
+        <div class="drawer-divider"></div>
+        
         <%= link_to problems_path, class: "drawer-link" do %>
           <span class="drawer-icon">📝</span>
           <span>Problems</span>
@@ -76,12 +98,16 @@
           <span>Contests</span>
         <% end %>
         
-        <%= link_to user_path(alias: current_user.alias), class: "drawer-link" do %>
-          <span class="drawer-icon">👤</span>
-          <span>Profile</span>
-        <% end %>
-        
         <div class="drawer-divider"></div>
+        
+        <!-- Theme Toggle (mobile only) -->
+        <button 
+          class="drawer-link drawer-theme-toggle" 
+          data-action="click->theme#toggle"
+          title="Toggle theme">
+          <span class="drawer-icon" data-theme-target="icon">🌙</span>
+          <span>Toggle Theme</span>
+        </button>
         
         <%= link_to destroy_user_session_path, data: { "turbo-method": :delete }, class: "drawer-link drawer-link-danger" do %>
           <span class="drawer-icon">🚪</span>

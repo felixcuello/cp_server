@@ -29,16 +29,48 @@
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
 }
 
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
 }
 
-// Hamburger Button
+// Desktop Navigation Links (visible on desktop, hidden on mobile)
+.navbar-desktop-links {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  
+  @media (max-width: 900px) {
+    display: none;
+  }
+}
+
+.navbar-link {
+  padding: 8px 16px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-family: Arial, sans-serif;
+  font-weight: 500;
+  font-size: 0.95em;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  
+  &:hover {
+    background-color: var(--bg-secondary);
+    color: var(--text-heading);
+  }
+  
+  &:visited {
+    color: var(--text-primary);
+  }
+}
+
+// Hamburger Button (visible on mobile, hidden on desktop)
 .hamburger-button {
   background: none;
   border: none;
@@ -51,12 +83,23 @@
   border-radius: 5px;
   transition: background-color 0.2s ease;
   
+  @media (min-width: 901px) {
+    display: none;
+  }
+  
   &:hover {
     background-color: var(--bg-secondary);
   }
   
   .hamburger-icon {
     font-size: 20px;
+  }
+}
+
+// Desktop-only elements (theme toggle, user menu)
+.navbar-desktop-only {
+  @media (max-width: 900px) {
+    display: none !important;
   }
 }
 
@@ -138,7 +181,7 @@
   }
 }
 
-// Drawer Overlay
+// Drawer Overlay (visible only on mobile when drawer is open)
 .drawer-overlay {
   position: fixed;
   top: 0;
@@ -151,13 +194,17 @@
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
   
+  @media (min-width: 901px) {
+    display: none !important;
+  }
+  
   &.overlay-visible {
     opacity: 1;
     visibility: visible;
   }
 }
 
-// Side Drawer
+// Side Drawer (visible only on mobile)
 .drawer {
   position: fixed;
   top: 0;
@@ -170,6 +217,10 @@
   transition: left 0.3s ease;
   overflow-y: auto;
   box-shadow: 2px 0 8px var(--shadow-light);
+  
+  @media (min-width: 901px) {
+    display: none !important;
+  }
   
   &.drawer-open {
     left: 0;
@@ -210,6 +261,57 @@
 
 .drawer-nav {
   padding: 10px 0;
+}
+
+// Profile section in drawer (mobile only)
+.drawer-profile-link {
+  padding: 16px 20px !important;
+  background-color: var(--bg-tertiary);
+  
+  &:hover {
+    background-color: var(--bg-secondary) !important;
+  }
+}
+
+.drawer-user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.drawer-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.drawer-user-name {
+  font-weight: 600;
+  color: var(--text-heading);
+  font-size: 1em;
+}
+
+.drawer-user-label {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+}
+
+// Theme toggle as a drawer link
+.drawer-theme-toggle {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: Arial, sans-serif;
+  font-size: 1em;
 }
 
 .drawer-link {
@@ -269,7 +371,7 @@
 }
 
 // Mobile adjustments (if needed)
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .navbar {
     // When contest banner is present on mobile, position navbar below it
     .main-body:has(.upcoming-contest-banner) & {
@@ -279,18 +381,5 @@
   
   .navbar-logo {
     font-size: 1em;
-  }
-  
-  .user-menu {
-    padding: 5px;
-    
-    .user-name {
-      display: none; // Hide username on very small screens, keep avatar only
-    }
-    
-    .user-avatar {
-      width: 26px;
-      height: 26px;
-    }
   }
 }

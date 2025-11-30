@@ -24,7 +24,7 @@ body {
   }
   
   // Mobile adjustments
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
     &:has(.upcoming-contest-banner) {
       padding-top: 200px; // Contest banner wraps on mobile (~140px) + Navbar (~60px)
     }

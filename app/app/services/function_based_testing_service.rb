@@ -1,52 +1,42 @@
 # frozen_string_literal: true
 
-require 'open3'
+require 'securerandom'
 
-# Service for executing code against a single test case/example
-# Used by both Submission model and SubmissionController to avoid code duplication
-class SubmissionService
-  def initialize(source_code:, language:, example:, problem:)
-    @source_code = source_code
-    @language = language
-    @example = example
+# Service for executing function-based problems
+# Combines user code with test harness and executes against test cases
+class FunctionBasedTestingService
+  def initialize(problem:, language:, user_code:, example:)
     @problem = problem
+    @language = language
+    @user_code = user_code
+    @example = example
     @uuid = SecureRandom.uuid
   end
 
-  # Execute the test and return a result hash
   def execute
-    if problem.function_based?
-      execute_function_based
-    else
-      execute_stdin_stdout
-    end
-  end
+    # Validate that template and tester exist
+    template = @problem.template_for(@language)
+    tester = @problem.tester_for(@language)
 
-  private
-
-  def execute_function_based
-    # Use FunctionBasedTestingService for function-based problems
-    service = FunctionBasedTestingService.new(
-      problem: problem,
-      language: language,
-      user_code: source_code,
-      example: example
-    )
-
-    begin
-      service.execute
-    rescue FunctionBasedTestingService::CompilationError => e
-      {
-        status: "compilation_error",
+    if template.nil?
+      return {
+        status: "error",
         output: "",
         runtime: 0,
-        error_message: "Compilation failed:\n#{e.message}"
+        error_message: "Template not found for #{@language.name}. This problem does not support this language."
       }
     end
-  end
 
-  def execute_stdin_stdout
-    prepare_files
+    if tester.nil?
+      return {
+        status: "error",
+        output: "",
+        runtime: 0,
+        error_message: "Tester not found for #{@language.name}. Please contact admin."
+      }
+    end
+
+    prepare_files(template, tester)
     compile_if_needed
     execute_code
     compare_outputs
@@ -54,11 +44,17 @@ class SubmissionService
     cleanup_files
   end
 
-  attr_reader :source_code, :language, :example, :problem, :uuid
+  private
 
-  def prepare_files
+  attr_reader :problem, :language, :user_code, :example, :uuid
+
+  def prepare_files(template, tester)
+    # Insert user code into tester at the placeholder
+    # The tester contains "// USER CODE GOES HERE" where we inject the user's solution
+    combined_code = tester.tester_code.gsub("// USER CODE GOES HERE", user_code)
+
     @source_code_file = "/tmp/#{uuid}.#{language.extension}"
-    File.write(@source_code_file, source_code)
+    File.write(@source_code_file, combined_code)
 
     @input_file = "/tmp/#{uuid}.in"
     File.write(@input_file, example.input)
@@ -76,11 +72,10 @@ class SubmissionService
     flags_with_paths = language.compiler_flags.gsub("{compiled_file}", @compiled_file)
                                    .gsub("{source_file}", @source_code_file)
 
-    # Split flags into array (handles spaces, but not quoted args - acceptable for our use case)
-    # This prevents command injection by passing arguments as separate array elements
+    # Split flags into array
     compiler_args = flags_with_paths.split(/\s+/).reject(&:empty?)
 
-    Rails.logger.info "Compiling with: #{language.compiler_binary} #{compiler_args.join(' ')}"
+    Rails.logger.info "Compiling function-based code with: #{language.compiler_binary} #{compiler_args.join(' ')}"
 
     # Use Open3.capture3 with array arguments to prevent command injection
     stdout, stderr, status = Open3.capture3(language.compiler_binary, *compiler_args)
@@ -97,7 +92,7 @@ class SubmissionService
     time_limit = [language.time_limit_sec, problem.time_limit_sec].max
     memory_limit_mb = [language.memory_limit_kb.to_i, problem.memory_limit_kb.to_i].max / 1024
 
-    Rails.logger.info "Executing with nsjail: timeout=#{time_limit}s, memory=#{memory_limit_mb}MB"
+    Rails.logger.info "Executing function-based code with nsjail: timeout=#{time_limit}s, memory=#{memory_limit_mb}MB"
 
     if language.compiler_binary.present?
       # Execute compiled binary
@@ -120,10 +115,9 @@ class SubmissionService
       ).execute
     end
 
-    # Use execution time from nsjail result (in milliseconds), convert to seconds
-    # This is more accurate as it measures the actual execution time
+    # Use execution time from nsjail result (in milliseconds)
     @runtime = @execution_result.execution_time_ms / 1000.0
-    Rails.logger.info "Execution result: exit_code=#{@execution_result.exit_code}, timed_out=#{@execution_result.timed_out}, oom_killed=#{@execution_result.oom_killed}, execution_time_ms=#{@execution_result.execution_time_ms}"
+    Rails.logger.info "Function-based execution result: exit_code=#{@execution_result.exit_code}, timed_out=#{@execution_result.timed_out}, oom_killed=#{@execution_result.oom_killed}, execution_time_ms=#{@execution_result.execution_time_ms}"
   end
 
   def compare_outputs
@@ -151,22 +145,13 @@ class SubmissionService
                        (@execution_result.stderr.present? ? "\n#{@execution_result.stderr}" : "")
       }
     else
-      # Read output and compare
+      # Read output and compare with expected output
       actual_output = @execution_result.stdout
       expected_output = example.output
 
-      # Check if outputs match based on problem's ignore_output_line_order flag
-      outputs_match = if problem.ignore_output_line_order
-        # Sort lines before comparison for problems where line order doesn't matter
-        actual_lines = actual_output.strip.split("\n").sort
-        expected_lines = expected_output.strip.split("\n").sort
-        actual_lines == expected_lines
-      else
-        # Exact match for regular problems
-        actual_output == expected_output
-      end
-
-      if outputs_match
+      # For function-based problems, the tester outputs "OK\n" or "ERROR\n"
+      # We compare this directly
+      if actual_output == expected_output
         {
           status: "passed",
           output: actual_output,
@@ -175,19 +160,19 @@ class SubmissionService
         }
       else
         # Try whitespace-insensitive comparison
-        if actual_output.gsub(/\s+/, "") == expected_output.gsub(/\s+/, "")
+        if actual_output.strip == expected_output.strip
           {
-            status: "presentation_error",
+            status: "passed",
             output: actual_output,
             runtime: (@runtime * 1000).round,
-            error_message: "Output is correct but formatting differs"
+            error_message: nil
           }
         else
           {
             status: "wrong_answer",
             output: actual_output,
             runtime: (@runtime * 1000).round,
-            error_message: "Output does not match expected"
+            error_message: "Test case failed"
           }
         end
       end

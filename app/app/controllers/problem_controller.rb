@@ -76,7 +76,12 @@ class ProblemController < AuthenticatedController
       @contest_active = @contest.active?
     end
 
-    @languages = ProgrammingLanguage.order(:name)
+    # Get available languages based on testing mode
+    if @problem.function_based?
+      @languages = @problem.available_languages_for_function_mode
+    else
+      @languages = ProgrammingLanguage.order(:name)
+    end
 
     # Get user's status for this problem
     if current_user
@@ -110,7 +115,7 @@ class ProblemController < AuthenticatedController
 
   def recent_submission
     @problem = Problem.find(params[:id])
-    
+
     if current_user
       # Get the most recent submission for this user and problem
       recent_submission = Submission.where(user: current_user, problem: @problem)
@@ -125,6 +130,35 @@ class ProblemController < AuthenticatedController
     else
       render json: { submission_id: nil, error: "Not authenticated" }, status: :unauthorized
     end
+  end
+
+  def template
+    @problem = Problem.find(params[:id])
+    language_id = params[:language_id]
+
+    unless language_id.present?
+      render json: { error: 'Language ID is required' }, status: :bad_request
+      return
+    end
+
+    language = ProgrammingLanguage.find_by(id: language_id)
+    unless language
+      render json: { error: 'Language not found' }, status: :not_found
+      return
+    end
+
+    template = @problem.template_for(language)
+
+    if template
+      render json: {
+        template_code: template.template_code,
+        function_signature: template.function_signature
+      }
+    else
+      render json: { template_code: nil, function_signature: nil }
+    end
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Problem not found' }, status: :not_found
   end
 
   private

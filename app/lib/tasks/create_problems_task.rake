@@ -39,6 +39,9 @@ namespace :problems do
       # Read ignore_output_line_order field from JSON, defaulting to false if not present
       ignore_output_line_order = data.key?("ignore_output_line_order") ? data["ignore_output_line_order"] : false
 
+      # Get testing_mode from JSON, default to stdin_stdout
+      testing_mode = data["testing_mode"] || "stdin_stdout"
+
       problem = Problem.create!(
         title: title,
         description: description,
@@ -46,7 +49,8 @@ namespace :problems do
         memory_limit_kb: memory_limit_kb,
         time_limit_sec: time_limit_sec,
         hidden: hidden,
-        ignore_output_line_order: ignore_output_line_order
+        ignore_output_line_order: ignore_output_line_order,
+        testing_mode: testing_mode
       )
 
       tags.each do |tag|
@@ -60,6 +64,7 @@ namespace :problems do
           is_hidden: example["is_hidden"],
           input: example["input"].to_s,
           output: example["output"].to_s,
+          description: example["description"],
           sort_order: sort_order
         )
 
@@ -74,6 +79,14 @@ namespace :problems do
         )
 
         problem.constraints << constraint
+      end
+
+      # Load templates and testers for function-based problems
+      if problem.function_based?
+        problem_file_basename = File.basename(file, ".problem.json")
+        problem_dir = File.dirname(file)
+        load_templates_for_problem(problem, problem_dir, problem_file_basename, data)
+        load_testers_for_problem(problem, problem_dir, problem_file_basename)
       end
     end
   end
@@ -94,6 +107,8 @@ namespace :problems do
           problem.examples.destroy_all
           problem.constraints.destroy_all
           problem.problem_tags.destroy_all
+          problem.problem_templates.destroy_all
+          problem.problem_testers.destroy_all
         else
           puts "Creating problem with title '#{title}'!"
           problem = Problem.new
@@ -119,6 +134,9 @@ namespace :problems do
         # Read ignore_output_line_order field from JSON, defaulting to false if not present
         ignore_output_line_order = data.key?("ignore_output_line_order") ? data["ignore_output_line_order"] : false
 
+        # Get testing_mode from JSON, default to stdin_stdout
+        testing_mode = data["testing_mode"] || "stdin_stdout"
+
         problem.update!(
           title: title,
           description: description,
@@ -126,7 +144,8 @@ namespace :problems do
           memory_limit_kb: memory_limit_kb,
           time_limit_sec: time_limit_sec,
           hidden: hidden,
-          ignore_output_line_order: ignore_output_line_order
+          ignore_output_line_order: ignore_output_line_order,
+          testing_mode: testing_mode
         )
 
         tags.each do |tag_name|
@@ -140,6 +159,7 @@ namespace :problems do
             is_hidden: example_data["is_hidden"],
             input: example_data["input"].to_s,
             output: example_data["output"].to_s,
+            description: example_data["description"],
             sort_order: sort_order
           )
 
@@ -155,6 +175,14 @@ namespace :problems do
 
           problem.constraints << constraint
         end
+
+        # Load templates and testers for function-based problems
+        if problem.function_based?
+          problem_file_basename = File.basename(file, ".problem.json")
+          problem_dir = File.dirname(file)
+          load_templates_for_problem(problem, problem_dir, problem_file_basename, data)
+          load_testers_for_problem(problem, problem_dir, problem_file_basename)
+        end
       end
     end
   end
@@ -168,6 +196,93 @@ namespace :problems do
       Tag.destroy_all
       Submission.destroy_all
       Problem.destroy_all
+    end
+  end
+
+  private
+
+  def load_templates_for_problem(problem, problem_dir, problem_basename, data)
+    # Look for template files: multiply_list.template.cpp, multiply_list.template.c, etc.
+    template_pattern = File.join(problem_dir, "#{problem_basename}.template.*")
+    template_files = Dir.glob(template_pattern)
+
+    return if template_files.empty?
+
+    puts "   📝 Loading templates..."
+
+    template_files.each do |template_file|
+      extension = File.extname(template_file)[1..-1] # Remove leading dot
+      language = find_language_by_extension(extension)
+
+      unless language
+        puts "      ⚠️  Unknown language extension: .#{extension}, skipping #{File.basename(template_file)}"
+        next
+      end
+
+      template_code = File.read(template_file)
+      function_signature = data["function_signature"]
+
+      # Delete existing template if updating
+      problem.problem_templates.where(programming_language: language).destroy_all
+
+      ProblemTemplate.create!(
+        problem: problem,
+        programming_language: language,
+        template_code: template_code,
+        function_signature: function_signature
+      )
+
+      puts "      ✅ Template loaded for #{language.name}"
+    end
+  end
+
+  def load_testers_for_problem(problem, problem_dir, problem_basename)
+    # Look for tester files: multiply_list.tester.cpp, multiply_list.tester.c, etc.
+    tester_pattern = File.join(problem_dir, "#{problem_basename}.tester.*")
+    tester_files = Dir.glob(tester_pattern)
+
+    return if tester_files.empty?
+
+    puts "   🧪 Loading testers..."
+
+    tester_files.each do |tester_file|
+      extension = File.extname(tester_file)[1..-1] # Remove leading dot
+      language = find_language_by_extension(extension)
+
+      unless language
+        puts "      ⚠️  Unknown language extension: .#{extension}, skipping #{File.basename(tester_file)}"
+        next
+      end
+
+      tester_code = File.read(tester_file)
+
+      # Delete existing tester if updating
+      problem.problem_testers.where(programming_language: language).destroy_all
+
+      ProblemTester.create!(
+        problem: problem,
+        programming_language: language,
+        tester_code: tester_code
+      )
+
+      puts "      ✅ Tester loaded for #{language.name}"
+    end
+  end
+
+  def find_language_by_extension(extension)
+    case extension.downcase
+    when "cpp", "cc", "cxx"
+      ProgrammingLanguage.find_by(name: "C++11")
+    when "c"
+      ProgrammingLanguage.find_by(name: "C")
+    when "py"
+      ProgrammingLanguage.find_by(name: "Python 3")
+    when "js"
+      ProgrammingLanguage.find_by(name: "Javascript (NodeJS)")
+    when "rb"
+      ProgrammingLanguage.find_by(name: "Ruby")
+    else
+      nil
     end
   end
 end

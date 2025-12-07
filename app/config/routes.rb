@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   get "problems", to: "problem#index", as: "problems"
   get "problems/:id", to: "problem#show", as: "problem"
   get "problems/:id/recent_submission", to: "problem#recent_submission", as: "problem_recent_submission"
+  get "problems/:id/template", to: "problem#template", as: "problem_template"
 
   get "submissions", to: "submission#index", as: "submission"
   get "submissions/:id", to: "submission#show", as: "submission_detail"

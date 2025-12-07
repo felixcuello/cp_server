@@ -3,11 +3,12 @@ import { Controller } from "@hotwired/stimulus"
 // Connects to data-controller="code-editor"
 export default class extends Controller {
   static targets = ["editor", "languageSelect", "fileInput", "hiddenCode", "testResults"]
-  static values = { 
+  static values = {
     language: { type: String, default: "python" },
-    problemId: { type: Number }
+    problemId: { type: Number },
+    testingMode: { type: String, default: "stdin_stdout" }
   }
-  
+
   connect() {
     // Wait for Monaco to be loaded
     if (typeof window.monacoLoaded !== 'undefined') {
@@ -20,12 +21,12 @@ export default class extends Controller {
       this.waitForMonaco();
     }
   }
-  
+
   waitForMonaco() {
     // Check if Monaco is ready every 100ms, up to 5 seconds
     let attempts = 0;
     const maxAttempts = 50;
-    
+
     const checkMonaco = () => {
       if (typeof monaco !== 'undefined') {
         this.initializeEditor()
@@ -37,22 +38,69 @@ export default class extends Controller {
         console.error('Monaco Editor failed to load after 5 seconds');
       }
     };
-    
+
     checkMonaco();
   }
-  
+
   // Check if URL has submission_id parameter and load it
-  checkForSubmissionLoad() {
+  async checkForSubmissionLoad() {
     const urlParams = new URLSearchParams(window.location.search)
     const submissionId = urlParams.get('submission_id')
-    
+
     if (submissionId) {
-      this.loadSubmission(submissionId)
+      await this.loadSubmission(submissionId)
     } else {
-      this.loadFromLocalStorage()
+      // Check localStorage first
+      const problemId = this.problemIdValue
+      const savedCode = localStorage.getItem(`problem_${problemId}_code`)
+
+      if (savedCode) {
+        // User has saved code, load it
+        this.loadFromLocalStorage()
+      } else if (this.isFunctionBased()) {
+        // Function-based problem with no saved code - load template
+        await this.loadTemplateForCurrentLanguage()
+      } else {
+        // STDIN/STDOUT problem with no saved code - use default
+        this.loadFromLocalStorage()
+      }
     }
   }
-  
+
+  isFunctionBased() {
+    return this.testingModeValue === 'function'
+  }
+
+  async loadTemplateForCurrentLanguage() {
+    const languageId = this.languageSelectTarget.value
+    if (!languageId) {
+      console.error('No language selected')
+      return
+    }
+
+    try {
+      const response = await fetch(`/problems/${this.problemIdValue}/template?language_id=${languageId}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.template_code && this.editor) {
+          this.editor.setValue(data.template_code)
+          console.log('Loaded template for function-based problem')
+        } else {
+          // No template found, use default
+          console.warn('No template found for this language')
+          if (this.editor) {
+            this.editor.setValue(this.getDefaultCode())
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading template:', error)
+      if (this.editor) {
+        this.editor.setValue(this.getDefaultCode())
+      }
+    }
+  }
+
   // Fetch and load a specific submission
   async loadSubmission(submissionId) {
     try {
@@ -61,33 +109,33 @@ export default class extends Controller {
           'Accept': 'application/json'
         }
       })
-      
+
       if (response.ok) {
         const data = await response.json()
-        
+
         // Check for error in response (e.g., unauthorized access)
         if (data.error) {
           alert(`Cannot load submission: ${data.error}`)
           this.loadFromLocalStorage()
           return
         }
-        
+
         // Set the language dropdown
         if (data.language_id) {
           this.languageSelectTarget.value = data.language_id
-          
+
           // Get language name from the selected option
           const selectedOption = this.languageSelectTarget.options[this.languageSelectTarget.selectedIndex]
           const langName = selectedOption.getAttribute('data-lang')
           this.languageValue = langName
-          
+
           // Update Monaco editor language
           if (this.editor) {
             const monacoLang = this.getMonacoLanguage(langName)
             monaco.editor.setModelLanguage(this.editor.getModel(), monacoLang)
           }
         }
-        
+
         // Set the code in the editor
         if (this.editor && data.source_code) {
           this.editor.setValue(data.source_code)
@@ -104,20 +152,20 @@ export default class extends Controller {
       this.loadFromLocalStorage()
     }
   }
-  
+
   disconnect() {
     if (this.editor) {
       this.editor.dispose()
     }
   }
-  
+
   initializeEditor() {
     // Check if Monaco is loaded
     if (typeof monaco === 'undefined') {
       console.error('Monaco Editor not loaded')
       return
     }
-    
+
     // Create the editor
     this.editor = monaco.editor.create(this.editorTarget, {
       value: this.getDefaultCode(),
@@ -131,55 +179,60 @@ export default class extends Controller {
       automaticLayout: true,
       tabSize: 4
     })
-    
+
     // Listen for theme changes
     this.themeObserver = new MutationObserver(() => {
       this.editor.updateOptions({ theme: this.getTheme() })
     })
-    
+
     this.themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['data-theme']
     })
-    
+
     // Auto-save to localStorage
     this.editor.onDidChangeModelContent(() => {
       this.saveToLocalStorage()
     })
   }
-  
-  changeLanguage(event) {
+
+  async changeLanguage(event) {
     const langId = event.target.value
-    
+
     // Get the selected option's data-lang attribute
     const selectedOption = event.target.options[event.target.selectedIndex]
     const langName = selectedOption.getAttribute('data-lang')
-    
+
     console.log('Language changed to:', langName, 'ID:', langId)
-    
+
     this.languageValue = langName
-    
+
     if (this.editor) {
       const monacoLang = this.getMonacoLanguage(langName)
       console.log('Setting Monaco language to:', monacoLang)
-      
+
       const model = this.editor.getModel()
       monaco.editor.setModelLanguage(model, monacoLang)
-      
-      // Update the editor's content to the new language template if code is default/empty
-      const currentCode = this.editor.getValue().trim()
-      const defaultCodes = this.getAllDefaultCodes()
-      const isDefaultCode = Object.values(defaultCodes).some(template => 
-        currentCode === template.trim() || currentCode === ''
-      )
-      
-      if (isDefaultCode || currentCode === '') {
-        console.log('Setting default template for new language')
-        this.editor.setValue(this.getDefaultCode())
+
+      // For function-based problems, always load template when changing language
+      if (this.isFunctionBased()) {
+        await this.loadTemplateForCurrentLanguage()
+      } else {
+        // For STDIN/STDOUT, update the editor's content to the new language template if code is default/empty
+        const currentCode = this.editor.getValue().trim()
+        const defaultCodes = this.getAllDefaultCodes()
+        const isDefaultCode = Object.values(defaultCodes).some(template =>
+          currentCode === template.trim() || currentCode === ''
+        )
+
+        if (isDefaultCode || currentCode === '') {
+          console.log('Setting default template for new language')
+          this.editor.setValue(this.getDefaultCode())
+        }
       }
     }
   }
-  
+
   getAllDefaultCodes() {
     return {
       'python': '# Write your solution here\n\n',
@@ -191,15 +244,15 @@ export default class extends Controller {
       'go': 'package main\n\nimport "fmt"\n\nfunc main() {\n    // Write your solution here\n}\n'
     }
   }
-  
+
   async test(event) {
     event.preventDefault()
-    
+
     console.log('Test button clicked!')
-    
+
     const code = this.editor.getValue()
     console.log('Code length:', code.length)
-    
+
     if (!code.trim()) {
       console.log('No code entered')
       this.showTestResults({
@@ -208,18 +261,18 @@ export default class extends Controller {
       })
       return
     }
-    
+
     // Show loading state
     console.log('Showing loading state...')
     this.showTestResults({
       loading: true
     })
-    
+
     // Get language ID
     const languageId = this.languageSelectTarget.value
     console.log('Language select element:', this.languageSelectTarget)
     console.log('Language ID from select:', languageId)
-    
+
     if (!languageId) {
       console.error('No language selected!')
       this.showTestResults({
@@ -228,20 +281,20 @@ export default class extends Controller {
       })
       return
     }
-    
+
     // Create form data
     const formData = new FormData()
     formData.append('problem_id', this.problemIdValue)
     formData.append('programming_language_id', languageId)
-    
+
     // Create a blob from the code string
     const blob = new Blob([code], { type: 'text/plain' })
     formData.append('source_code', blob, 'solution.' + this.getFileExtension())
-    
+
     console.log('Sending test request to /submissions/test')
     console.log('Problem ID:', this.problemIdValue)
     console.log('Language ID:', languageId)
-    
+
     try {
       const response = await fetch('/submissions/test', {
         method: 'POST',
@@ -250,15 +303,15 @@ export default class extends Controller {
           'X-CSRF-Token': this.getCSRFToken()
         }
       })
-      
+
       console.log('Response status:', response.status)
-      
+
       if (!response.ok) {
         const errorText = await response.text()
         console.error('Server error:', errorText)
         throw new Error(`Server returned ${response.status}: ${errorText}`)
       }
-      
+
       const result = await response.json()
       console.log('Test results received:', result)
       this.showTestResults(result)
@@ -270,26 +323,26 @@ export default class extends Controller {
       })
     }
   }
-  
+
   submit(event) {
     event.preventDefault()
-    
+
     const code = this.editor.getValue()
     if (!code.trim()) {
       alert('Please write some code before submitting')
       return
     }
-    
+
     // Create form data
     const formData = new FormData()
     formData.append('problem_id', this.problemIdValue)
     formData.append('programming_language_id', this.languageSelectTarget.value)
-    
+
     // Create a blob from the code string
     const blob = new Blob([code], { type: 'text/plain' })
     formData.append('source_code', blob, 'solution.' + this.getFileExtension())
     formData.append('authenticity_token', this.getCSRFToken())
-    
+
     // Submit via fetch
     fetch('/submissions/submit', {
       method: 'POST',
@@ -303,7 +356,7 @@ export default class extends Controller {
     .then(data => {
       // Clear localStorage after successful submission
       this.clearLocalStorage()
-      
+
       // Show modal with queued status (submission was successful)
       this.showSubmissionModal({
         success: data.success === true,
@@ -320,14 +373,14 @@ export default class extends Controller {
       })
     })
   }
-  
+
   showSubmissionModal(data) {
     // Find the submission modal controller
     const modalController = this.application.getControllerForElementAndIdentifier(
       document.querySelector('[data-controller~="submission-modal"]'),
       'submission-modal'
     )
-    
+
     if (modalController) {
       modalController.show(data)
     } else {
@@ -341,10 +394,10 @@ export default class extends Controller {
       }
     }
   }
-  
-  resetCode(event) {
+
+  async resetCode(event) {
     event.preventDefault()
-    
+
     // Show confirmation dialog
     const confirmed = confirm(
       '⚠️ Are you sure you want to reset the code?\n\n' +
@@ -354,34 +407,40 @@ export default class extends Controller {
       '• Clear saved code from browser storage\n\n' +
       'This action cannot be undone!'
     )
-    
+
     if (!confirmed) {
       console.log('Code reset cancelled by user')
       return
     }
-    
+
     console.log('Resetting code to default template')
-    
+
     // Clear localStorage
     this.clearLocalStorage()
-    
+
     // Reset editor to default template
     if (this.editor) {
-      this.editor.setValue(this.getDefaultCode())
+      if (this.isFunctionBased()) {
+        // Load template from server for function-based problems
+        await this.loadTemplateForCurrentLanguage()
+      } else {
+        // Use default code for STDIN/STDOUT problems
+        this.editor.setValue(this.getDefaultCode())
+      }
       console.log('Code reset to default template')
     }
   }
-  
+
   showTestResults(result) {
     console.log('showTestResults called with:', result)
-    
+
     if (!this.hasTestResultsTarget) {
       console.error('Test results target not found!')
       return
     }
-    
+
     const container = this.testResultsTarget
-    
+
     if (result.loading) {
       container.innerHTML = `
         <div class="test-results-loading">
@@ -392,7 +451,7 @@ export default class extends Controller {
       container.style.display = 'block'
       return
     }
-    
+
     if (!result.success) {
       container.innerHTML = `
         <div class="test-results-error">
@@ -403,7 +462,7 @@ export default class extends Controller {
       container.style.display = 'block'
       return
     }
-    
+
     // Build results HTML
     let html = `
       <div class="test-results-header ${result.overall_status}">
@@ -412,11 +471,11 @@ export default class extends Controller {
       </div>
       <div class="test-cases-list">
     `
-    
+
     result.test_results.forEach(test => {
       const statusClass = test.status === 'passed' ? 'passed' : 'failed'
       const statusIcon = test.status === 'passed' ? '✓' : '✗'
-      
+
       html += `
         <div class="test-case ${statusClass}">
           <div class="test-case-header">
@@ -425,18 +484,25 @@ export default class extends Controller {
             ${test.runtime ? `<span class="test-runtime">${test.runtime} ms</span>` : ''}
           </div>
           <div class="test-case-body">
-            <div class="test-section">
-              <div class="test-label">Input:</div>
-              <pre class="test-value">${this.escapeHtml(test.input)}</pre>
-            </div>
-            <div class="test-section">
-              <div class="test-label">Expected:</div>
-              <pre class="test-value">${this.escapeHtml(test.expected_output)}</pre>
-            </div>
-            <div class="test-section">
-              <div class="test-label">Your Output:</div>
-              <pre class="test-value ${test.status === 'passed' ? 'correct' : 'incorrect'}">${this.escapeHtml(test.actual_output || '(no output)')}</pre>
-            </div>
+            ${this.isFunctionBased() ? `
+              <div class="test-section">
+                <div class="test-label">Test Case:</div>
+                <pre class="test-value">${this.escapeHtml(test.input)}</pre>
+              </div>
+            ` : `
+              <div class="test-section">
+                <div class="test-label">Input:</div>
+                <pre class="test-value">${this.escapeHtml(test.input)}</pre>
+              </div>
+              <div class="test-section">
+                <div class="test-label">Expected:</div>
+                <pre class="test-value">${this.escapeHtml(test.expected_output)}</pre>
+              </div>
+              <div class="test-section">
+                <div class="test-label">Your Output:</div>
+                <pre class="test-value ${test.status === 'passed' ? 'correct' : 'incorrect'}">${this.escapeHtml(test.actual_output || '(no output)')}</pre>
+              </div>
+            `}
             ${test.error_message ? `
               <div class="test-error">
                 <strong>Error:</strong> ${test.error_message}
@@ -446,22 +512,22 @@ export default class extends Controller {
         </div>
       `
     })
-    
+
     html += `</div>`
-    
+
     container.innerHTML = html
     container.style.display = 'block'
-    
+
     // Scroll to results
     container.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }
-  
+
   escapeHtml(text) {
     const div = document.createElement('div')
     div.textContent = text
     return div.innerHTML
   }
-  
+
   getMonacoLanguage(lang) {
     const mapping = {
       'python': 'python',
@@ -483,7 +549,7 @@ export default class extends Controller {
     }
     return mapping[lang.toLowerCase()] || 'plaintext'
   }
-  
+
   getFileExtension() {
     const mapping = {
       'python': 'py',
@@ -496,12 +562,12 @@ export default class extends Controller {
     }
     return mapping[this.getMonacoLanguage(this.languageValue)] || 'txt'
   }
-  
+
   getTheme() {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
     return isDark ? 'vs-dark' : 'vs'
   }
-  
+
   getDefaultCode() {
     const templates = {
       'python': '# Write your solution here\n\n',
@@ -514,25 +580,25 @@ export default class extends Controller {
     }
     return templates[this.getMonacoLanguage(this.languageValue)] || '// Write your solution here\n'
   }
-  
+
   saveToLocalStorage() {
     const problemId = this.problemIdValue
     const code = this.editor.getValue()
     localStorage.setItem(`problem_${problemId}_code`, code)
     localStorage.setItem(`problem_${problemId}_language`, this.languageValue)
   }
-  
+
   loadFromLocalStorage() {
     const problemId = this.problemIdValue
     const savedCode = localStorage.getItem(`problem_${problemId}_code`)
     const savedLanguage = localStorage.getItem(`problem_${problemId}_language`)
-    
+
     if (savedLanguage) {
       this.languageValue = savedLanguage
       if (this.hasLanguageSelectTarget) {
         // Find the option with matching data-lang attribute
         const options = Array.from(this.languageSelectTarget.options)
-        const matchingOption = options.find(opt => 
+        const matchingOption = options.find(opt =>
           opt.getAttribute('data-lang') === savedLanguage.toLowerCase()
         )
         if (matchingOption) {
@@ -541,19 +607,19 @@ export default class extends Controller {
         }
       }
     }
-    
+
     if (savedCode && this.editor) {
       this.editor.setValue(savedCode)
       console.log('Restored code from localStorage')
     }
   }
-  
+
   clearLocalStorage() {
     const problemId = this.problemIdValue
     localStorage.removeItem(`problem_${problemId}_code`)
     localStorage.removeItem(`problem_${problemId}_language`)
   }
-  
+
   getCSRFToken() {
     return document.querySelector('meta[name="csrf-token"]').content
   }

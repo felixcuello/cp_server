@@ -11,6 +11,7 @@ class Problem < ApplicationRecord
   has_many :user_problem_statuses
   has_many :problem_templates, dependent: :destroy
   has_many :problem_testers, dependent: :destroy
+  has_many :translations, class_name: 'ProblemTranslation', dependent: :destroy
 
   enum :difficulty, {
     easy: 0,
@@ -127,6 +128,25 @@ class Problem < ApplicationRecord
     available_language_ids = template_language_ids & tester_language_ids
 
     ProgrammingLanguage.where(id: available_language_ids)
+  end
+
+  # Get translated title for the current locale
+  def translated_title(locale = I18n.locale)
+    translation = translation_for(locale)
+    translation&.title || title
+  end
+
+  # Get translated description for the current locale
+  def translated_description(locale = I18n.locale)
+    translation = translation_for(locale)
+    translation&.description || description
+  end
+
+  private
+
+  # Find translation for a specific locale, with fallback to English
+  def translation_for(locale)
+    translations.find_by(locale: locale) || translations.find_by(locale: :en)
   end
 end
 

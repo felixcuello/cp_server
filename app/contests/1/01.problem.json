@@ -1,6 +1,14 @@
 {
-  "title": "Two Sum",
-  "description": "Given an array of integers <b>nums</b> and an integer <b>target</b>, return the indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.\n\nYou can return the answer in any order.\n\n<h3>Input Format</h3>\nThe first line contains two integers <b>n</b> (the length of the array) and <b>target</b>.\nThe second line contains <b>n</b> space-separated integers representing the array.\n\n<h3>Output Format</h3>\nPrint two space-separated integers representing the indices (0-indexed) of the two numbers that add up to target.",
+  "translations": {
+    "en": {
+      "title": "Two Sum",
+      "description": "Given an array of integers <b>nums</b> and an integer <b>target</b>, return the indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.\n\nYou can return the answer in any order.\n\n<h3>Input Format</h3>\nThe first line contains two integers <b>n</b> (the length of the array) and <b>target</b>.\nThe second line contains <b>n</b> space-separated integers representing the array.\n\n<h3>Output Format</h3>\nPrint two space-separated integers representing the indices (0-indexed) of the two numbers that add up to target."
+    },
+    "es": {
+      "title": "Suma de Dos",
+      "description": "Dado un arreglo de enteros <b>nums</b> y un entero <b>target</b>, devuelve los índices de los dos números que suman el valor objetivo.\n\nPuedes asumir que cada entrada tendría exactamente una solución, y no puedes usar el mismo elemento dos veces.\n\nPuedes devolver la respuesta en cualquier orden.\n\n<h3>Formato de Entrada</h3>\nLa primera línea contiene dos enteros <b>n</b> (la longitud del arreglo) y <b>target</b>.\nLa segunda línea contiene <b>n</b> enteros separados por espacios que representan el arreglo.\n\n<h3>Formato de Salida</h3>\nImprime dos enteros separados por espacios que representan los índices (indexados desde 0) de los dos números que suman el valor objetivo."
+    }
+  },
   "difficulty": "easy",
   "hidden": true,
   "memory_limit_kb": 2048,

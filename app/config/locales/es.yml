@@ -1,4 +1,185 @@
 # Spanish translations
 
 es:
-  hello: "Hola mundo"
+  # Navegación
+  navigation:
+    problems: "Problemas"
+    submissions: "Envíos"
+    contests: "Concursos"
+    sign_out: "Cerrar Sesión"
+    toggle_theme: "Cambiar Tema"
+    view_profile: "Ver Perfil"
+    menu: "Menú"
+  
+  # Página de Lista de Problemas
+  problems:
+    title: "Problemas"
+    search_placeholder: "Buscar problemas por título o ID..."
+    clear: "Limpiar"
+    difficulty: "Dificultad"
+    status: "Estado"
+    tags: "Etiquetas"
+    clear_all_filters: "Limpiar Todos los Filtros"
+    no_problems: "No se encontraron problemas"
+    
+    # Encabezados de tabla
+    table:
+      status: "Estado"
+      title: "Título"
+      acceptance: "Aceptación"
+      difficulty: "Dificultad"
+      tags: "Etiquetas"
+    
+    # Filtros
+    filters:
+      easy: "Fácil"
+      medium: "Medio"
+      hard: "Difícil"
+      solved: "Resuelto"
+      attempted: "Intentado"
+      not_attempted: "No Intentado"
+  
+  # Página de Detalle del Problema
+  problem:
+    description: "Descripción"
+    my_submissions: "Mis Envíos"
+    time_limit: "Límite de Tiempo"
+    memory_limit: "Límite de Memoria"
+    sec: "seg"
+    kb: "KB"
+    function_to_implement: "Función a Implementar"
+    examples: "Ejemplos"
+    example: "Ejemplo"
+    input: "Entrada"
+    output: "Salida"
+    constraints: "Restricciones"
+    accepted: "Aceptados"
+    submissions_count: "Envíos"
+    acceptance_rate: "Tasa de Aceptación"
+    similar_problems: "Problemas Similares"
+    best_submission: "Mejor Envío"
+    ago: "hace"
+    
+    # Banner de concurso
+    contest: "Concurso"
+    active: "Activo"
+    ended: "Finalizado"
+    upcoming: "Próximo"
+    view_contest: "Ver Concurso"
+    standings: "Clasificación"
+    
+    # Editor de código
+    code: "Código"
+    run_code: "Ejecutar Código"
+    reset_code: "Restablecer Código"
+    submit_solution: "Enviar Solución"
+    
+    # Modal de envío
+    success: "¡Éxito!"
+    success_message: "¡Tu solución pasó todos los casos de prueba!"
+    try_again: "Intentar de Nuevo"
+    view_submissions: "Ver Envíos"
+    press_esc: "Presiona"
+    to_close: "para cerrar o"
+    to_view_submissions: "para ver envíos"
+  
+  # Página de Envíos
+  submissions:
+    title: "Mis Envíos"
+    all_submissions: "Todos los Envíos"
+    my_submissions_btn: "Mis Envíos"
+    all_users: "Todos los Usuarios"
+    contest_badge: "Concurso"
+    no_submissions: "No se encontraron envíos"
+    no_submissions_text: "Comienza a resolver problemas para ver tus envíos aquí"
+    
+    # Estado
+    queued: "En Cola"
+    running: "Ejecutando"
+    accepted: "Aceptado"
+    wrong_answer: "Respuesta Incorrecta"
+    time_limit_exceeded: "Límite de Tiempo Excedido"
+    runtime_error: "Error de Ejecución"
+    compilation_error: "Error de Compilación"
+    
+    # Paginación
+    previous: "Anterior"
+    next: "Siguiente"
+    page: "Página"
+    of: "de"
+    
+    # Meta
+    ago: "hace"
+    ms: "ms"
+  
+  # Página de Concursos
+  contests:
+    title: "Concursos"
+    upcoming_contests: "Concursos Próximos"
+    active_contests: "Concursos Activos"
+    past_contests: "Concursos Pasados"
+    no_contests: "No hay concursos disponibles"
+    no_contests_text: "Vuelve más tarde para ver próximos concursos"
+    
+    # Insignias de estado
+    upcoming: "Próximo"
+    active: "Activo"
+    ended: "Finalizado"
+    
+    # Meta
+    starts: "Comienza"
+    started: "Comenzó"
+    ends: "Termina"
+    ended_at: "Terminó"
+    duration: "Duración"
+    minutes: "minutos"
+    
+    # Acciones
+    view_contest: "Ver Concurso"
+    standings: "Clasificación"
+    join_contest: "Unirse al Concurso"
+  
+  # Página de Detalle del Concurso
+  contest:
+    problems: "Problemas"
+    description: "Descripción"
+    rules: "Reglas"
+    participants: "Participantes"
+    time_remaining: "Tiempo Restante"
+    starts_in: "Comienza en"
+    days: "d"
+    hours: "h"
+    mins: "m"
+    secs: "s"
+  
+  # Perfil de Usuario
+  user:
+    profile: "Perfil"
+    problems_solved: "Problemas Resueltos"
+    total_submissions: "Total de Envíos"
+    acceptance_rate: "Tasa de Aceptación"
+    rank: "Rango"
+    joined: "Se unió"
+    solved_problems: "Problemas Resueltos"
+    recent_submissions: "Envíos Recientes"
+  
+  # Común
+  common:
+    save: "Guardar"
+    cancel: "Cancelar"
+    edit: "Editar"
+    delete: "Eliminar"
+    confirm: "¿Estás seguro?"
+    loading: "Cargando..."
+    error: "Error"
+    success: "Éxito"
+  
+  # Tiempo
+  time:
+    ago: "hace"
+    just_now: "justo ahora"
+    seconds: "segundos"
+    minutes: "minutos"
+    hours: "horas"
+    days: "días"
+

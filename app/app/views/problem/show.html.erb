@@ -86,7 +86,7 @@
         <div class="tab-panel active" data-panel="description" data-problem-tabs-target="panel">
           <!-- Problem Header -->
           <div class="problem-detail-header">
-            <h1><%= @problem.id %>. <%= @problem.title %></h1>
+            <h1><%= @problem.id %>. <%= @problem.translated_title %></h1>
 
             <div class="problem-meta">
               <span class="problem-difficulty-<%= @problem.difficulty %>">
@@ -109,7 +109,7 @@
 
           <!-- Problem Description (Markdown) -->
           <div class="problem-content">
-            <%= markdown(@problem.description) %>
+            <%= markdown(@problem.translated_description) %>
           </div>
 
           <!-- Function Signature (for function-based problems) -->

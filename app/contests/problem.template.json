@@ -1,6 +1,14 @@
 {
-  "title": "Problem Title Here",
-  "description": "Problem statement goes here. You can use HTML tags like <b>bold</b>, <code>code</code>, and <h3>headings</h3>.\n\nDescribe the problem clearly:\n- What is the input?\n- What should the output be?\n- What are the constraints?\n\n<h3>Input Format</h3>\nDescribe the input format line by line.\n\n<h3>Output Format</h3>\nDescribe the expected output.",
+  "translations": {
+    "en": {
+      "title": "Problem Title Here",
+      "description": "Problem statement goes here. You can use HTML tags like <b>bold</b>, <code>code</code>, and <h3>headings</h3>.\n\nDescribe the problem clearly:\n- What is the input?\n- What should the output be?\n- What are the constraints?\n\n<h3>Input Format</h3>\nDescribe the input format line by line.\n\n<h3>Output Format</h3>\nDescribe the expected output."
+    },
+    "es": {
+      "title": "Título del Problema Aquí",
+      "description": "El enunciado del problema va aquí. Puedes usar etiquetas HTML como <b>negrita</b>, <code>código</code>, y <h3>encabezados</h3>.\n\nDescribe el problema claramente:\n- ¿Cuál es la entrada?\n- ¿Cuál debe ser la salida?\n- ¿Cuáles son las restricciones?\n\n<h3>Formato de Entrada</h3>\nDescribe el formato de entrada línea por línea.\n\n<h3>Formato de Salida</h3>\nDescribe la salida esperada."
+    }
+  },
   "difficulty": "easy",
   "hidden": true,
   "memory_limit_kb": 2048,

@@ -1,16 +1,16 @@
 <div class="page-container" data-controller="problem-search problem-filter">
   <!-- Header with Search -->
   <div class="problem-list-header">
-    <h1 class="problem-list-title-new">Problems</h1>
+    <h1 class="problem-list-title-new"><%= t('problems.title') %></h1>
     
     <div class="problem-search-box">
       <input 
         type="text" 
-        placeholder="Search problems by title or ID..." 
+        placeholder="<%= t('problems.search_placeholder') %>" 
         data-problem-search-target="input"
         data-action="input->problem-search#search">
       <button class="search-clear" data-action="click->problem-search#clear">
-        Clear
+        <%= t('problems.clear') %>
       </button>
     </div>
   </div>
@@ -20,7 +20,7 @@
     <!-- Left Sidebar for Filters -->
     <aside class="sidebar">
       <div class="sidebar-section">
-        <h3 class="sidebar-title">Difficulty</h3>
+        <h3 class="sidebar-title"><%= t('problems.difficulty') %></h3>
         <div class="sidebar-filter-group">
           <% ['easy', 'medium', 'hard'].each do |diff| %>
             <label class="sidebar-filter-item">
@@ -29,7 +29,7 @@
                 value="<%= diff %>"
                 data-problem-filter-target="difficultyCheckbox"
                 data-action="change->problem-filter#filter">
-              <span><%= diff.capitalize %></span>
+              <span><%= t("problems.filters.#{diff}") %></span>
             </label>
           <% end %>
         </div>
@@ -38,7 +38,7 @@
       <div class="sidebar-divider"></div>
       
       <div class="sidebar-section">
-        <h3 class="sidebar-title">Status</h3>
+        <h3 class="sidebar-title"><%= t('problems.status') %></h3>
         <div class="sidebar-filter-group">
           <label class="sidebar-filter-item">
             <input 
@@ -46,7 +46,7 @@
               value="solved"
               data-problem-filter-target="statusCheckbox"
               data-action="change->problem-filter#filter">
-            <span>Solved</span>
+            <span><%= t('problems.filters.solved') %></span>
           </label>
           <label class="sidebar-filter-item">
             <input 
@@ -54,7 +54,7 @@
               value="attempted"
               data-problem-filter-target="statusCheckbox"
               data-action="change->problem-filter#filter">
-            <span>Attempted</span>
+            <span><%= t('problems.filters.attempted') %></span>
           </label>
           <label class="sidebar-filter-item">
             <input 
@@ -62,7 +62,7 @@
               value="unattempted"
               data-problem-filter-target="statusCheckbox"
               data-action="change->problem-filter#filter">
-            <span>Not Attempted</span>
+            <span><%= t('problems.filters.not_attempted') %></span>
           </label>
         </div>
       </div>
@@ -70,7 +70,7 @@
       <div class="sidebar-divider"></div>
       
       <div class="sidebar-section">
-        <h3 class="sidebar-title">Tags</h3>
+        <h3 class="sidebar-title"><%= t('problems.tags') %></h3>
         <div class="sidebar-tag-list">
           <% @all_tags.each do |tag| %>
             <label class="sidebar-tag">
@@ -93,7 +93,7 @@
         data-problem-filter-target="clearButton"
         data-action="click->problem-filter#clearAll"
         style="display: none;">
-        Clear All Filters
+        <%= t('problems.clear_all_filters') %>
       </button>
     </aside>
     
@@ -102,11 +102,11 @@
       <table class="problems-table">
         <thead>
           <tr>
-            <th class="center" style="width: 60px;">Status</th>
-            <th>Title</th>
-            <th class="center hide-mobile sortable" style="width: 120px;">Acceptance</th>
-            <th class="center" style="width: 100px;">Difficulty</th>
-            <th class="hide-mobile">Tags</th>
+            <th class="center" style="width: 60px;"><%= t('problems.table.status') %></th>
+            <th><%= t('problems.table.title') %></th>
+            <th class="center hide-mobile sortable" style="width: 120px;"><%= t('problems.table.acceptance') %></th>
+            <th class="center" style="width: 100px;"><%= t('problems.table.difficulty') %></th>
+            <th class="hide-mobile"><%= t('problems.table.tags') %></th>
           </tr>
         </thead>
         <tbody>
@@ -155,7 +155,7 @@
               
               <td class="problem-title-cell">
                 <%= link_to problem_path(problem), data: { turbo: false } do %>
-                  <strong><%= problem.id %>.</strong> <%= problem.title %>
+                  <strong><%= problem.id %>.</strong> <%= problem.translated_title %>
                 <% end %>
               </td>
               
@@ -167,7 +167,7 @@
               
               <td class="center">
                 <span class="problem-difficulty-<%= problem.difficulty %>">
-                  <%= problem.difficulty.capitalize %>
+                  <%= t("problems.filters.#{problem.difficulty}") %>
                 </span>
               </td>
               
@@ -188,7 +188,7 @@
       
       <% if @problems.empty? %>
         <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
-          <p style="font-size: 1.2em;">No problems found</p>
+          <p style="font-size: 1.2em;"><%= t('problems.no_problems') %></p>
         </div>
       <% end %>
     </div>

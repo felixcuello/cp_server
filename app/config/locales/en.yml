@@ -28,4 +28,185 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  # Navigation
+  navigation:
+    problems: "Problems"
+    submissions: "Submissions"
+    contests: "Contests"
+    sign_out: "Sign Out"
+    toggle_theme: "Toggle Theme"
+    view_profile: "View Profile"
+    menu: "Menu"
+  
+  # Problem List Page
+  problems:
+    title: "Problems"
+    search_placeholder: "Search problems by title or ID..."
+    clear: "Clear"
+    difficulty: "Difficulty"
+    status: "Status"
+    tags: "Tags"
+    clear_all_filters: "Clear All Filters"
+    no_problems: "No problems found"
+    
+    # Table headers
+    table:
+      status: "Status"
+      title: "Title"
+      acceptance: "Acceptance"
+      difficulty: "Difficulty"
+      tags: "Tags"
+    
+    # Filters
+    filters:
+      easy: "Easy"
+      medium: "Medium"
+      hard: "Hard"
+      solved: "Solved"
+      attempted: "Attempted"
+      not_attempted: "Not Attempted"
+  
+  # Problem Detail Page
+  problem:
+    description: "Description"
+    my_submissions: "My Submissions"
+    time_limit: "Time Limit"
+    memory_limit: "Memory Limit"
+    sec: "sec"
+    kb: "KB"
+    function_to_implement: "Function to Implement"
+    examples: "Examples"
+    example: "Example"
+    input: "Input"
+    output: "Output"
+    constraints: "Constraints"
+    accepted: "Accepted"
+    submissions_count: "Submissions"
+    acceptance_rate: "Acceptance Rate"
+    similar_problems: "Similar Problems"
+    best_submission: "Best Submission"
+    ago: "ago"
+    
+    # Contest banner
+    contest: "Contest"
+    active: "Active"
+    ended: "Ended"
+    upcoming: "Upcoming"
+    view_contest: "View Contest"
+    standings: "Standings"
+    
+    # Code editor
+    code: "Code"
+    run_code: "Run Code"
+    reset_code: "Reset Code"
+    submit_solution: "Submit Solution"
+    
+    # Submission modal
+    success: "Success!"
+    success_message: "Your solution passed all test cases!"
+    try_again: "Try Again"
+    view_submissions: "View Submissions"
+    press_esc: "Press"
+    to_close: "to close or"
+    to_view_submissions: "to view submissions"
+  
+  # Submissions Page
+  submissions:
+    title: "My Submissions"
+    all_submissions: "All Submissions"
+    my_submissions_btn: "My Submissions"
+    all_users: "All Users"
+    contest_badge: "Contest"
+    no_submissions: "No submissions found"
+    no_submissions_text: "Start solving problems to see your submissions here"
+    
+    # Status
+    queued: "Queued"
+    running: "Running"
+    accepted: "Accepted"
+    wrong_answer: "Wrong Answer"
+    time_limit_exceeded: "Time Limit Exceeded"
+    runtime_error: "Runtime Error"
+    compilation_error: "Compilation Error"
+    
+    # Pagination
+    previous: "Previous"
+    next: "Next"
+    page: "Page"
+    of: "of"
+    
+    # Meta
+    ago: "ago"
+    ms: "ms"
+  
+  # Contests Page
+  contests:
+    title: "Contests"
+    upcoming_contests: "Upcoming Contests"
+    active_contests: "Active Contests"
+    past_contests: "Past Contests"
+    no_contests: "No contests available"
+    no_contests_text: "Check back later for upcoming contests"
+    
+    # Status badges
+    upcoming: "Upcoming"
+    active: "Active"
+    ended: "Ended"
+    
+    # Meta
+    starts: "Starts"
+    started: "Started"
+    ends: "Ends"
+    ended_at: "Ended"
+    duration: "Duration"
+    minutes: "minutes"
+    
+    # Actions
+    view_contest: "View Contest"
+    standings: "Standings"
+    join_contest: "Join Contest"
+  
+  # Contest Detail Page
+  contest:
+    problems: "Problems"
+    description: "Description"
+    rules: "Rules"
+    participants: "Participants"
+    time_remaining: "Time Remaining"
+    starts_in: "Starts in"
+    days: "d"
+    hours: "h"
+    mins: "m"
+    secs: "s"
+  
+  # User Profile
+  user:
+    profile: "Profile"
+    problems_solved: "Problems Solved"
+    total_submissions: "Total Submissions"
+    acceptance_rate: "Acceptance Rate"
+    rank: "Rank"
+    joined: "Joined"
+    solved_problems: "Solved Problems"
+    recent_submissions: "Recent Submissions"
+  
+  # Common
+  common:
+    save: "Save"
+    cancel: "Cancel"
+    edit: "Edit"
+    delete: "Delete"
+    confirm: "Are you sure?"
+    loading: "Loading..."
+    error: "Error"
+    success: "Success"
+  
+  # Time
+  time:
+    ago: "ago"
+    just_now: "just now"
+    seconds: "seconds"
+    minutes: "minutes"
+    hours: "hours"
+    days: "days"
+

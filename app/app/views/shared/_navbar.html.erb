@@ -105,21 +105,21 @@
         <!-- Language Switcher (mobile) -->
         <div class="drawer-language-section">
           <div class="drawer-section-title">Language / Idioma</div>
-          <div class="drawer-language-buttons">
-            <%= form_with url: switch_locale_path(:en), method: :post, class: "language-form-mobile" do %>
-              <button type="submit" class="drawer-language-button <%= 'active' if I18n.locale == :en %>">
-                <span class="flag-icon-large">🇺🇸</span>
-                <span>English</span>
-              </button>
-            <% end %>
-            
+          <% if I18n.locale == :en %>
             <%= form_with url: switch_locale_path(:es), method: :post, class: "language-form-mobile" do %>
-              <button type="submit" class="drawer-language-button <%= 'active' if I18n.locale == :es %>">
+              <button type="submit" class="drawer-language-button active">
                 <span class="flag-icon-large">🇦🇷</span>
-                <span>Español</span>
+                <span>Cambiar a Español</span>
               </button>
             <% end %>
-          </div>
+          <% else %>
+            <%= form_with url: switch_locale_path(:en), method: :post, class: "language-form-mobile" do %>
+              <button type="submit" class="drawer-language-button active">
+                <span class="flag-icon-large">🇺🇸</span>
+                <span>Switch to English</span>
+              </button>
+            <% end %>
+          <% end %>
         </div>
         
         <div class="drawer-divider"></div>

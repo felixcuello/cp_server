@@ -378,12 +378,32 @@ namespace :contests do
     end
 
     # Add constraints
-    data["constraints"]&.each_with_index do |constraint_description, sort_order|
-      Constraint.create!(
+    constraints = if data["translations"] && data["translations"]["en"]["constraints"]
+                    data["translations"]["en"]["constraints"]
+                  else
+                    data["constraints"] || []
+                  end
+
+    constraints.each_with_index do |constraint_description, sort_order|
+      constraint = Constraint.create!(
         problem: problem,
         description: constraint_description,
         sort_order: sort_order
       )
+
+      # Create constraint translations if new format
+      if data["translations"]
+        data["translations"].each do |locale, translation_data|
+          constraint_descriptions = translation_data["constraints"] || []
+          if constraint_descriptions[sort_order].present?
+            ConstraintTranslation.create!(
+              constraint: constraint,
+              locale: locale,
+              description: constraint_descriptions[sort_order]
+            )
+          end
+        end
+      end
     end
 
     puts "      ✅ Problem '#{title}' saved successfully"

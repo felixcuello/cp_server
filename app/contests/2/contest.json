@@ -1,7 +1,16 @@
 {
-  "name": "Advanced Algorithms Contest",
-  "description": "A challenging contest featuring advanced algorithmic problems. Recommended for experienced competitive programmers.",
-  "rules": "Standard ICPC rules apply:\n- Each wrong submission adds a 10-minute penalty\n- Problems are ranked by number of accepted submissions\n- Ties are broken by total time (submission time + penalties)\n- No external resources allowed during the contest",
+  "translations": {
+    "en": {
+      "name": "Advanced Algorithms Contest",
+      "description": "A challenging contest featuring advanced algorithmic problems. Recommended for experienced competitive programmers.",
+      "rules": "Standard ICPC rules apply:\n- Each wrong submission adds a 10-minute penalty\n- Problems are ranked by number of accepted submissions\n- Ties are broken by total time (submission time + penalties)\n- No external resources allowed during the contest"
+    },
+    "es": {
+      "name": "Concurso de Algoritmos Avanzados",
+      "description": "Un concurso desafiante que presenta problemas algorítmicos avanzados. Recomendado para programadores competitivos con experiencia.",
+      "rules": "Se aplican las reglas estándar de ICPC:\n- Cada envío incorrecto agrega una penalización de 10 minutos\n- Los problemas se clasifican por número de envíos aceptados\n- Los empates se resuelven por tiempo total (tiempo de envío + penalizaciones)\n- No se permiten recursos externos durante el concurso"
+    }
+  },
   "start_time": "2026-01-15T14:00:00Z",
   "end_time": "2026-01-15T17:00:00Z",
   "penalty_minutes": 10

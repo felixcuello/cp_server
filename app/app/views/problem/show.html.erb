@@ -73,11 +73,11 @@
         <!-- Tabs -->
         <div class="problem-tabs">
           <button class="tab active" data-tab="description" data-problem-tabs-target="tab" data-action="click->problem-tabs#switch">
-            Description
+            <%= t('problem.description') %>
           </button>
           <% if @user_submissions&.any? %>
             <button class="tab" data-tab="submissions" data-problem-tabs-target="tab" data-action="click->problem-tabs#switch">
-              My Submissions
+              <%= t('problem.my_submissions') %>
             </button>
           <% end %>
         </div>
@@ -90,7 +90,7 @@
 
             <div class="problem-meta">
               <span class="problem-difficulty-<%= @problem.difficulty %>">
-                <%= @problem.difficulty.capitalize %>
+                <%= t("problems.filters.#{@problem.difficulty}") %>
               </span>
 
               <% @problem.tags.each do |tag| %>
@@ -98,11 +98,11 @@
               <% end %>
 
               <div class="meta-item">
-                <strong>Time Limit:</strong> <%= @problem.time_limit_sec %> sec
+                <strong><%= t('problem.time_limit') %>:</strong> <%= @problem.time_limit_sec %> <%= t('problem.sec') %>
               </div>
 
               <div class="meta-item">
-                <strong>Memory Limit:</strong> <%= @problem.memory_limit_kb %> KB
+                <strong><%= t('problem.memory_limit') %>:</strong> <%= @problem.memory_limit_kb %> <%= t('problem.kb') %>
               </div>
             </div>
           </div>
@@ -115,7 +115,7 @@
           <!-- Function Signature (for function-based problems) -->
           <% if @problem.function_based? %>
             <div class="function-signature-section">
-              <h3>Function to Implement</h3>
+              <h3><%= t('problem.function_to_implement') %></h3>
               <% if @problem.problem_templates.first&.function_signature.present? %>
                 <div class="function-signature-code">
                   <code><%= @problem.problem_templates.first.function_signature %></code>
@@ -126,12 +126,12 @@
 
           <!-- Examples -->
           <div class="examples-section">
-            <h2>Examples</h2>
+            <h2><%= t('problem.examples') %></h2>
 
             <% @problem.examples.where(is_hidden: false).each_with_index do |example, idx| %>
               <div class="example-card">
                 <div class="example-header">
-                  <h4>Example <%= idx + 1 %></h4>
+                  <h4><%= t('problem.example') %> <%= idx + 1 %></h4>
                 </div>
 
                 <div class="example-content">
@@ -143,19 +143,19 @@
                       </div>
                     <% else %>
                       <div class="example-block">
-                        <h5>Input:</h5>
+                        <h5><%= t('problem.input') %>:</h5>
                         <div class="example-code"><%= example.input %></div>
                       </div>
                     <% end %>
                   <% else %>
                     <!-- STDIN/STDOUT: Show input and output -->
                     <div class="example-block">
-                      <h5>Input:</h5>
+                      <h5><%= t('problem.input') %>:</h5>
                       <div class="example-code"><%= example.input %></div>
                     </div>
 
                     <div class="example-block">
-                      <h5>Output:</h5>
+                      <h5><%= t('problem.output') %>:</h5>
                       <div class="example-code"><%= example.output %></div>
                     </div>
                   <% end %>
@@ -166,10 +166,10 @@
 
           <!-- Constraints -->
           <div class="problem-content">
-            <h2>Constraints</h2>
+            <h2><%= t('problem.constraints') %></h2>
             <ul>
-              <% @problem.constraints.each do |constraint| %>
-                <li><%= constraint.description %></li>
+              <% @problem.constraints.order(:sort_order).each do |constraint| %>
+                <li><%= constraint.translated_description %></li>
               <% end %>
             </ul>
           </div>
@@ -177,15 +177,15 @@
           <!-- Problem Statistics -->
           <div class="problem-stats">
             <div class="stat-item">
-              <div class="stat-label">Accepted</div>
+              <div class="stat-label"><%= t('problem.accepted') %></div>
               <div class="stat-value"><%= @total_accepted %></div>
             </div>
             <div class="stat-item">
-              <div class="stat-label">Submissions</div>
+              <div class="stat-label"><%= t('problem.submissions_count') %></div>
               <div class="stat-value"><%= @total_submissions %></div>
             </div>
             <div class="stat-item">
-              <div class="stat-label">Acceptance Rate</div>
+              <div class="stat-label"><%= t('problem.acceptance_rate') %></div>
               <div class="stat-value"><%= @acceptance_rate %>%</div>
             </div>
           </div>
@@ -193,14 +193,14 @@
           <!-- Similar Problems -->
           <% if @similar_problems.any? %>
             <div class="similar-problems">
-              <h3>Similar Problems</h3>
+              <h3><%= t('problem.similar_problems') %></h3>
               <% @similar_problems.each do |similar| %>
                 <div class="similar-problem-item" onclick="window.location='<%= problem_path(similar) %>'">
                   <%= link_to problem_path(similar), data: { turbo: false } do %>
-                    <%= similar.id %>. <%= similar.title %>
+                    <%= similar.id %>. <%= similar.translated_title %>
                   <% end %>
                   <span class="problem-difficulty-<%= similar.difficulty %>">
-                    <%= similar.difficulty.capitalize %>
+                    <%= t("problems.filters.#{similar.difficulty}") %>
                   </span>
                 </div>
               <% end %>
@@ -211,12 +211,12 @@
         <!-- Submissions Tab -->
         <% if @user_submissions&.any? %>
           <div class="tab-panel" data-panel="submissions" data-problem-tabs-target="panel">
-            <h2>My Submissions</h2>
+            <h2><%= t('problem.my_submissions') %></h2>
 
             <% if @best_submission %>
               <div style="padding: 15px; background-color: var(--status-accepted); color: white; border-radius: 8px; margin-bottom: 20px;">
-                <strong>✓ Best Submission:</strong>
-                <%= @best_submission.time_used.round(3) %> sec in <%= @best_submission.programming_language.name %>
+                <strong>✓ <%= t('problem.best_submission') %>:</strong>
+                <%= @best_submission.time_used.round(3) %> <%= t('problem.sec') %> in <%= @best_submission.programming_language.name %>
               </div>
             <% end %>
 
@@ -230,11 +230,11 @@
                       </span>
                       <span class="submission-lang"><%= submission.programming_language.name %></span>
                       <span class="submission-time">
-                        <%= time_ago_in_words(submission.created_at) %> ago
+                        <%= time_ago_in_words(submission.created_at) %> <%= t('problem.ago') %>
                       </span>
                     </div>
                     <% if submission.time_used %>
-                      <div><%= submission.time_used.round(3) %> sec</div>
+                      <div><%= submission.time_used.round(3) %> <%= t('problem.sec') %></div>
                     <% end %>
                   </div>
                 <% end %>
@@ -258,7 +258,7 @@
           <!-- Editor Header -->
           <div class="editor-header">
             <div class="editor-header-left">
-              <span style="font-weight: 600; color: var(--text-heading);">Code</span>
+              <span style="font-weight: 600; color: var(--text-heading);"><%= t('problem.code') %></span>
               <select data-code-editor-target="languageSelect" data-action="change->code-editor#changeLanguage">
                 <% @languages.each_with_index do |language, index| %>
                   <option value="<%= language.id %>" data-lang="<%= language.name.downcase %>" <%= 'selected' if index == 0 %>>
@@ -269,13 +269,13 @@
             </div>
             <div class="editor-header-actions">
               <button class="btn-test" data-action="click->code-editor#test">
-                ▶ Run Code
+                ▶ <%= t('problem.run_code') %>
               </button>
               <button class="btn-secondary" data-action="click->code-editor#resetCode">
-                🔄 Reset Code
+                🔄 <%= t('problem.reset_code') %>
               </button>
               <button class="btn-primary" data-action="click->code-editor#submit">
-                Submit Solution
+                <%= t('problem.submit_solution') %>
               </button>
             </div>
           </div>

@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_07_092044) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_07_204737) do
+  create_table "constraint_translations", charset: "utf8", force: :cascade do |t|
+    t.bigint "constraint_id", null: false
+    t.string "locale", null: false
+    t.text "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["constraint_id", "locale"], name: "index_constraint_translations_on_constraint_id_and_locale", unique: true
+    t.index ["constraint_id"], name: "index_constraint_translations_on_constraint_id"
+    t.index ["locale"], name: "index_constraint_translations_on_locale"
+  end
+
   create_table "constraints", charset: "utf8", force: :cascade do |t|
     t.bigint "problem_id", null: false
     t.text "description", null: false
@@ -206,6 +217,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_07_092044) do
     t.index ["role"], name: "index_users_on_role"
   end
 
+  add_foreign_key "constraint_translations", "constraints"
   add_foreign_key "constraints", "problems"
   add_foreign_key "contest_participants", "contests"
   add_foreign_key "contest_participants", "users"

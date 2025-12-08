@@ -70,9 +70,9 @@ es:
     
     # Editor de código
     code: "Código"
-    run_code: "Ejecutar Código"
+    run_code: "Ejecutar"
     reset_code: "Restablecer Código"
-    submit_solution: "Enviar Solución"
+    submit_solution: "Enviar"
     
     # Modal de envío
     success: "¡Éxito!"

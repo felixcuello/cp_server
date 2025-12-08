@@ -1,6 +1,14 @@
 {
-  "title": "Median of Two Sorted Arrays",
-  "description": "Given two sorted arrays <b>nums1</b> and <b>nums2</b> of size <b>m</b> and <b>n</b> respectively, return the median of the two sorted arrays.\n\nThe overall run time complexity should be O(log(m+n)).\n\n<h3>Input Format</h3>\nThe first line contains two integers <b>m</b> and <b>n</b> (the sizes of the two arrays).\nThe second line contains <b>m</b> space-separated integers representing nums1.\nThe third line contains <b>n</b> space-separated integers representing nums2.\n\n<h3>Output Format</h3>\nPrint the median as a floating-point number with 1 decimal place.",
+  "translations": {
+    "en": {
+      "title": "Median of Two Sorted Arrays",
+      "description": "Given two sorted arrays <b>nums1</b> and <b>nums2</b> of size <b>m</b> and <b>n</b> respectively, return the median of the two sorted arrays.\n\nThe overall run time complexity should be O(log(m+n)).\n\n<h3>Input Format</h3>\nThe first line contains two integers <b>m</b> and <b>n</b> (the sizes of the two arrays).\nThe second line contains <b>m</b> space-separated integers representing nums1.\nThe third line contains <b>n</b> space-separated integers representing nums2.\n\n<h3>Output Format</h3>\nPrint the median as a floating-point number with 1 decimal place."
+    },
+    "es": {
+      "title": "Mediana de Dos Arreglos Ordenados",
+      "description": "Dados dos arreglos ordenados <b>nums1</b> y <b>nums2</b> de tamaño <b>m</b> y <b>n</b> respectivamente, devuelve la mediana de los dos arreglos ordenados.\n\nLa complejidad temporal total debe ser O(log(m+n)).\n\n<h3>Formato de Entrada</h3>\nLa primera línea contiene dos enteros <b>m</b> y <b>n</b> (los tamaños de los dos arreglos).\nLa segunda línea contiene <b>m</b> enteros separados por espacios que representan nums1.\nLa tercera línea contiene <b>n</b> enteros separados por espacios que representan nums2.\n\n<h3>Formato de Salida</h3>\nImprime la mediana como un número de punto flotante con 1 decimal."
+    }
+  },
   "difficulty": "hard",
   "hidden": true,
   "memory_limit_kb": 2048,

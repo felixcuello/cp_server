@@ -16,9 +16,9 @@ class LocaleController < ApplicationController
       end
       
       # Redirect back to the page they came from, or home if no referrer
-      redirect_back(fallback_location: root_path)
+      redirect_back(fallback_location: home_path)
     else
-      redirect_to root_path, alert: 'Invalid locale'
+      redirect_to home_path, alert: 'Invalid locale'
     end
   end
 end

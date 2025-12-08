@@ -5,6 +5,9 @@ class User < ApplicationRecord
   devise :database_authenticatable,
          :rememberable, :validatable, :timeoutable
 
+  # Locales
+  LOCALES = %w[en es].freeze
+
   # Roles enum: user (0), admin (1)
   enum :role, {
     user: 0,
@@ -20,8 +23,15 @@ class User < ApplicationRecord
   has_many :contests, through: :contest_participants
   has_many :contest_submissions, -> { where.not(contest_id: nil) }, class_name: 'Submission'
 
+  validates :locale, inclusion: { in: LOCALES }, allow_nil: true
+
   # Helper method to check if user is admin
   def admin?
     role == 'admin'
+  end
+
+  # Override locale getter to ensure we always have a valid locale
+  def locale
+    super.presence || I18n.default_locale.to_s
   end
 end

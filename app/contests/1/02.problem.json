@@ -1,6 +1,14 @@
 {
-  "title": "Palindrome Number",
-  "description": "Given an integer <b>x</b>, return true if <b>x</b> is a palindrome, and false otherwise.\n\nAn integer is a palindrome when it reads the same forward and backward.\n\nFor example, 121 is a palindrome while 123 is not.\n\n<h3>Input Format</h3>\nA single integer <b>x</b>.\n\n<h3>Output Format</h3>\nPrint <code>true</code> if the number is a palindrome, otherwise print <code>false</code>.",
+  "translations": {
+    "en": {
+      "title": "Palindrome Number",
+      "description": "Given an integer <b>x</b>, return true if <b>x</b> is a palindrome, and false otherwise.\n\nAn integer is a palindrome when it reads the same forward and backward.\n\nFor example, 121 is a palindrome while 123 is not.\n\n<h3>Input Format</h3>\nA single integer <b>x</b>.\n\n<h3>Output Format</h3>\nPrint <code>true</code> if the number is a palindrome, otherwise print <code>false</code>."
+    },
+    "es": {
+      "title": "Número Palíndromo",
+      "description": "Dado un entero <b>x</b>, devuelve true si <b>x</b> es un palíndromo, y false en caso contrario.\n\nUn entero es un palíndromo cuando se lee igual de izquierda a derecha que de derecha a izquierda.\n\nPor ejemplo, 121 es un palíndromo mientras que 123 no lo es.\n\n<h3>Formato de Entrada</h3>\nUn único entero <b>x</b>.\n\n<h3>Formato de Salida</h3>\nImprime <code>true</code> si el número es un palíndromo, de lo contrario imprime <code>false</code>."
+    }
+  },
   "difficulty": "easy",
   "hidden": true,
   "memory_limit_kb": 1024,

@@ -1,7 +1,16 @@
 {
-  "name": "Weekly Contest #1",
-  "description": "A beginner-friendly programming contest with easy to medium problems. Perfect for practicing fundamental algorithms and data structures.",
-  "rules": "Standard ICPC rules apply:\n- Each wrong submission adds a 20-minute penalty\n- Problems are ranked by number of accepted submissions\n- Ties are broken by total time (submission time + penalties)\n- You can submit solutions in any of the supported languages",
+  "translations": {
+    "en": {
+      "name": "Weekly Contest #1",
+      "description": "A beginner-friendly programming contest with easy to medium problems. Perfect for practicing fundamental algorithms and data structures.",
+      "rules": "Standard ICPC rules apply:\n- Each wrong submission adds a 20-minute penalty\n- Problems are ranked by number of accepted submissions\n- Ties are broken by total time (submission time + penalties)\n- You can submit solutions in any of the supported languages"
+    },
+    "es": {
+      "name": "Concurso Semanal #1",
+      "description": "Un concurso de programación para principiantes con problemas de fácil a medio. Perfecto para practicar algoritmos y estructuras de datos fundamentales.",
+      "rules": "Se aplican las reglas estándar de ICPC:\n- Cada envío incorrecto agrega una penalización de 20 minutos\n- Los problemas se clasifican por número de envíos aceptados\n- Los empates se resuelven por tiempo total (tiempo de envío + penalizaciones)\n- Puedes enviar soluciones en cualquiera de los lenguajes soportados"
+    }
+  },
   "start_time": "2025-12-01T10:00:00Z",
   "end_time": "2025-12-01T12:00:00Z",
   "penalty_minutes": 20

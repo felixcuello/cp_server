@@ -1,0 +1,16 @@
+<!-- Language Switcher Component -->
+<div class="language-switcher">
+  <% if I18n.locale == :en %>
+    <%= form_with url: switch_locale_path(:es), method: :post, class: "language-form" do %>
+      <button type="submit" class="flag-button" title="Cambiar a Español">
+        <span class="flag-icon">🇦🇷</span>
+      </button>
+    <% end %>
+  <% else %>
+    <%= form_with url: switch_locale_path(:en), method: :post, class: "language-form" do %>
+      <button type="submit" class="flag-button" title="Switch to English">
+        <span class="flag-icon">🇺🇸</span>
+      </button>
+    <% end %>
+  <% end %>
+</div>

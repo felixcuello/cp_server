@@ -137,7 +137,12 @@ namespace :contests do
   private
 
   def create_or_find_contest(data)
-    name = data["name"]
+    # Support both old format (direct fields) and new format (translations)
+    if data["translations"]
+      name = data["translations"]["en"]["name"]
+    else
+      name = data["name"]
+    end
 
     existing_contest = Contest.find_by(name: name)
     if existing_contest
@@ -147,14 +152,37 @@ namespace :contests do
 
     puts "   ✨ Creating contest '#{name}'"
 
-    contest = Contest.create!(
-      name: name,
-      description: data["description"],
-      rules: data["rules"],
-      start_time: parse_time(data["start_time"]),
-      end_time: parse_time(data["end_time"]),
-      penalty_minutes: data["penalty_minutes"] || 0
-    )
+    # Handle old format
+    if data["translations"]
+      contest = Contest.create!(
+        name: name,
+        description: data["translations"]["en"]["description"],
+        rules: data["translations"]["en"]["rules"],
+        start_time: parse_time(data["start_time"]),
+        end_time: parse_time(data["end_time"]),
+        penalty_minutes: data["penalty_minutes"] || 0
+      )
+
+      # Create translations
+      data["translations"].each do |locale, translation_data|
+        ContestTranslation.create!(
+          contest: contest,
+          locale: locale,
+          name: translation_data["name"],
+          description: translation_data["description"],
+          rules: translation_data["rules"]
+        )
+      end
+    else
+      contest = Contest.create!(
+        name: name,
+        description: data["description"],
+        rules: data["rules"],
+        start_time: parse_time(data["start_time"]),
+        end_time: parse_time(data["end_time"]),
+        penalty_minutes: data["penalty_minutes"] || 0
+      )
+    end
 
     puts "   ✅ Contest created (ID: #{contest.id})"
     contest
@@ -164,7 +192,12 @@ namespace :contests do
   end
 
   def create_or_update_contest(data)
-    name = data["name"]
+    # Support both old format (direct fields) and new format (translations)
+    if data["translations"]
+      name = data["translations"]["en"]["name"]
+    else
+      name = data["name"]
+    end
 
     contest = Contest.find_by(name: name)
 
@@ -175,14 +208,38 @@ namespace :contests do
       contest = Contest.new
     end
 
-    contest.update!(
-      name: name,
-      description: data["description"],
-      rules: data["rules"],
-      start_time: parse_time(data["start_time"]),
-      end_time: parse_time(data["end_time"]),
-      penalty_minutes: data["penalty_minutes"] || 0
-    )
+    # Handle old format
+    if data["translations"]
+      contest.update!(
+        name: name,
+        description: data["translations"]["en"]["description"],
+        rules: data["translations"]["en"]["rules"],
+        start_time: parse_time(data["start_time"]),
+        end_time: parse_time(data["end_time"]),
+        penalty_minutes: data["penalty_minutes"] || 0
+      )
+
+      # Destroy and recreate translations
+      contest.translations.destroy_all
+      data["translations"].each do |locale, translation_data|
+        ContestTranslation.create!(
+          contest: contest,
+          locale: locale,
+          name: translation_data["name"],
+          description: translation_data["description"],
+          rules: translation_data["rules"]
+        )
+      end
+    else
+      contest.update!(
+        name: name,
+        description: data["description"],
+        rules: data["rules"],
+        start_time: parse_time(data["start_time"]),
+        end_time: parse_time(data["end_time"]),
+        penalty_minutes: data["penalty_minutes"] || 0
+      )
+    end
 
     puts "   ✅ Contest saved (ID: #{contest.id})"
     contest
@@ -193,7 +250,13 @@ namespace :contests do
 
   def create_problem_for_contest(file, contest)
     data = JSON.parse(File.read(file))
-    title = data["title"]
+    
+    # Support both old format (direct fields) and new format (translations)
+    if data["translations"]
+      title = data["translations"]["en"]["title"]
+    else
+      title = data["title"]
+    end
 
     problem = Problem.find_by(title: title)
     if problem
@@ -209,7 +272,13 @@ namespace :contests do
 
   def create_or_update_problem_for_contest(file, contest)
     data = JSON.parse(File.read(file))
-    title = data["title"]
+    
+    # Support both old format (direct fields) and new format (translations)
+    if data["translations"]
+      title = data["translations"]["en"]["title"]
+    else
+      title = data["title"]
+    end
 
     problem = Problem.find_by(title: title)
 
@@ -221,6 +290,7 @@ namespace :contests do
       problem.problem_tags.destroy_all
       problem.problem_templates.destroy_all
       problem.problem_testers.destroy_all
+      problem.translations.destroy_all
     else
       puts "   ✨ Creating problem '#{title}'"
       problem = Problem.new
@@ -256,9 +326,18 @@ namespace :contests do
     # Get testing_mode from JSON, default to stdin_stdout
     testing_mode = data["testing_mode"] || "stdin_stdout"
 
+    # Support both old format (direct fields) and new format (translations)
+    if data["translations"]
+      title = data["translations"]["en"]["title"]
+      description = data["translations"]["en"]["description"]
+    else
+      title = data["title"]
+      description = data["description"]
+    end
+
     problem.update!(
-      title: data["title"],
-      description: data["description"],
+      title: title,
+      description: description,
       difficulty: data["difficulty"].to_sym,
       memory_limit_kb: memory_limit_kb,
       time_limit_sec: data["time_limit_sec"].to_i,
@@ -266,6 +345,19 @@ namespace :contests do
       testing_mode: testing_mode,
       contest: contest
     )
+
+    # Create translations if new format
+    if data["translations"]
+      problem.translations.destroy_all
+      data["translations"].each do |locale, translation_data|
+        ProblemTranslation.create!(
+          problem: problem,
+          locale: locale,
+          title: translation_data["title"],
+          description: translation_data["description"]
+        )
+      end
+    end
 
     # Add tags
     data["tags"]&.each do |tag_name|
@@ -286,15 +378,35 @@ namespace :contests do
     end
 
     # Add constraints
-    data["constraints"]&.each_with_index do |constraint_description, sort_order|
-      Constraint.create!(
+    constraints = if data["translations"] && data["translations"]["en"]["constraints"]
+                    data["translations"]["en"]["constraints"]
+                  else
+                    data["constraints"] || []
+                  end
+
+    constraints.each_with_index do |constraint_description, sort_order|
+      constraint = Constraint.create!(
         problem: problem,
         description: constraint_description,
         sort_order: sort_order
       )
+
+      # Create constraint translations if new format
+      if data["translations"]
+        data["translations"].each do |locale, translation_data|
+          constraint_descriptions = translation_data["constraints"] || []
+          if constraint_descriptions[sort_order].present?
+            ConstraintTranslation.create!(
+              constraint: constraint,
+              locale: locale,
+              description: constraint_descriptions[sort_order]
+            )
+          end
+        end
+      end
     end
 
-    puts "      ✅ Problem '#{data["title"]}' saved successfully"
+    puts "      ✅ Problem '#{title}' saved successfully"
 
     # Load templates and testers for function-based problems
     if problem.function_based?

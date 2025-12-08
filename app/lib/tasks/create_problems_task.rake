@@ -9,7 +9,12 @@ namespace :problems do
     Dir.glob("problems/*.json").each do |file|
       data = JSON.parse(File.read(file))
 
-      title = data["title"]
+      # Support both old format (direct fields) and new format (translations)
+      if data["translations"]
+        title = data["translations"]["en"]["title"]
+      else
+        title = data["title"]
+      end
 
       problem = Problem.find_by(title: title)
       if problem
@@ -19,11 +24,19 @@ namespace :problems do
 
       puts "Creating problem with title '#{title}'!"
 
-      description = data["description"]
+      # Support both formats for description
+      if data["translations"]
+        description = data["translations"]["en"]["description"]
+        # Constraints can be in translations or at root level
+        constraints = data["translations"]["en"]["constraints"] || data["constraints"] || []
+      else
+        description = data["description"]
+        constraints = data["constraints"] || []
+      end
+
       difficulty = data["difficulty"]
       tags = data["tags"]
       examples = data["examples"]
-      constraints = data["constraints"]
 
       # Handle both memory_limit_kb and memory_limit_mb for compatibility
       memory_limit_kb = if data["memory_limit_mb"]
@@ -53,6 +66,18 @@ namespace :problems do
         testing_mode: testing_mode
       )
 
+      # Create translations if new format
+      if data["translations"]
+        data["translations"].each do |locale, translation_data|
+          ProblemTranslation.create!(
+            problem: problem,
+            locale: locale,
+            title: translation_data["title"],
+            description: translation_data["description"]
+          )
+        end
+      end
+
       tags.each do |tag|
         tag = Tag.find_or_create_by!(name: tag)
         problem.tags << tag
@@ -79,6 +104,20 @@ namespace :problems do
         )
 
         problem.constraints << constraint
+
+        # Create constraint translations if new format
+        if data["translations"]
+          data["translations"].each do |locale, translation_data|
+            constraint_descriptions = translation_data["constraints"] || []
+            if constraint_descriptions[sort_order].present?
+              ConstraintTranslation.create!(
+                constraint: constraint,
+                locale: locale,
+                description: constraint_descriptions[sort_order]
+              )
+            end
+          end
+        end
       end
 
       # Load templates and testers for function-based problems
@@ -97,7 +136,14 @@ namespace :problems do
       Dir.glob("problems/*.json").each do |file|
         data = JSON.parse(File.read(file))
 
-        title = data["title"]
+        # Support both old format (direct fields) and new format (translations)
+        if data["translations"]
+          title = data["translations"]["en"]["title"]
+          description = data["translations"]["en"]["description"]
+        else
+          title = data["title"]
+          description = data["description"]
+        end
 
         problem = Problem.find_by(title: title)
         if problem
@@ -109,12 +155,12 @@ namespace :problems do
           problem.problem_tags.destroy_all
           problem.problem_templates.destroy_all
           problem.problem_testers.destroy_all
+          problem.translations.destroy_all
         else
           puts "Creating problem with title '#{title}'!"
           problem = Problem.new
         end
 
-        description = data["description"]
         difficulty = data["difficulty"]
         tags = data["tags"]
         examples = data["examples"]
@@ -148,6 +194,18 @@ namespace :problems do
           testing_mode: testing_mode
         )
 
+        # Create translations if new format
+        if data["translations"]
+          data["translations"].each do |locale, translation_data|
+            ProblemTranslation.create!(
+              problem: problem,
+              locale: locale,
+              title: translation_data["title"],
+              description: translation_data["description"]
+            )
+          end
+        end
+
         tags.each do |tag_name|
           tag = Tag.find_or_create_by!(name: tag_name)
           problem.tags << tag
@@ -174,6 +232,20 @@ namespace :problems do
           )
 
           problem.constraints << constraint
+
+          # Create constraint translations if new format
+          if data["translations"]
+            data["translations"].each do |locale, translation_data|
+              constraint_descriptions = translation_data["constraints"] || []
+              if constraint_descriptions[sort_order].present?
+                ConstraintTranslation.create!(
+                  constraint: constraint,
+                  locale: locale,
+                  description: constraint_descriptions[sort_order]
+                )
+              end
+            end
+          end
         end
 
         # Load templates and testers for function-based problems

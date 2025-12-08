@@ -1,11 +1,11 @@
 <div class="contest-page">
   <!-- Header Section -->
   <div class="contest-header">
-    <h1 class="contest-title"><%= @contest.name %></h1>
+    <h1 class="contest-title"><%= @contest.translated_name %></h1>
     
     <div class="contest-meta">
       <div class="contest-badge <%= @contest.active? ? 'active' : @contest.upcoming? ? 'upcoming' : 'ended' %>">
-        <%= @contest.active? ? 'Active' : @contest.upcoming? ? 'Upcoming' : 'Ended' %>
+        <%= @contest.active? ? t('problem.active') : @contest.upcoming? ? t('problem.upcoming') : t('problem.ended') %>
       </div>
       
       <div class="contest-time-info">
@@ -15,7 +15,7 @@
       
       <div class="contest-time-info">
         <span class="time-icon">⏱️</span>
-        <span><%= @contest.duration_minutes %> minutes</span>
+        <span><%= @contest.duration_minutes %> <%= t('contests.minutes') %></span>
       </div>
     </div>
     
@@ -27,33 +27,33 @@
         </div>
       <% elsif @access_service.can_join? %>
         <%= form_with url: join_contest_path(@contest), method: :post, data: { turbo: false } do |f| %>
-          <%= f.submit "Register", class: "btn btn-primary btn-large" %>
+          <%= f.submit t('contests.join_contest'), class: "btn btn-primary btn-large" %>
         <% end %>
       <% end %>
       
       <% if @contest.active? || @contest.ended? %>
-        <%= link_to "Standings", standings_contest_path(@contest), class: "btn btn-secondary", data: { turbo: false } %>
-        <%= link_to "My Submissions", submissions_contest_path(@contest), class: "btn btn-secondary", data: { turbo: false } %>
+        <%= link_to t('contests.standings'), standings_contest_path(@contest), class: "btn btn-secondary", data: { turbo: false } %>
+        <%= link_to t('submissions.title'), submissions_contest_path(@contest), class: "btn btn-secondary", data: { turbo: false } %>
       <% end %>
     </div>
   </div>
 
   <!-- Contest Description -->
-  <% if @contest.description.present? %>
+  <% if @contest.translated_description.present? %>
     <div class="contest-card">
-      <h2 class="card-title">About</h2>
+      <h2 class="card-title"><%= t('contest.description') %></h2>
       <div class="card-content">
-        <%= simple_format(@contest.description) %>
+        <%= simple_format(@contest.translated_description) %>
       </div>
     </div>
   <% end %>
 
   <!-- Contest Rules -->
-  <% if @contest.rules.present? %>
+  <% if @contest.translated_rules.present? %>
     <div class="contest-card">
-      <h2 class="card-title">Rules</h2>
+      <h2 class="card-title"><%= t('contest.rules') %></h2>
       <div class="card-content">
-        <%= simple_format(@contest.rules) %>
+        <%= simple_format(@contest.translated_rules) %>
       </div>
     </div>
   <% end %>

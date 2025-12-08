@@ -12,6 +12,9 @@ Rails.application.routes.draw do
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
 
+  # Locale switching
+  post '/locale/:locale', to: 'locale#switch', as: :switch_locale
+
   get "/", to: "problem#index", as: "home"
 
   get "problems", to: "problem#index", as: "problems"

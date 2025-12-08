@@ -5,6 +5,7 @@ class Contest < ApplicationRecord
   has_many :submissions, through: :problems
   has_many :contest_participants, dependent: :destroy
   has_many :participants, through: :contest_participants, source: :user
+  has_many :translations, class_name: 'ContestTranslation', dependent: :destroy
 
   validates :name, presence: true
   validates :start_time, presence: true
@@ -66,6 +67,24 @@ class Contest < ApplicationRecord
     user_participating?(user) && (active? || ended?)
   end
 
+  # Get translated name for the current locale
+  def translated_name(locale = I18n.locale)
+    translation = translation_for(locale)
+    translation&.name || name
+  end
+
+  # Get translated description for the current locale
+  def translated_description(locale = I18n.locale)
+    translation = translation_for(locale)
+    translation&.description || description
+  end
+
+  # Get translated rules for the current locale
+  def translated_rules(locale = I18n.locale)
+    translation = translation_for(locale)
+    translation&.rules || rules
+  end
+
   private
 
   def end_time_after_start_time
@@ -74,5 +93,10 @@ class Contest < ApplicationRecord
     if end_time <= start_time
       errors.add(:end_time, "must be after start time")
     end
+  end
+
+  # Find translation for a specific locale, with fallback to English
+  def translation_for(locale)
+    translations.find_by(locale: locale) || translations.find_by(locale: :en)
   end
 end

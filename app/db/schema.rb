@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_06_063038) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_07_204737) do
+  create_table "constraint_translations", charset: "utf8", force: :cascade do |t|
+    t.bigint "constraint_id", null: false
+    t.string "locale", null: false
+    t.text "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["constraint_id", "locale"], name: "index_constraint_translations_on_constraint_id_and_locale", unique: true
+    t.index ["constraint_id"], name: "index_constraint_translations_on_constraint_id"
+    t.index ["locale"], name: "index_constraint_translations_on_locale"
+  end
+
   create_table "constraints", charset: "utf8", force: :cascade do |t|
     t.bigint "problem_id", null: false
     t.text "description", null: false
@@ -27,6 +38,19 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_06_063038) do
     t.index ["contest_id", "user_id"], name: "index_contest_participants_on_contest_id_and_user_id", unique: true
     t.index ["contest_id"], name: "index_contest_participants_on_contest_id"
     t.index ["user_id"], name: "index_contest_participants_on_user_id"
+  end
+
+  create_table "contest_translations", charset: "utf8", force: :cascade do |t|
+    t.bigint "contest_id", null: false
+    t.string "locale", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.text "rules"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contest_id", "locale"], name: "index_contest_translations_on_contest_id_and_locale", unique: true
+    t.index ["contest_id"], name: "index_contest_translations_on_contest_id"
+    t.index ["locale"], name: "index_contest_translations_on_locale"
   end
 
   create_table "contests", charset: "utf8", force: :cascade do |t|
@@ -82,6 +106,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_06_063038) do
     t.index ["problem_id", "programming_language_id"], name: "index_problem_testers_on_problem_and_language", unique: true
     t.index ["problem_id"], name: "index_problem_testers_on_problem_id"
     t.index ["programming_language_id"], name: "index_problem_testers_on_programming_language_id"
+  end
+
+  create_table "problem_translations", charset: "utf8", force: :cascade do |t|
+    t.bigint "problem_id", null: false
+    t.string "locale", null: false
+    t.string "title", null: false
+    t.text "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["locale"], name: "index_problem_translations_on_locale"
+    t.index ["problem_id", "locale"], name: "index_problem_translations_on_problem_id_and_locale", unique: true
+    t.index ["problem_id"], name: "index_problem_translations_on_problem_id"
   end
 
   create_table "problems", charset: "utf8", force: :cascade do |t|
@@ -173,15 +209,19 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_06_063038) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "role", default: 0, null: false
+    t.string "locale", default: "en", null: false
     t.index ["alias"], name: "index_users_on_alias", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["locale"], name: "index_users_on_locale"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["role"], name: "index_users_on_role"
   end
 
+  add_foreign_key "constraint_translations", "constraints"
   add_foreign_key "constraints", "problems"
   add_foreign_key "contest_participants", "contests"
   add_foreign_key "contest_participants", "users"
+  add_foreign_key "contest_translations", "contests"
   add_foreign_key "examples", "problems"
   add_foreign_key "problem_tags", "problems"
   add_foreign_key "problem_tags", "tags"
@@ -189,6 +229,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_06_063038) do
   add_foreign_key "problem_templates", "programming_languages"
   add_foreign_key "problem_testers", "problems"
   add_foreign_key "problem_testers", "programming_languages"
+  add_foreign_key "problem_translations", "problems"
   add_foreign_key "problems", "contests"
   add_foreign_key "submissions", "contests"
   add_foreign_key "submissions", "problems"

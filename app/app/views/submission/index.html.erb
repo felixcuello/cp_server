@@ -1,17 +1,17 @@
 <div class="page-container submissions-page">
   <!-- Header -->
   <div class="submissions-header">
-    <h1 class="page-title"><%= @show_all ? "All Submissions" : "My Submissions" %></h1>
+    <h1 class="page-title"><%= @show_all ? t('submissions.all_submissions') : t('submissions.title') %></h1>
     <div class="header-actions">
       <% if @show_all %>
         <%= link_to submission_path, class: "toggle-view-btn" do %>
           <span>👤</span>
-          <span>My Submissions</span>
+          <span><%= t('submissions.my_submissions_btn') %></span>
         <% end %>
       <% else %>
         <%= link_to submission_path(show_all: 'true'), class: "toggle-view-btn" do %>
           <span>👥</span>
-          <span>All Users</span>
+          <span><%= t('submissions.all_users') %></span>
         <% end %>
       <% end %>
     </div>
@@ -33,8 +33,8 @@
               <span class="problem-number">#<%= submission.problem.id %></span>
               <%= link_to submission.problem.title, problem_path(submission.problem), class: "problem-title-link", data: { turbo: false } %>
               <% if submission.contest %>
-                <span class="contest-badge-small" title="Contest: <%= submission.contest.name %>">
-                  🏆 Contest
+                <span class="contest-badge-small" title="<%= t('problem.contest') %>: <%= submission.contest.name %>">
+                  🏆 <%= t('submissions.contest_badge') %>
                 </span>
               <% end %>
             </div>
@@ -57,12 +57,12 @@
               </span>
               <span class="meta-item">
                 <span class="meta-icon">⏱️</span>
-                <span class="time-text"><%= time_ago_in_words(submission.created_at) %> ago</span>
+                <span class="time-text"><%= time_ago_in_words(submission.created_at) %> <%= t('submissions.ago') %></span>
               </span>
               <% if submission.time_used %>
                 <span class="meta-item">
                   <span class="meta-icon">⚡</span>
-                  <span class="runtime-text"><%= (submission.time_used * 1000).round %> ms</span>
+                  <span class="runtime-text"><%= (submission.time_used * 1000).round %> <%= t('submissions.ms') %></span>
                 </span>
               <% end %>
             </div>
@@ -72,8 +72,8 @@
     <% else %>
       <div class="empty-state">
         <div class="empty-icon">📝</div>
-        <div class="empty-title">No submissions found</div>
-        <div class="empty-text">Start solving problems to see your submissions here</div>
+        <div class="empty-title"><%= t('submissions.no_submissions') %></div>
+        <div class="empty-text"><%= t('submissions.no_submissions_text') %></div>
       </div>
     <% end %>
   </div>
@@ -83,22 +83,22 @@
     <div class="pagination-container">
       <% if @page > 1 %>
         <%= link_to submission_path(show_all: @show_all ? 'true' : nil, page: @page - 1), class: "pagination-btn" do %>
-          <span>← Previous</span>
+          <span>← <%= t('submissions.previous') %></span>
         <% end %>
       <% else %>
-        <span class="pagination-btn disabled">← Previous</span>
+        <span class="pagination-btn disabled">← <%= t('submissions.previous') %></span>
       <% end %>
 
       <div class="pagination-info">
-        Page <strong><%= @page %></strong> of <strong><%= @total_pages %></strong>
+        <%= t('submissions.page') %> <strong><%= @page %></strong> <%= t('submissions.of') %> <strong><%= @total_pages %></strong>
       </div>
 
       <% if @page < @total_pages %>
         <%= link_to submission_path(show_all: @show_all ? 'true' : nil, page: @page + 1), class: "pagination-btn" do %>
-          <span>Next →</span>
+          <span><%= t('submissions.next') %> →</span>
         <% end %>
       <% else %>
-        <span class="pagination-btn disabled">Next →</span>
+        <span class="pagination-btn disabled"><%= t('submissions.next') %> →</span>
       <% end %>
     </div>
   <% end %>

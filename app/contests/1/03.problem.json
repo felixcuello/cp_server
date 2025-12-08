@@ -1,6 +1,14 @@
 {
-  "title": "Longest Common Prefix",
-  "description": "Write a function to find the longest common prefix string amongst an array of strings.\n\nIf there is no common prefix, return an empty string.\n\n<h3>Input Format</h3>\nThe first line contains an integer <b>n</b> (the number of strings).\nThe next <b>n</b> lines each contain a string.\n\n<h3>Output Format</h3>\nPrint the longest common prefix. If there is no common prefix, print an empty line.",
+  "translations": {
+    "en": {
+      "title": "Longest Common Prefix",
+      "description": "Write a function to find the longest common prefix string amongst an array of strings.\n\nIf there is no common prefix, return an empty string.\n\n<h3>Input Format</h3>\nThe first line contains an integer <b>n</b> (the number of strings).\nThe next <b>n</b> lines each contain a string.\n\n<h3>Output Format</h3>\nPrint the longest common prefix. If there is no common prefix, print an empty line."
+    },
+    "es": {
+      "title": "Prefijo Común Más Largo",
+      "description": "Escribe una función para encontrar el prefijo común más largo entre un arreglo de cadenas.\n\nSi no hay un prefijo común, devuelve una cadena vacía.\n\n<h3>Formato de Entrada</h3>\nLa primera línea contiene un entero <b>n</b> (el número de cadenas).\nLas siguientes <b>n</b> líneas contienen cada una una cadena.\n\n<h3>Formato de Salida</h3>\nImprime el prefijo común más largo. Si no hay un prefijo común, imprime una línea vacía."
+    }
+  },
   "difficulty": "medium",
   "hidden": true,
   "memory_limit_kb": 2048,

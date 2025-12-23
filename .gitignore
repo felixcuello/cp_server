@@ -1,2 +1,3 @@
 .env.development
 app/problems/
+app/config/credentials.yml.enc

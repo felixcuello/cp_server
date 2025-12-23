@@ -5,7 +5,7 @@ services:
     security_opt:
       - seccomp:unconfined
     platform: linux/amd64
-    env_file: .env.development
+    env_file: .env
     build:
       context: ./app/
       dockerfile: Dockerfile.dev
@@ -23,7 +23,7 @@ services:
     security_opt:
       - seccomp:unconfined
     platform: linux/amd64
-    env_file: .env.development
+    env_file: .env
     build:
       context: ./app/
       dockerfile: Dockerfile
@@ -42,7 +42,7 @@ services:
   db:
     platform: linux/amd64
     image: mysql:5.7
-    env_file: .env.development
+    env_file: .env
     volumes:
       - db_cp_server:/var/lib/mysql
 

@@ -107,7 +107,7 @@
 .navbar-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   text-decoration: none;
   font-family: Arial, sans-serif;
   
@@ -115,16 +115,24 @@
     opacity: 0.8;
   }
   
-  .navbar-logo-icon {
-    width: 32px;
-    height: 32px;
-    object-fit: contain;
+  .navbar-logo-up {
+    background-color: #000000;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 1.3em;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+  
+  .navbar-logo-separator {
+    color: var(--text-primary);
+    font-weight: bold;
   }
   
   .navbar-logo-text {
-    font-size: 1.1em;
+    color: var(--text-primary);
     font-weight: bold;
-    color: var(--text-heading);
+    font-size: 1.1em;
   }
 }
 

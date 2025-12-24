@@ -9,9 +9,9 @@ all:
 	@echo "  make build-nc                             # Construir las imágenes para desarrollo sin el caché"
 	@echo "  make build-web                            # Construir solo la imagen web"
 	@echo "  make build-sidekiq                        # Construir solo la imagen sidekiq"
-	@echo "  make destroy                              # Detener los containers y borrar los volúmenes (borra la BBDD)"
+	@echo "  make up                                   # Ejecutar el proyecto en background"
 	@echo "  make run                                  # Ejecutar el proyecto [para desarrollar]"
-	@echo "  make down                                 # Detener los containers"
+	@echo "  make stop                                 # Detener los containers"
 	@echo "  make shell                                # Acceder al contenedor"
 	@echo "  make migrate                              # Ejecutar migraciones de base de datos"
 	@echo ""
@@ -48,11 +48,8 @@ build: build-sidekiq build-web
 build-nc: DOCKER_BUILD_FLAGS=--no-cache
 build-nc: build
 
-destroy:
-	docker compose down --volumes
-
-down:
-	docker compose down
+stop:
+	docker compose stop
 
 run:
 	rm -f ./app/tmp/pids/server.pid

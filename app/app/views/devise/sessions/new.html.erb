@@ -1,4 +1,7 @@
 <div class="devise-container">
+  <div class="devise-logo-container">
+    <%= image_tag "/icon.png", alt: "UP Logo", class: "devise-logo" %>
+  </div>
   <h2 class="devise-title">Log in</h2>
 
   <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>

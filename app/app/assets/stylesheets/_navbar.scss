@@ -105,14 +105,26 @@
 
 // Logo
 .navbar-logo {
-  font-size: 1.1em;
-  font-weight: bold;
-  color: var(--text-heading);
+  display: flex;
+  align-items: center;
+  gap: 10px;
   text-decoration: none;
   font-family: Arial, sans-serif;
   
   &:hover {
     opacity: 0.8;
+  }
+  
+  .navbar-logo-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+  
+  .navbar-logo-text {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--text-heading);
   }
 }
 

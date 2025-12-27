@@ -86,6 +86,67 @@
   }
 }
 
+// Difficulty filter pills
+.sidebar-difficulty-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sidebar-difficulty-pill {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-family: Arial, sans-serif;
+  font-size: 0.85em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  text-transform: capitalize;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+  
+  // Easy pill - inverts colors when selected
+  &--easy {
+    background-color: var(--difficulty-easy-bg);
+    color: var(--difficulty-easy-text);
+    
+    &:has(input:checked) {
+      background-color: var(--difficulty-easy-text);
+      color: var(--difficulty-easy-bg);
+      box-shadow: 0 2px 8px rgba(0, 128, 80, 0.5);
+    }
+  }
+  
+  // Medium pill - inverts colors when selected
+  &--medium {
+    background-color: var(--difficulty-medium-bg);
+    color: var(--difficulty-medium-text);
+    
+    &:has(input:checked) {
+      background-color: var(--difficulty-medium-text);
+      color: var(--difficulty-medium-bg);
+      box-shadow: 0 2px 8px rgba(138, 112, 0, 0.5);
+    }
+  }
+  
+  // Hard pill - inverts colors when selected
+  &--hard {
+    background-color: var(--difficulty-hard-bg);
+    color: var(--difficulty-hard-text);
+    
+    &:has(input:checked) {
+      background-color: var(--difficulty-hard-text);
+      color: var(--difficulty-hard-bg);
+      box-shadow: 0 2px 8px rgba(139, 40, 16, 0.5);
+    }
+  }
+}
+
 // Tag filter (shows as clickable badges)
 .sidebar-tag-list {
   display: flex;

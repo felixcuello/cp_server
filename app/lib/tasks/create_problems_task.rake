@@ -130,9 +130,8 @@ namespace :problems do
     end
   end
 
-  namespace :create do
-    desc "Force create/update problems based on the JSON files in problems/*.json (updates existing problems)"
-    task force: :environment do
+  desc "Update problems based on the JSON files in problems/*.json (updates existing problems)"
+  task update: :environment do
       Dir.glob("problems/*.json").each do |file|
         data = JSON.parse(File.read(file))
 
@@ -256,7 +255,18 @@ namespace :problems do
           load_testers_for_problem(problem, problem_dir, problem_file_basename)
         end
       end
-    end
+
+      # Clean up orphaned tags (tags that don't belong to any problem)
+      puts "Cleaning up orphaned tags..."
+      orphaned_tags = Tag.left_joins(:problems).where(problems: { id: nil })
+      orphaned_count = orphaned_tags.count
+      if orphaned_count > 0
+        puts "  Found #{orphaned_count} orphaned tag(s), removing..."
+        orphaned_tags.destroy_all
+        puts "  ✅ Cleaned up #{orphaned_count} orphaned tag(s)"
+      else
+        puts "  ✅ No orphaned tags found"
+      end
   end
 
   task destroy: :environment do

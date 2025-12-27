@@ -23,14 +23,18 @@ export default class extends Controller {
       const matchesStatus = selectedStatuses.length === 0 || 
                            selectedStatuses.includes(status)
       
+      // Use data attribute to mark filtered state (for pagination coordination)
       if (matchesDifficulty && matchesTags && matchesStatus) {
-        row.style.display = ''
+        delete row.dataset.filteredOut
       } else {
-        row.style.display = 'none'
+        row.dataset.filteredOut = 'true'
       }
     })
     
     this.updateClearButton()
+    
+    // Dispatch event for pagination to update
+    this.element.dispatchEvent(new CustomEvent('filter:changed', { bubbles: true }))
   }
   
   clearAll() {

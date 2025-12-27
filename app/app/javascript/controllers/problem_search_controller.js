@@ -32,27 +32,20 @@ export default class extends Controller {
                      tags.includes(query) ||
                      query === ''
       
+      // Use data attribute to mark search state (for pagination coordination)
       if (matches) {
-        row.style.display = ''
+        delete row.dataset.searchedOut
       } else {
-        row.style.display = 'none'
+        row.dataset.searchedOut = 'true'
       }
     })
     
-    this.updateEmptyState()
+    // Dispatch event for pagination to update
+    this.element.dispatchEvent(new CustomEvent('search:changed', { bubbles: true }))
   }
   
   clear() {
     this.inputTarget.value = ''
     this.performSearch()
-  }
-  
-  updateEmptyState() {
-    const visibleRows = this.rowTargets.filter(row => row.style.display !== 'none')
-    
-    // You can add an empty state message if needed
-    if (visibleRows.length === 0) {
-      console.log('No problems found')
-    }
   }
 }

@@ -58,8 +58,7 @@ class ProblemController < AuthenticatedController
       @problems = @problems.order(id: :asc)
     end
 
-    # Pagination would go here (for now, limit to 100)
-    @problems = @problems.limit(100)
+    # Client-side pagination handles display limits
 
     # Get all tags for filter
     @all_tags = Tag.order(:name)

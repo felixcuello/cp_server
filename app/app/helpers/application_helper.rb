@@ -4,7 +4,7 @@ module ApplicationHelper
   # Render markdown with syntax highlighting
   def markdown(text)
     return '' if text.blank?
-    
+
     # Configure Kramdown with Rouge for syntax highlighting
     options = {
       input: 'GFM', # GitHub Flavored Markdown
@@ -16,10 +16,21 @@ module ApplicationHelper
       hard_wrap: false,
       math_engine: nil # Disable kramdown's built-in math (we'll use KaTeX in JS)
     }
-    
-    Kramdown::Document.new(text, options).to_html.html_safe
+
+    html = Kramdown::Document.new(text, options).to_html
+
+    # Replace hardcoded /assets/ image paths with Rails asset_path helper
+    # Only needed in production where assets are fingerprinted
+    if Rails.env.production?
+      html.gsub!(%r{src=["']/assets/([^"']+)["']}) do |match|
+        image_filename = Regexp.last_match(1)
+        "src=\"#{image_path(image_filename)}\""
+      end
+    end
+
+    html.html_safe
   end
-  
+
   # Status icons for submissions
   def status_icon(status)
     case status.downcase
@@ -43,7 +54,7 @@ module ApplicationHelper
       '•'
     end
   end
-  
+
   # Map language names to Prism.js class names
   def language_class(language_name)
     mapping = {

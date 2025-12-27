@@ -65,6 +65,11 @@ en:
       solved: "Solved"
       attempted: "Attempted"
       not_attempted: "Not Attempted"
+    
+    # Pagination
+    pagination:
+      prev: "Previous"
+      next: "Next"
   
   # Problem Detail Page
   problem:

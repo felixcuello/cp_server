@@ -38,6 +38,11 @@ es:
       solved: "Resuelto"
       attempted: "Intentado"
       not_attempted: "No Intentado"
+    
+    # Paginación
+    pagination:
+      prev: "Anterior"
+      next: "Siguiente"
   
   # Página de Detalle del Problema
   problem:

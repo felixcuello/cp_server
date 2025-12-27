@@ -1,4 +1,4 @@
-<div class="page-container" data-controller="problem-search problem-filter">
+<div class="page-container" data-controller="problem-search problem-filter pagination" data-pagination-per-page-value="20">
   <!-- Header with Search -->
   <div class="problem-list-header">
     <h1 class="problem-list-title-new"><%= t('problems.title') %></h1>
@@ -21,15 +21,16 @@
     <aside class="sidebar">
       <div class="sidebar-section">
         <h3 class="sidebar-title"><%= t('problems.difficulty') %></h3>
-        <div class="sidebar-filter-group">
+        <div class="sidebar-difficulty-pills">
           <% ['easy', 'medium', 'hard'].each do |diff| %>
-            <label class="sidebar-filter-item">
+            <label class="sidebar-difficulty-pill sidebar-difficulty-pill--<%= diff %>">
               <input 
                 type="checkbox" 
                 value="<%= diff %>"
+                style="display: none;"
                 data-problem-filter-target="difficultyCheckbox"
                 data-action="change->problem-filter#filter">
-              <span><%= t("problems.filters.#{diff}") %></span>
+              <%= t("problems.filters.#{diff}") %>
             </label>
           <% end %>
         </div>
@@ -140,6 +141,7 @@
             <tr 
               data-problem-search-target="row"
               data-problem-filter-target="row"
+              data-pagination-target="row"
               data-problem-id="<%= problem.id %>"
               data-problem-title="<%= problem.title %>"
               data-problem-difficulty="<%= problem.difficulty %>"
@@ -189,6 +191,29 @@
       <% if @problems.empty? %>
         <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
           <p style="font-size: 1.2em;"><%= t('problems.no_problems') %></p>
+        </div>
+      <% end %>
+      
+      <!-- Pagination Controls -->
+      <% if @problems.any? %>
+        <div class="pagination-controls">
+          <div class="pagination-info" data-pagination-target="info"></div>
+          <div class="pagination-nav">
+            <button 
+              class="pagination-btn" 
+              data-pagination-target="prevButton"
+              data-action="click->pagination#prev"
+              disabled>
+              ← <%= t('problems.pagination.prev', default: 'Previous') %>
+            </button>
+            <div class="pagination-pages" data-pagination-target="pageNumbers"></div>
+            <button 
+              class="pagination-btn" 
+              data-pagination-target="nextButton"
+              data-action="click->pagination#next">
+              <%= t('problems.pagination.next', default: 'Next') %> →
+            </button>
+          </div>
         </div>
       <% end %>
     </div>

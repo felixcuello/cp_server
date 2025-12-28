@@ -98,14 +98,14 @@ class Submission < ApplicationRecord
       when "presentation_error"
         final_status = PRESENTATION_ERROR
         # Store user output for stdin/stdout problems only
-        if !problem.function_based? && result[:output].present?
-          user_output_to_save = result[:output]
+        if !problem.function_based?
+          user_output_to_save = result[:output] || ""
         end
       when "wrong_answer"
         final_status = WRONG_ANSWER + " (example #{index + 1})"
         # Store user output for stdin/stdout problems only
-        if !problem.function_based? && result[:output].present?
-          user_output_to_save = result[:output]
+        if !problem.function_based?
+          user_output_to_save = result[:output] || ""
         end
       else
         final_status = RUNTIME_ERROR
@@ -117,7 +117,8 @@ class Submission < ApplicationRecord
 
     # Use maximum runtime from test cases (most accurate representation)
     update_hash = { time_used: max_runtime, status: final_status }
-    update_hash[:user_output] = user_output_to_save if user_output_to_save.present?
+    # Always include user_output if it was set (even if empty string)
+    update_hash[:user_output] = user_output_to_save unless user_output_to_save.nil?
     self.update!(update_hash)
   end
 
@@ -199,14 +200,14 @@ class Submission < ApplicationRecord
       when "presentation_error"
         final_status = PRESENTATION_ERROR
         # Store user output for stdin/stdout problems only
-        if !problem.function_based? && result[:output].present?
-          user_output_to_save = result[:output]
+        if !problem.function_based?
+          user_output_to_save = result[:output] || ""
         end
       when "wrong_answer"
         final_status = WRONG_ANSWER + " (example #{index + 1})"
         # Store user output for stdin/stdout problems only
-        if !problem.function_based? && result[:output].present?
-          user_output_to_save = result[:output]
+        if !problem.function_based?
+          user_output_to_save = result[:output] || ""
         end
       else
         final_status = RUNTIME_ERROR
@@ -218,7 +219,8 @@ class Submission < ApplicationRecord
 
     # Use maximum runtime from test cases (most accurate representation)
     update_hash = { time_used: max_runtime, status: final_status }
-    update_hash[:user_output] = user_output_to_save if user_output_to_save.present?
+    # Always include user_output if it was set (even if empty string)
+    update_hash[:user_output] = user_output_to_save unless user_output_to_save.nil?
     self.update!(update_hash)
   end
 

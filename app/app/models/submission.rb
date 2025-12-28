@@ -62,6 +62,7 @@ class Submission < ApplicationRecord
 
     final_status = ACCEPTED
     max_runtime = 0.0  # Track maximum runtime across all test cases
+    user_output_to_save = nil
 
     self.update!(status: RUNNING)
     problem.examples.order(:id).each_with_index do |example, index|
@@ -96,8 +97,16 @@ class Submission < ApplicationRecord
         next
       when "presentation_error"
         final_status = PRESENTATION_ERROR
+        # Store user output for stdin/stdout problems only
+        if !problem.function_based? && result[:output].present?
+          user_output_to_save = result[:output]
+        end
       when "wrong_answer"
         final_status = WRONG_ANSWER + " (example #{index + 1})"
+        # Store user output for stdin/stdout problems only
+        if !problem.function_based? && result[:output].present?
+          user_output_to_save = result[:output]
+        end
       else
         final_status = RUNTIME_ERROR
       end
@@ -107,8 +116,9 @@ class Submission < ApplicationRecord
     end
 
     # Use maximum runtime from test cases (most accurate representation)
-    self.update!(time_used: max_runtime)
-    self.update!(status: final_status)
+    update_hash = { time_used: max_runtime, status: final_status }
+    update_hash[:user_output] = user_output_to_save if user_output_to_save.present?
+    self.update!(update_hash)
   end
 
   def run_with_compiler!
@@ -141,6 +151,7 @@ class Submission < ApplicationRecord
     # If compilation succeeded, continue with all examples
     final_status = ACCEPTED
     max_runtime = 0.0  # Track maximum runtime across all test cases
+    user_output_to_save = nil
 
     self.update!(status: RUNNING)
 
@@ -187,8 +198,16 @@ class Submission < ApplicationRecord
         next
       when "presentation_error"
         final_status = PRESENTATION_ERROR
+        # Store user output for stdin/stdout problems only
+        if !problem.function_based? && result[:output].present?
+          user_output_to_save = result[:output]
+        end
       when "wrong_answer"
         final_status = WRONG_ANSWER + " (example #{index + 1})"
+        # Store user output for stdin/stdout problems only
+        if !problem.function_based? && result[:output].present?
+          user_output_to_save = result[:output]
+        end
       else
         final_status = RUNTIME_ERROR
       end
@@ -198,8 +217,9 @@ class Submission < ApplicationRecord
     end
 
     # Use maximum runtime from test cases (most accurate representation)
-    self.update!(time_used: max_runtime)
-    self.update!(status: final_status)
+    update_hash = { time_used: max_runtime, status: final_status }
+    update_hash[:user_output] = user_output_to_save if user_output_to_save.present?
+    self.update!(update_hash)
   end
 
   private

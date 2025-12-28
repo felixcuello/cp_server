@@ -91,8 +91,8 @@ class SubmissionController < AuthenticatedController
       return
     end
 
-    # Security check: only allow users to view their own submissions
-    if @submission.user_id != current_user.id
+    # Security check: only allow users to view their own submissions, or admins to view any
+    if @submission.user_id != current_user.id && !current_user.admin?
       respond_to do |format|
         format.html {
           redirect_to submission_path, alert: "You don't have permission to view this submission."
@@ -102,6 +102,35 @@ class SubmissionController < AuthenticatedController
         }
       end
       return
+    end
+
+    # For admin view: get the failed example if submission failed
+    @failed_example = nil
+    if current_user&.admin? && @submission.user_output.present?
+      # Parse example number from status (e.g., "wrong answer (example 1)")
+      example_match = @submission.status.match(/example (\d+)/i)
+      if example_match
+        example_index = example_match[1].to_i - 1 # Convert to 0-based index
+        examples = @submission.problem.examples.order(:id)
+        @failed_example = examples[example_index] if example_index >= 0 && example_index < examples.count
+      elsif @submission.status.downcase.include?("presentation error") || @submission.status.downcase.include?("wrong answer")
+        # For presentation error or wrong answer without example number, try to find the failed example
+        # by checking which example's expected output doesn't match the user output
+        examples = @submission.problem.examples.order(:id)
+        examples.each do |example|
+          if example.output.present? && @submission.user_output.present?
+            # Simple check: if outputs are different, this might be the failed example
+            normalized_expected = example.output.strip.gsub(/\s+/, " ")
+            normalized_user = @submission.user_output.strip.gsub(/\s+/, " ")
+            if normalized_expected != normalized_user
+              @failed_example = example
+              break
+            end
+          end
+        end
+        # If we couldn't find a match, use the first example as fallback
+        @failed_example ||= examples.first if examples.any?
+      end
     end
 
     respond_to do |format|

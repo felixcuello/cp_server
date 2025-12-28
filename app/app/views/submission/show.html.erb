@@ -66,20 +66,61 @@
     </div>
 
     <!-- Source Code Section -->
-    <div class="source-code-section">
+    <div class="source-code-section" data-controller="copy-button">
       <div class="section-header">
         <h2>Source Code</h2>
-        <button class="copy-code-btn" 
-                data-controller="copy-button"
+        <button class="copy-code-btn"
                 data-action="click->copy-button#copy">
           📋 Copy Code
         </button>
       </div>
-      
+
       <div class="code-container" data-copy-button-target="source">
         <pre><code class="language-<%= language_class(@submission.programming_language.name) %>"><%= @submission.source_code %></code></pre>
       </div>
     </div>
+
+    <!-- Admin View Only: Expected Output and User Output -->
+    <% if current_user&.admin? && @submission.user_output.present? %>
+      <div class="admin-only-section">
+        <div class="admin-only-badge">
+          <span class="admin-badge-icon">🔒</span>
+          <span class="admin-badge-text">Admin View Only</span>
+        </div>
+
+        <!-- Expected Output Section -->
+        <% if @failed_example&.output.present? %>
+          <div class="source-code-section" data-controller="copy-button">
+            <div class="section-header">
+              <h2>Expected Output</h2>
+              <button class="copy-code-btn"
+                      data-action="click->copy-button#copy">
+                📋 Copy Output
+              </button>
+            </div>
+
+            <div class="code-container" data-copy-button-target="source">
+              <pre><code><%= @failed_example.output %></code></pre>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- User Output Section -->
+        <div class="source-code-section" data-controller="copy-button">
+          <div class="section-header">
+            <h2>User Output</h2>
+            <button class="copy-code-btn"
+                    data-action="click->copy-button#copy">
+              📋 Copy Output
+            </button>
+          </div>
+
+          <div class="code-container" data-copy-button-target="source">
+            <pre><code><%= @submission.user_output %></code></pre>
+          </div>
+        </div>
+      </div>
+    <% end %>
 
     <!-- Test Results Section (if available) -->
     <% if @submission.status.include?("example") %>

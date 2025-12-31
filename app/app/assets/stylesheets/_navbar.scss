@@ -10,7 +10,7 @@
   background-color: var(--navbar-bg);
   border-bottom: 1px solid var(--border-primary);
   box-shadow: 0 2px 4px var(--shadow-light);
-  
+
   // When contest banner is present, position navbar below it
   .main-body:has(.upcoming-contest-banner) & {
     top: 60px; // Height of contest banner
@@ -43,7 +43,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  
+
   @media (max-width: 900px) {
     display: none;
   }
@@ -59,12 +59,12 @@
   border-radius: 6px;
   transition: all 0.2s ease;
   white-space: nowrap;
-  
+
   &:hover {
     background-color: var(--bg-secondary);
     color: var(--text-heading);
   }
-  
+
   &:visited {
     color: var(--text-primary);
   }
@@ -82,15 +82,15 @@
   color: var(--text-primary);
   border-radius: 5px;
   transition: background-color 0.2s ease;
-  
+
   @media (min-width: 901px) {
     display: none;
   }
-  
+
   &:hover {
     background-color: var(--bg-secondary);
   }
-  
+
   .hamburger-icon {
     font-size: 20px;
   }
@@ -110,11 +110,11 @@
   gap: 8px;
   text-decoration: none;
   font-family: Arial, sans-serif;
-  
+
   &:hover {
     opacity: 0.8;
   }
-  
+
   .navbar-logo-up {
     background-color: #000000;
     color: #ffffff;
@@ -123,12 +123,12 @@
     padding: 5px 10px;
     border-radius: 4px;
   }
-  
+
   .navbar-logo-separator {
     color: var(--text-primary);
     font-weight: bold;
   }
-  
+
   .navbar-logo-text {
     color: var(--text-primary);
     font-weight: bold;
@@ -145,9 +145,46 @@
   border-radius: 5px;
   font-size: 18px;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background-color: var(--bg-secondary);
+    transform: scale(1.05);
+  }
+}
+
+// Logout Button
+.logout-button {
+  background: none;
+  border: 1px solid var(--border-primary);
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 0.85em;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--text-primary);
+  font-family: Arial, sans-serif;
+  font-weight: 500;
+
+  .logout-icon {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .logout-text {
+    white-space: nowrap;
+    font-size: 0.75em;
+  }
+
+  &:hover {
+    background-color: var(--flash-alert-bg);
+    border-color: var(--status-wrong);
+    color: var(--status-wrong);
     transform: scale(1.05);
   }
 }
@@ -156,7 +193,7 @@
 .user-menu-link {
   text-decoration: none;
   transition: all 0.2s ease;
-  
+
   &:hover {
     transform: translateY(-2px);
   }
@@ -173,12 +210,12 @@
   cursor: pointer;
   transition: all 0.2s ease;
   background-color: var(--bg-secondary);
-  
+
   &:hover {
     background-color: var(--bg-tertiary);
     border-color: var(--text-heading);
   }
-  
+
   .user-avatar {
     width: 28px;
     height: 28px;
@@ -191,7 +228,7 @@
     font-weight: 700;
     color: white;
   }
-  
+
   .user-name {
     font-family: Arial, sans-serif;
     font-size: 0.7em;
@@ -213,11 +250,11 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
-  
+
   @media (min-width: 901px) {
     display: none !important;
   }
-  
+
   &.overlay-visible {
     opacity: 1;
     visibility: visible;
@@ -237,11 +274,11 @@
   transition: left 0.3s ease;
   overflow-y: auto;
   box-shadow: 2px 0 8px var(--shadow-light);
-  
+
   @media (min-width: 901px) {
     display: none !important;
   }
-  
+
   &.drawer-open {
     left: 0;
   }
@@ -253,7 +290,7 @@
   align-items: center;
   padding: 20px;
   border-bottom: 1px solid var(--border-primary);
-  
+
   .drawer-title {
     font-family: Arial, sans-serif;
     font-size: 1.2em;
@@ -261,7 +298,7 @@
     color: var(--text-heading);
     margin: 0;
   }
-  
+
   .drawer-close {
     background: none;
     border: none;
@@ -271,7 +308,7 @@
     padding: 4px 8px;
     border-radius: 4px;
     transition: all 0.2s ease;
-    
+
     &:hover {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);
@@ -287,7 +324,7 @@
 .drawer-profile-link {
   padding: 16px 20px !important;
   background-color: var(--bg-tertiary);
-  
+
   &:hover {
     background-color: var(--bg-secondary) !important;
   }
@@ -345,25 +382,25 @@
   font-size: 1em;
   transition: background-color 0.2s ease;
   cursor: pointer;
-  
+
   &:hover:not(.drawer-link-disabled) {
     background-color: var(--bg-tertiary);
   }
-  
+
   &:visited {
     color: var(--text-primary);
   }
-  
+
   .drawer-icon {
     font-size: 20px;
     width: 24px;
     text-align: center;
   }
-  
+
   &.drawer-link-disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    
+
     .coming-soon {
       margin-left: auto;
       font-size: 0.75em;
@@ -374,10 +411,10 @@
       font-weight: bold;
     }
   }
-  
+
   &.drawer-link-danger {
     color: var(--status-wrong);
-    
+
     &:hover {
       background-color: var(--flash-alert-bg);
     }
@@ -398,7 +435,7 @@
       top: 140px; // Increased height of contest banner on mobile due to wrapping
     }
   }
-  
+
   .navbar-logo {
     font-size: 1em;
   }

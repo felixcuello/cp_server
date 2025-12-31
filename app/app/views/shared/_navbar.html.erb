@@ -6,8 +6,8 @@
       <!-- Left: Hamburger (mobile only) + Logo + Desktop Nav Links -->
       <div class="navbar-left">
         <% if user_signed_in? %>
-          <button 
-            class="hamburger-button" 
+          <button
+            class="hamburger-button"
             data-action="click->drawer#toggle"
             aria-label="Toggle menu">
             <span class="hamburger-icon">☰</span>
@@ -18,7 +18,7 @@
           <span class="navbar-logo-separator">|</span>
           <span class="navbar-logo-text">Competitive Programming Platform</span>
         <% end %>
-        
+
         <!-- Desktop Navigation Links (hidden on mobile) -->
         <% if user_signed_in? %>
           <div class="navbar-desktop-links">
@@ -28,19 +28,19 @@
           </div>
         <% end %>
       </div>
-      
+
       <!-- Right: User Menu + Language Switcher + Theme Toggle (desktop only) -->
       <div class="navbar-right">
         <%= render 'shared/language_switcher' %>
-        
-        <button 
-          class="theme-toggle-button navbar-desktop-only" 
+
+        <button
+          class="theme-toggle-button navbar-desktop-only"
           data-action="click->theme#toggle"
           data-theme-target="icon"
           title="Toggle theme">
           🌙
         </button>
-        
+
         <% if user_signed_in? %>
           <%= link_to user_path(alias: current_user.alias), class: "user-menu-link navbar-desktop-only" do %>
             <div class="user-menu">
@@ -50,31 +50,36 @@
               <span class="user-name"><%= current_user.alias %></span>
             </div>
           <% end %>
+
+          <%= link_to destroy_user_session_path, data: { "turbo-method": :delete }, class: "logout-button navbar-desktop-only" do %>
+            <span class="logout-icon">🚪</span>
+            <span class="logout-text"><%= t('navigation.sign_out') %></span>
+          <% end %>
         <% end %>
       </div>
     </div>
   </nav>
-  
+
   <% if user_signed_in? %>
     <!-- Overlay (backdrop) -->
-    <div 
-      class="drawer-overlay" 
+    <div
+      class="drawer-overlay"
       data-drawer-target="overlay"
       data-action="click->drawer#closeOnOverlay">
     </div>
-    
+
     <!-- Side Drawer (mobile only) -->
     <aside class="drawer" data-drawer-target="drawer">
       <div class="drawer-header">
         <h2 class="drawer-title"><%= t('navigation.menu') %></h2>
-        <button 
-          class="drawer-close" 
+        <button
+          class="drawer-close"
           data-action="click->drawer#close"
           aria-label="Close menu">
           ✕
         </button>
       </div>
-      
+
       <nav class="drawer-nav">
         <!-- Profile Section (mobile only) -->
         <%= link_to user_path(alias: current_user.alias), class: "drawer-link drawer-profile-link" do %>
@@ -86,26 +91,26 @@
             <span class="drawer-user-label"><%= t('navigation.view_profile') %></span>
           </div>
         <% end %>
-        
+
         <div class="drawer-divider"></div>
-        
+
         <%= link_to problems_path, class: "drawer-link" do %>
           <span class="drawer-icon">📝</span>
           <span><%= t('navigation.problems') %></span>
         <% end %>
-        
+
         <%= link_to submission_path, class: "drawer-link" do %>
           <span class="drawer-icon">📊</span>
           <span><%= t('navigation.submissions') %></span>
         <% end %>
-        
+
         <%= link_to contests_path, class: "drawer-link" do %>
           <span class="drawer-icon">🏆</span>
           <span><%= t('navigation.contests') %></span>
         <% end %>
-        
+
         <div class="drawer-divider"></div>
-        
+
         <!-- Language Switcher (mobile) -->
         <div class="drawer-language-section">
           <div class="drawer-section-title">Language / Idioma</div>
@@ -125,18 +130,18 @@
             <% end %>
           <% end %>
         </div>
-        
+
         <div class="drawer-divider"></div>
-        
+
         <!-- Theme Toggle (mobile only) -->
-        <button 
-          class="drawer-link drawer-theme-toggle" 
+        <button
+          class="drawer-link drawer-theme-toggle"
           data-action="click->theme#toggle"
           title="Toggle theme">
           <span class="drawer-icon" data-theme-target="icon">🌙</span>
           <span><%= t('navigation.toggle_theme') %></span>
         </button>
-        
+
         <%= link_to destroy_user_session_path, data: { "turbo-method": :delete }, class: "drawer-link drawer-link-danger" do %>
           <span class="drawer-icon">🚪</span>
           <span><%= t('navigation.sign_out') %></span>

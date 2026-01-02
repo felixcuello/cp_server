@@ -11,7 +11,7 @@ all:
 	@echo "  make build-sidekiq                        # Construir solo la imagen sidekiq"
 	@echo "  make up                                   # Ejecutar el proyecto en background"
 	@echo "  make run                                  # Ejecutar el proyecto [para desarrollar]"
-	@echo "  make stop                                 # Detener los containers"
+	@echo "  make stop                                 # Detener y remover los containers"
 	@echo "  make shell                                # Acceder al contenedor"
 	@echo "  make migrate                              # Ejecutar migraciones de base de datos"
 	@echo ""

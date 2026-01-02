@@ -51,6 +51,13 @@ RUN git clone --depth 1 https://github.com/google/nsjail.git /tmp/nsjail && \
     mv /tmp/nsjail/nsjail /usr/local/bin/ && \
     rm -rf /tmp/nsjail
 
+# Install Rust (needed for compiling Rust code submissions)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable && \
+    . "$HOME/.cargo/env" && \
+    rustc --version && \
+    echo 'source "$HOME/.cargo/env"' >> /root/.bashrc
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 # Create chroot directory structure for isolated execution
 RUN mkdir -p /chroot && \
     mkdir -p /chroot/bin && \
@@ -174,6 +181,15 @@ RUN echo "=== Verifying chroot setup ===" && \
     echo "Testing Node.js in chroot:" && \
     (chroot /chroot /usr/bin/node --version 2>&1 && echo "Node.js OK") || (echo "ERROR: Node.js failed in chroot" && exit 1) && \
     echo "=== Chroot verification complete ==="
+
+# Verify Rust installation (compilation happens outside chroot, so we only verify rustc exists)
+RUN echo "=== Verifying Rust installation ===" && \
+    . "$HOME/.cargo/env" && \
+    echo "Checking if rustc exists:" && \
+    which rustc && \
+    rustc --version && \
+    echo "Rust OK" && \
+    echo "=== Rust verification complete ==="
 
 # Set environment variables
 ARG RAILS_ENV

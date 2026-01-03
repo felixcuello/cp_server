@@ -5,12 +5,13 @@ require 'open3'
 # Service for executing code against a single test case/example
 # Used by both Submission model and SubmissionController to avoid code duplication
 class SubmissionService
-  def initialize(source_code:, language:, example:, problem:)
+  def initialize(source_code:, language:, example:, problem:, compiled_binary_path: nil)
     @source_code = source_code
     @language = language
     @example = example
     @problem = problem
     @uuid = SecureRandom.uuid
+    @precompiled_binary = compiled_binary_path  # If provided, skip compilation
   end
 
   # Execute the test and return a result hash
@@ -47,7 +48,7 @@ class SubmissionService
 
   def execute_stdin_stdout
     prepare_files
-    compile_if_needed
+    compile_if_needed unless @precompiled_binary
     execute_code
     compare_outputs
   ensure
@@ -92,6 +93,36 @@ class SubmissionService
     end
   end
 
+  # Class method to compile code once and return the binary path
+  # Used for optimization when running multiple test cases
+  def self.compile_once(source_code:, language:)
+    uuid = SecureRandom.uuid
+    source_file = "/tmp/#{uuid}.#{language.extension}"
+    compiled_file = "/tmp/#{uuid}"
+
+    File.write(source_file, source_code)
+
+    flags_with_paths = language.compiler_flags.gsub("{compiled_file}", compiled_file)
+                                   .gsub("{source_file}", source_file)
+    compiler_args = flags_with_paths.split(/\s+/).reject(&:empty?)
+
+    Rails.logger.info "Compiling once with: #{language.compiler_binary} #{compiler_args.join(' ')}"
+
+    stdout, stderr, status = Open3.capture3(language.compiler_binary, *compiler_args)
+
+    # Clean up source file immediately (we only need the binary)
+    File.delete(source_file) rescue nil
+
+    unless status.success?
+      # Clean up binary if compilation failed
+      File.delete(compiled_file) rescue nil
+      compiler_errors = stderr.present? ? stderr : "Compilation failed (no error details)"
+      raise CompilationError, compiler_errors
+    end
+
+    compiled_file
+  end
+
   def execute_code
     # Calculate resource limits
     time_limit = [language.time_limit_sec, problem.time_limit_sec].max
@@ -100,11 +131,14 @@ class SubmissionService
     Rails.logger.info "Executing with nsjail: timeout=#{time_limit}s, memory=#{memory_limit_mb}MB"
 
     if language.compiler_binary.present?
+      # Use precompiled binary if provided, otherwise use the one we just compiled
+      binary_to_execute = @precompiled_binary || @compiled_file
+
       # Execute compiled binary
       @execution_result = NsjailExecutionService.execute_compiled(
         timeout_sec: time_limit,
         memory_limit_mb: memory_limit_mb,
-        compiled_file: @compiled_file,
+        compiled_file: binary_to_execute,
         input_file: @input_file,
         output_file: @output_file
       )
@@ -198,7 +232,8 @@ class SubmissionService
     File.delete(@source_code_file) rescue nil if @source_code_file
     File.delete(@input_file) rescue nil if @input_file
     File.delete(@output_file) rescue nil if @output_file
-    File.delete(@compiled_file) rescue nil if @compiled_file && language.compiler_binary.present?
+    # Only delete compiled file if we compiled it ourselves (not precompiled)
+    File.delete(@compiled_file) rescue nil if @compiled_file && !@precompiled_binary && language.compiler_binary.present?
   end
 
   # Custom exception for compilation errors

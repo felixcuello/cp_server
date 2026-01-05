@@ -127,101 +127,86 @@ class Submission < ApplicationRecord
 
     self.update!(status: COMPILING)
 
-    # Try to compile - if compilation fails, TestExecutionService will handle it
-    # We run the first test to trigger compilation and catch compilation errors early
-    first_example = problem.examples.order(:id).first
-    if first_example.nil?
-      self.update!(status: RUNTIME_ERROR)
-      return
-    end
-
-    service = SubmissionService.new(
-      source_code: self.source_code,
-      language: self.programming_language,
-      example: first_example,
-      problem: problem
-    )
-
+    # Compile once for all test cases - OPTIMIZATION!
     begin
-      first_result = service.execute
+      compiled_binary_path = SubmissionService.compile_once(
+        source_code: self.source_code,
+        language: self.programming_language
+      )
     rescue SubmissionService::CompilationError => e
       self.update!(status: COMPILATION_ERROR)
       return
     end
 
-    # If compilation succeeded, continue with all examples
+    # Now run all test cases with the pre-compiled binary
     final_status = ACCEPTED
     max_runtime = 0.0  # Track maximum runtime across all test cases
     user_output_to_save = nil
 
     self.update!(status: RUNNING)
 
-    problem.examples.order(:id).each_with_index do |example, index|
-      # Skip first example if we already ran it (unless it failed)
-      if index == 0 && first_result[:status] == "passed"
-        # Track runtime from first result
-        test_runtime = (first_result[:runtime] || 0) / 1000.0
-        max_runtime = [max_runtime, test_runtime].max
-        next
-      elsif index == 0
-        result = first_result
-      else
-        # Use SubmissionService to run the test
+    begin
+      problem.examples.order(:id).each_with_index do |example, index|
+        # Use SubmissionService with precompiled binary
         service = SubmissionService.new(
           source_code: self.source_code,
           language: self.programming_language,
           example: example,
-          problem: problem
+          problem: problem,
+          compiled_binary_path: compiled_binary_path
         )
 
         result = service.execute
+
+        debug!("#{__LINE__} Test #{index + 1} result: #{result[:status]}")
+
+        # Track maximum runtime (in seconds) - this represents the slowest test case
+        # The runtime from result is in milliseconds, convert to seconds
+        test_runtime = (result[:runtime] || 0) / 1000.0
+        max_runtime = [max_runtime, test_runtime].max
+
+        # Map service result status to Submission status constants
+        case result[:status]
+        when "time_limit_exceeded"
+          final_status = TIME_LIMIT_EXCEEDED
+        when "memory_limit_exceeded"
+          final_status = MEMORY_LIMIT_EXCEEDED
+        when "runtime_error"
+          final_status = RUNTIME_ERROR
+        when "compilation_error"
+          final_status = COMPILATION_ERROR
+        when "passed"
+          # Continue to next example
+          next
+        when "presentation_error"
+          final_status = PRESENTATION_ERROR
+          # Store user output for stdin/stdout problems only
+          if !problem.function_based?
+            user_output_to_save = result[:output] || ""
+          end
+        when "wrong_answer"
+          final_status = WRONG_ANSWER + " (example #{index + 1})"
+          # Store user output for stdin/stdout problems only
+          if !problem.function_based?
+            user_output_to_save = result[:output] || ""
+          end
+        else
+          final_status = RUNTIME_ERROR
+        end
+
+        # Break if we already have a non-accepted status
+        break if final_status != ACCEPTED
       end
 
-      debug!("#{__LINE__} Test #{index + 1} result: #{result[:status]}")
-
-      # Track maximum runtime (in seconds) - this represents the slowest test case
-      # The runtime from result is in milliseconds, convert to seconds
-      test_runtime = (result[:runtime] || 0) / 1000.0
-      max_runtime = [max_runtime, test_runtime].max
-
-      # Map service result status to Submission status constants
-      case result[:status]
-      when "time_limit_exceeded"
-        final_status = TIME_LIMIT_EXCEEDED
-      when "memory_limit_exceeded"
-        final_status = MEMORY_LIMIT_EXCEEDED
-      when "runtime_error"
-        final_status = RUNTIME_ERROR
-      when "compilation_error"
-        final_status = COMPILATION_ERROR
-      when "passed"
-        # Continue to next example
-        next
-      when "presentation_error"
-        final_status = PRESENTATION_ERROR
-        # Store user output for stdin/stdout problems only
-        if !problem.function_based?
-          user_output_to_save = result[:output] || ""
-        end
-      when "wrong_answer"
-        final_status = WRONG_ANSWER + " (example #{index + 1})"
-        # Store user output for stdin/stdout problems only
-        if !problem.function_based?
-          user_output_to_save = result[:output] || ""
-        end
-      else
-        final_status = RUNTIME_ERROR
-      end
-
-      # Break if we already have a non-accepted status
-      break if final_status != ACCEPTED
+      # Use maximum runtime from test cases (most accurate representation)
+      update_hash = { time_used: max_runtime, status: final_status }
+      # Always include user_output if it was set (even if empty string)
+      update_hash[:user_output] = user_output_to_save unless user_output_to_save.nil?
+      self.update!(update_hash)
+    ensure
+      # Clean up the compiled binary after all tests are done
+      File.delete(compiled_binary_path) rescue nil if compiled_binary_path
     end
-
-    # Use maximum runtime from test cases (most accurate representation)
-    update_hash = { time_used: max_runtime, status: final_status }
-    # Always include user_output if it was set (even if empty string)
-    update_hash[:user_output] = user_output_to_save unless user_output_to_save.nil?
-    self.update!(update_hash)
   end
 
   private

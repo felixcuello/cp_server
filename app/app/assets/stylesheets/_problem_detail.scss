@@ -217,25 +217,64 @@
   }
 }
 
-// Left pane - Problem description
-.problem-description-pane {
+// Left pane wrapper - contains description + test results with vertical split
+.problem-left-pane-wrapper {
   flex: 0 0 50%;
   min-width: 300px;
   max-width: calc(100% - 300px);
-  overflow-y: auto;
-  background-color: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
   border-radius: 8px 0 0 8px;
-  padding: 30px;
 
   @media (max-width: 1200px) {
     flex: 1;
     max-width: 100%;
-    max-height: 600px;
     border-radius: 8px;
   }
 }
 
-// Horizontal resizer between description and editor
+// Left pane - Problem description (top part of left pane)
+.problem-description-pane {
+  flex: 1;
+  overflow-y: auto;
+  background-color: var(--bg-secondary);
+  border-radius: 8px 0 0 8px;  // Full left border radius when test results hidden
+  padding: 30px;
+  border: 1px solid var(--border-primary);
+  border-right: none;
+
+  // When test results are visible, only round top-left corner
+  .problem-left-pane-wrapper:has(.left-pane-vertical-resizer[style*="display: block"]) & {
+    border-radius: 8px 0 0 0;
+    border-bottom: none;
+  }
+
+  @media (max-width: 1200px) {
+    max-height: 500px;
+    border-radius: 8px 8px 0 0;
+    border: 1px solid var(--border-primary);
+    border-bottom: none;
+  }
+}
+
+// Vertical resizer in left pane (between description and test results)
+.left-pane-vertical-resizer {
+  flex: 0 0 4px;
+  background-color: var(--border-primary);
+  cursor: row-resize;
+  position: relative;
+  z-index: 10;
+  transition: background-color 0.2s ease;
+  display: none; // Hidden by default, shown via JavaScript when test results are visible
+
+  &:hover {
+    background-color: var(--text-heading);
+  }
+}
+
+// Horizontal resizer between left pane and editor
 .problem-split-resizer {
   flex: 0 0 4px;
   background-color: var(--border-primary);
@@ -253,7 +292,7 @@
   }
 }
 
-// Right pane - Code editor
+// Right pane - Code editor (full height)
 .problem-editor-pane {
   flex: 1;
   min-width: 300px;
@@ -484,24 +523,21 @@
   }
 }
 
-// Code editor section
+// Code editor section (now takes full height in right pane)
 .editor-section {
   flex: 1;
   min-height: 300px;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-secondary);
-  border-radius: 8px;
+  border-radius: 0 8px 8px 0;
   overflow: hidden;
   border: 1px solid var(--border-primary);
-  border-bottom: 1px solid var(--border-primary);
+  border-left: none;
 
-  // When vertical resizer is visible (test results shown), adjust sizing and border radius
-  .problem-editor-pane:has(.editor-vertical-resizer[style*="display: block"]) & {
-    flex: 0 0 50%;
-    max-height: calc(100% - 200px);
-    border-radius: 8px 8px 0 0;
-    border-bottom: none;
+  @media (max-width: 1200px) {
+    border-radius: 8px;
+    border: 1px solid var(--border-primary);
   }
 }
 
@@ -617,30 +653,25 @@
 .editor-container {
   flex: 1;
   min-height: 400px;
-  max-height: 500px;
   position: relative;
 }
 
-// Vertical resizer between editor and test results
-.editor-vertical-resizer {
-  flex: 0 0 4px;
-  background-color: var(--border-primary);
-  cursor: row-resize;
-  position: relative;
-  z-index: 10;
-  transition: background-color 0.2s ease;
-  display: none; // Hidden by default, shown via JavaScript when test results are visible
-}
-
-// Test Results Container
+// Test Results Container (now in left pane, below description)
 .test-results-container {
   flex: 1;
-  min-height: 200px;
+  min-height: 150px;
   background-color: var(--bg-secondary);
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 0 8px;
   border: 1px solid var(--border-primary);
+  border-top: none;
   padding: 15px;
   overflow-y: auto;
+
+  @media (max-width: 1200px) {
+    border-radius: 0 0 8px 8px;
+    border: 1px solid var(--border-primary);
+    border-top: none;
+  }
 }
 
 .test-results-loading {

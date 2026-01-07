@@ -2,34 +2,33 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="resize"
 export default class extends Controller {
-  static targets = ["leftPane", "rightPane", "resizer", "topPane", "bottomPane", "verticalResizer"]
+  static targets = ["leftPane", "rightPane", "resizer", "leftTopPane", "leftBottomPane", "leftVerticalResizer"]
   
   connect() {
-    // Horizontal resize (between description and editor)
+    // Horizontal resize (between left pane and editor)
     if (this.hasResizerTarget && this.hasLeftPaneTarget && this.hasRightPaneTarget) {
       this.setupHorizontalResize()
     }
     
-    // Vertical resize (between editor and test results)
-    if (this.hasVerticalResizerTarget && this.hasTopPaneTarget && this.hasBottomPaneTarget) {
-      this.setupVerticalResize()
+    // Vertical resize in left pane (between description and test results)
+    if (this.hasLeftVerticalResizerTarget && this.hasLeftTopPaneTarget && this.hasLeftBottomPaneTarget) {
+      this.setupLeftPaneVerticalResize()
       this.watchTestResultsVisibility()
     }
   }
   
   watchTestResultsVisibility() {
     // Watch for changes to test results container visibility
-    if (!this.hasBottomPaneTarget) return
+    if (!this.hasLeftBottomPaneTarget) return
     
-    const testResultsContainer = this.bottomPaneTarget
-    const resizer = this.verticalResizerTarget
+    const testResultsContainer = this.leftBottomPaneTarget
     
     // Initial check
-    this.updateVerticalResizerVisibility()
+    this.updateLeftVerticalResizerVisibility()
     
     // Watch for style changes using MutationObserver
     const observer = new MutationObserver(() => {
-      this.updateVerticalResizerVisibility()
+      this.updateLeftVerticalResizerVisibility()
     })
     
     observer.observe(testResultsContainer, {
@@ -38,18 +37,25 @@ export default class extends Controller {
     })
   }
   
-  updateVerticalResizerVisibility() {
-    if (!this.hasBottomPaneTarget || !this.hasVerticalResizerTarget) return
+  updateLeftVerticalResizerVisibility() {
+    if (!this.hasLeftBottomPaneTarget || !this.hasLeftVerticalResizerTarget) return
     
-    const testResultsContainer = this.bottomPaneTarget
-    const resizer = this.verticalResizerTarget
+    const testResultsContainer = this.leftBottomPaneTarget
+    const resizer = this.leftVerticalResizerTarget
     const isVisible = testResultsContainer.style.display !== 'none' && 
                       window.getComputedStyle(testResultsContainer).display !== 'none'
     
     if (isVisible) {
       resizer.style.display = 'block'
+      // When test results become visible, set initial split (60% description, 40% results)
+      if (!this.leftTopPaneTarget.style.flex) {
+        this.leftTopPaneTarget.style.flex = '0 0 60%'
+        testResultsContainer.style.flex = '1'
+      }
     } else {
       resizer.style.display = 'none'
+      // When hidden, let description take full space
+      this.leftTopPaneTarget.style.flex = '1'
     }
   }
   
@@ -100,10 +106,10 @@ export default class extends Controller {
     })
   }
   
-  setupVerticalResize() {
-    const resizer = this.verticalResizerTarget
-    const topPane = this.topPaneTarget
-    const bottomPane = this.bottomPaneTarget
+  setupLeftPaneVerticalResize() {
+    const resizer = this.leftVerticalResizerTarget
+    const topPane = this.leftTopPaneTarget
+    const bottomPane = this.leftBottomPaneTarget
     
     let isResizing = false
     let startY = 0
@@ -128,8 +134,8 @@ export default class extends Controller {
       
       // Calculate new height
       const newTopHeight = startTopHeight + deltaY
-      const minHeight = 300
-      const maxHeight = containerHeight - 200 - resizerHeight
+      const minHeight = 150  // Minimum height for description
+      const maxHeight = containerHeight - 150 - resizerHeight  // Leave room for test results
       
       if (newTopHeight >= minHeight && newTopHeight <= maxHeight) {
         const percentage = (newTopHeight / containerHeight) * 100

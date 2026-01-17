@@ -727,3 +727,115 @@
   text-align: center;
   color: var(--text-heading);
 }
+
+// ===== Simple Diff Output (git-diff style) =====
+.diff-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.85em;
+  color: var(--text-secondary);
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    code {
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      background-color: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.95em;
+    }
+  }
+
+  .legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+
+    &.removed {
+      background-color: #f44336;
+    }
+
+    &.added {
+      background-color: #4caf50;
+    }
+  }
+}
+
+.diff-output {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #444;
+
+  .diff-content {
+    margin: 0;
+    padding: 15px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.6;
+    overflow-x: auto;
+    color: #ccc;
+  }
+
+  .diff-context {
+    color: #888;
+
+    .diff-newline {
+      color: #555;
+    }
+  }
+
+  .diff-removed {
+    display: block;
+    background-color: rgba(244, 67, 54, 0.15);
+    color: #f44336;
+
+    .diff-newline {
+      color: rgba(244, 67, 54, 0.5);
+    }
+  }
+
+  .diff-added {
+    display: block;
+    background-color: rgba(76, 175, 80, 0.15);
+    color: #4caf50;
+
+    .diff-newline {
+      color: rgba(76, 175, 80, 0.5);
+    }
+  }
+
+  .diff-no-newline {
+    font-style: italic;
+    opacity: 0.8;
+  }
+
+  // Visible whitespace characters
+  .ws-space, .ws-tab {
+    opacity: 0.6;
+  }
+
+  .ws-space.ws-removed,
+  .ws-tab.ws-removed {
+    background-color: rgba(244, 67, 54, 0.4);
+    color: #ff6b6b;
+    border-radius: 2px;
+  }
+
+  .ws-space.ws-added,
+  .ws-tab.ws-added {
+    background-color: rgba(76, 175, 80, 0.4);
+    color: #69db7c;
+    border-radius: 2px;
+  }
+
+  // Newline symbol at end of lines
+  .diff-newline {
+    opacity: 0.4;
+    font-size: 0.85em;
+  }
+}

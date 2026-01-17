@@ -96,7 +96,7 @@ class Submission < ApplicationRecord
         # Continue to next example
         next
       when "presentation_error"
-        final_status = PRESENTATION_ERROR
+        final_status = PRESENTATION_ERROR + " (example #{index + 1})"
         # Store user output for stdin/stdout problems only
         if !problem.function_based?
           user_output_to_save = result[:output] || ""
@@ -179,7 +179,7 @@ class Submission < ApplicationRecord
           # Continue to next example
           next
         when "presentation_error"
-          final_status = PRESENTATION_ERROR
+          final_status = PRESENTATION_ERROR + " (example #{index + 1})"
           # Store user output for stdin/stdout problems only
           if !problem.function_based?
             user_output_to_save = result[:output] || ""

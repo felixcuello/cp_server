@@ -41,7 +41,8 @@ RUN apt-get update -qq && \
       libtool \
       pkg-config \
       protobuf-compiler \
-      uidmap && \
+      uidmap \
+      neovim && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Build and install nsjail from source (needed for secure code execution)

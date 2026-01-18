@@ -2,6 +2,60 @@
 
 require "json"
 
+# Single problem operations
+namespace :problem do
+  desc "Destroy a single problem by ID: rake problem:destroy[ID]"
+  task :destroy, [:id] => :environment do |_t, args|
+    unless args[:id].present?
+      puts "❌ Error: Problem ID is required"
+      puts "Usage: rake problem:destroy[ID]"
+      exit 1
+    end
+
+    id = args[:id].to_i
+    problem = Problem.find_by(id: id)
+
+    unless problem
+      puts "❌ Error: Problem with ID #{id} not found"
+      exit 1
+    end
+
+    puts "🗑️  Destroying problem ##{id}: #{problem.title}"
+
+    Problem.transaction do
+      puts "   Deleting examples..."
+      problem.examples.destroy_all
+
+      puts "   Deleting problem_tags..."
+      problem.problem_tags.destroy_all
+
+      puts "   Deleting constraints..."
+      problem.constraints.destroy_all
+
+      puts "   Deleting translations..."
+      problem.translations.delete_all
+
+      puts "   Deleting templates..."
+      problem.problem_templates.destroy_all
+
+      puts "   Deleting testers..."
+      problem.problem_testers.destroy_all
+
+      puts "   Deleting user_problem_statuses..."
+      problem.user_problem_statuses.destroy_all
+
+      puts "   Deleting submissions..."
+      problem.submissions.destroy_all
+
+      puts "   Deleting problem..."
+      problem.destroy!
+    end
+
+    puts "✅ Problem ##{id} destroyed successfully"
+  end
+end
+
+# Bulk problem operations
 namespace :problems do
   desc "Create problems based on the JSON files in problems/*.json"
 

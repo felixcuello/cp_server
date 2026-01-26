@@ -177,7 +177,12 @@ export default class extends Controller {
       roundedSelection: true,
       scrollBeyondLastLine: false,
       automaticLayout: true,
-      tabSize: 4
+      tabSize: 4,
+      find: {
+        addExtraSpaceOnTop: false,
+        autoFindInSelection: 'never',
+        seedSearchStringFromSelection: 'always'
+      }
     })
 
     // Listen for theme changes
@@ -622,5 +627,17 @@ export default class extends Controller {
 
   getCSRFToken() {
     return document.querySelector('meta[name="csrf-token"]').content
+  }
+
+  openSearch(event) {
+    event.preventDefault()
+
+    if (!this.editor) {
+      console.error('Editor not initialized')
+      return
+    }
+
+    // Trigger Monaco's find action (opens search/replace widget)
+    this.editor.trigger('keyboard', 'actions.find')
   }
 }

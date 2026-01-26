@@ -180,6 +180,17 @@
             <% case @submission.status.downcase %>
             <% when /compilation error/ %>
               <p>Your code failed to compile. Check for syntax errors, missing semicolons, or incorrect function declarations.</p>
+              <% if current_user&.admin? && @submission.compiler_output.present? %>
+                <div class="admin-only-section" style="margin-top: 20px;">
+                  <div class="admin-only-badge">
+                    <span class="admin-badge-icon">🔒</span>
+                    <span class="admin-badge-text">Admin View Only - Compiler Output</span>
+                  </div>
+                  <div class="code-container">
+                    <pre style="background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 4px; overflow-x: auto;"><code><%= @submission.compiler_output %></code></pre>
+                  </div>
+                </div>
+              <% end %>
             <% when /runtime error/ %>
               <p>Your code crashed during execution. Common causes include: null pointer exceptions, array index out of bounds, or division by zero.</p>
             <% when /time limit exceeded/ %>

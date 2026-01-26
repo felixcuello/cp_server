@@ -53,6 +53,179 @@ namespace :problem do
 
     puts "✅ Problem ##{id} destroyed successfully"
   end
+
+  desc "Update a single problem from a JSON file: rake problem:update[path/to/problem.json]"
+  task :update, [:path] => :environment do |_t, args|
+    unless args[:path].present?
+      puts "❌ Error: Problem file path is required"
+      puts "Usage: rake problem:update[path/to/problem.json]"
+      puts "Example: rake problem:update[problems/two_sum.problem.json]"
+      exit 1
+    end
+
+    file = args[:path]
+
+    unless File.exist?(file)
+      puts "❌ Error: File not found: #{file}"
+      exit 1
+    end
+
+    unless file.end_with?('.json')
+      puts "❌ Error: File must be a JSON file"
+      exit 1
+    end
+
+    puts "📝 Updating problem from: #{file}"
+
+    begin
+      data = JSON.parse(File.read(file))
+    rescue JSON::ParserError => e
+      puts "❌ Error: Invalid JSON format: #{e.message}"
+      exit 1
+    end
+
+    # Support both old format (direct fields) and new format (translations)
+    if data["translations"]
+      title = data["translations"]["en"]["title"]
+      description = data["translations"]["en"]["description"]
+    else
+      title = data["title"]
+      description = data["description"]
+    end
+
+    unless title.present?
+      puts "❌ Error: Problem title is required in JSON"
+      exit 1
+    end
+
+    problem = Problem.find_by(title: title)
+    if problem
+      puts "🔄 Updating existing problem: '#{title}'"
+
+      # Destroy existing associated data
+      problem.examples.destroy_all
+      problem.constraints.destroy_all
+      problem.problem_tags.destroy_all
+      problem.problem_templates.destroy_all
+      problem.problem_testers.destroy_all
+      problem.translations.destroy_all
+    else
+      puts "✨ Creating new problem: '#{title}'"
+      problem = Problem.new
+    end
+
+    difficulty = data["difficulty"]
+    tags = data["tags"]
+    examples = data["examples"]
+    
+    # Support both formats for constraints
+    if data["translations"]
+      constraints = data["translations"]["en"]["constraints"] || data["constraints"] || []
+    else
+      constraints = data["constraints"] || []
+    end
+
+    # Handle both memory_limit_kb and memory_limit_mb for compatibility
+    memory_limit_kb = if data["memory_limit_mb"]
+                        data["memory_limit_mb"].to_i * 1024
+                      else
+                        data["memory_limit_kb"].to_i
+                      end
+    time_limit_sec = data["time_limit_sec"].to_i
+
+    # Read hidden field from JSON, defaulting to true if not present
+    hidden = data.key?("hidden") ? data["hidden"] : true
+
+    # Read ignore_output_line_order field from JSON, defaulting to false if not present
+    ignore_output_line_order = data.key?("ignore_output_line_order") ? data["ignore_output_line_order"] : false
+
+    # Get testing_mode from JSON, default to stdin_stdout
+    testing_mode = data["testing_mode"] || "stdin_stdout"
+
+    problem.update!(
+      title: title,
+      description: description,
+      difficulty: difficulty.to_sym,
+      memory_limit_kb: memory_limit_kb,
+      time_limit_sec: time_limit_sec,
+      hidden: hidden,
+      ignore_output_line_order: ignore_output_line_order,
+      testing_mode: testing_mode
+    )
+
+    # Create translations if new format
+    if data["translations"]
+      puts "   📚 Creating translations..."
+      data["translations"].each do |locale, translation_data|
+        ProblemTranslation.create!(
+          problem: problem,
+          locale: locale,
+          title: translation_data["title"],
+          description: translation_data["description"]
+        )
+        puts "      ✅ Translation created for locale: #{locale}"
+      end
+    end
+
+    puts "   🏷️  Adding tags..."
+    tags.each do |tag_name|
+      tag = Tag.find_or_create_by!(name: tag_name)
+      problem.tags << tag
+    end
+    puts "      ✅ #{tags.count} tag(s) added"
+
+    puts "   📋 Adding examples..."
+    examples.each_with_index do |example_data, sort_order|
+      Example.create!(
+        problem: problem,
+        is_hidden: example_data["is_hidden"],
+        input: example_data["input"].to_s,
+        output: example_data["output"].to_s,
+        description: example_data["description"],
+        sort_order: sort_order
+      )
+    end
+    puts "      ✅ #{examples.count} example(s) added"
+
+    puts "   📐 Adding constraints..."
+    constraints.each_with_index do |constraint_description, sort_order|
+      constraint = Constraint.create!(
+        problem: problem,
+        description: constraint_description,
+        sort_order: sort_order
+      )
+
+      # Create constraint translations if new format
+      if data["translations"]
+        data["translations"].each do |locale, translation_data|
+          constraint_descriptions = translation_data["constraints"] || []
+          if constraint_descriptions[sort_order].present?
+            ConstraintTranslation.create!(
+              constraint: constraint,
+              locale: locale,
+              description: constraint_descriptions[sort_order]
+            )
+          end
+        end
+      end
+    end
+    puts "      ✅ #{constraints.count} constraint(s) added"
+
+    # Load templates and testers for function-based problems
+    if problem.function_based?
+      puts "   🔧 Loading templates and testers for function-based problem..."
+      problem_file_basename = File.basename(file, ".problem.json")
+      problem_dir = File.dirname(file)
+      ProblemTaskHelpers.load_templates_for_problem(problem, problem_dir, problem_file_basename, data)
+      ProblemTaskHelpers.load_testers_for_problem(problem, problem_dir, problem_file_basename)
+    end
+
+    puts "✅ Problem updated successfully!"
+    puts "   ID: #{problem.id}"
+    puts "   Title: #{problem.title}"
+    puts "   Difficulty: #{problem.difficulty}"
+    puts "   Testing Mode: #{problem.testing_mode}"
+  end
 end
 
 # Bulk problem operations
@@ -178,8 +351,8 @@ namespace :problems do
       if problem.function_based?
         problem_file_basename = File.basename(file, ".problem.json")
         problem_dir = File.dirname(file)
-        load_templates_for_problem(problem, problem_dir, problem_file_basename, data)
-        load_testers_for_problem(problem, problem_dir, problem_file_basename)
+        ProblemTaskHelpers.load_templates_for_problem(problem, problem_dir, problem_file_basename, data)
+        ProblemTaskHelpers.load_testers_for_problem(problem, problem_dir, problem_file_basename)
       end
     end
   end
@@ -305,8 +478,8 @@ namespace :problems do
         if problem.function_based?
           problem_file_basename = File.basename(file, ".problem.json")
           problem_dir = File.dirname(file)
-          load_templates_for_problem(problem, problem_dir, problem_file_basename, data)
-          load_testers_for_problem(problem, problem_dir, problem_file_basename)
+          ProblemTaskHelpers.load_templates_for_problem(problem, problem_dir, problem_file_basename, data)
+          ProblemTaskHelpers.load_testers_for_problem(problem, problem_dir, problem_file_basename)
         end
       end
 
@@ -334,10 +507,11 @@ namespace :problems do
       Problem.destroy_all
     end
   end
+end
 
-  private
-
-  def load_templates_for_problem(problem, problem_dir, problem_basename, data)
+# Helper methods for problem tasks (shared between namespaces)
+module ProblemTaskHelpers
+  def self.load_templates_for_problem(problem, problem_dir, problem_basename, data)
     # Look for template files: multiply_list.template.cpp, multiply_list.template.c, etc.
     template_pattern = File.join(problem_dir, "#{problem_basename}.template.*")
     template_files = Dir.glob(template_pattern)
@@ -372,7 +546,7 @@ namespace :problems do
     end
   end
 
-  def load_testers_for_problem(problem, problem_dir, problem_basename)
+  def self.load_testers_for_problem(problem, problem_dir, problem_basename)
     # Look for tester files: multiply_list.tester.cpp, multiply_list.tester.c, etc.
     tester_pattern = File.join(problem_dir, "#{problem_basename}.tester.*")
     tester_files = Dir.glob(tester_pattern)
@@ -405,7 +579,7 @@ namespace :problems do
     end
   end
 
-  def find_language_by_extension(extension)
+  def self.find_language_by_extension(extension)
     case extension.downcase
     when "cpp", "cc", "cxx"
       ProgrammingLanguage.find_by(name: "C++11")

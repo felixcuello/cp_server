@@ -92,6 +92,8 @@ class Submission < ApplicationRecord
         final_status = RUNTIME_ERROR
       when "compilation_error"
         final_status = COMPILATION_ERROR
+        # Store compiler error for admin debugging
+        self.compiler_output = result[:error_message] if result[:error_message].present?
       when "passed"
         # Continue to next example
         next
@@ -119,6 +121,8 @@ class Submission < ApplicationRecord
     update_hash = { time_used: max_runtime, status: final_status }
     # Always include user_output if it was set (even if empty string)
     update_hash[:user_output] = user_output_to_save unless user_output_to_save.nil?
+    # Include compiler_output if it was set during compilation error
+    update_hash[:compiler_output] = self.compiler_output if self.compiler_output.present?
     self.update!(update_hash)
   end
 
@@ -134,7 +138,11 @@ class Submission < ApplicationRecord
         language: self.programming_language
       )
     rescue SubmissionService::CompilationError => e
-      self.update!(status: COMPILATION_ERROR)
+      # Store the actual compiler error for admin debugging
+      self.update!(
+        status: COMPILATION_ERROR,
+        compiler_output: e.message
+      )
       return
     end
 
@@ -175,6 +183,8 @@ class Submission < ApplicationRecord
           final_status = RUNTIME_ERROR
         when "compilation_error"
           final_status = COMPILATION_ERROR
+          # Store compiler error for admin debugging
+          self.compiler_output = result[:error_message] if result[:error_message].present?
         when "passed"
           # Continue to next example
           next
@@ -202,6 +212,8 @@ class Submission < ApplicationRecord
       update_hash = { time_used: max_runtime, status: final_status }
       # Always include user_output if it was set (even if empty string)
       update_hash[:user_output] = user_output_to_save unless user_output_to_save.nil?
+      # Include compiler_output if it was set during compilation error
+      update_hash[:compiler_output] = self.compiler_output if self.compiler_output.present?
       self.update!(update_hash)
     ensure
       # Clean up the compiled binary after all tests are done

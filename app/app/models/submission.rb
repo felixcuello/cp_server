@@ -129,6 +129,66 @@ class Submission < ApplicationRecord
   def run_with_compiler!
     problem = Problem.find self.problem_id
 
+    # Function-based problems cannot use compile-once optimization
+    # because the user code needs to be combined with the tester code for each run
+    if problem.function_based?
+      # Use the same logic as run_with_interpreter! but for compiled languages
+      final_status = ACCEPTED
+      max_runtime = 0.0
+      user_output_to_save = nil
+
+      self.update!(status: RUNNING)
+      problem.examples.order(:id).each_with_index do |example, index|
+        service = SubmissionService.new(
+          source_code: self.source_code,
+          language: self.programming_language,
+          example: example,
+          problem: problem
+        )
+
+        result = service.execute
+        debug!("#{__LINE__} Test #{index + 1} result: #{result[:status]}")
+
+        test_runtime = (result[:runtime] || 0) / 1000.0
+        max_runtime = [max_runtime, test_runtime].max
+
+        case result[:status]
+        when "time_limit_exceeded"
+          final_status = TIME_LIMIT_EXCEEDED
+        when "memory_limit_exceeded"
+          final_status = MEMORY_LIMIT_EXCEEDED
+        when "runtime_error"
+          final_status = RUNTIME_ERROR
+        when "compilation_error"
+          final_status = COMPILATION_ERROR
+          self.compiler_output = result[:error_message] if result[:error_message].present?
+        when "passed"
+          next
+        when "presentation_error"
+          final_status = PRESENTATION_ERROR + " (example #{index + 1})"
+          if !problem.function_based?
+            user_output_to_save = result[:output] || ""
+          end
+        when "wrong_answer"
+          final_status = WRONG_ANSWER + " (example #{index + 1})"
+          if !problem.function_based?
+            user_output_to_save = result[:output] || ""
+          end
+        else
+          final_status = RUNTIME_ERROR
+        end
+
+        break if final_status != ACCEPTED
+      end
+
+      update_hash = { time_used: max_runtime, status: final_status }
+      update_hash[:user_output] = user_output_to_save unless user_output_to_save.nil?
+      update_hash[:compiler_output] = self.compiler_output if self.compiler_output.present?
+      self.update!(update_hash)
+      return
+    end
+
+    # For stdin/stdout problems, use compile-once optimization
     self.update!(status: COMPILING)
 
     # Compile once for all test cases - OPTIMIZATION!

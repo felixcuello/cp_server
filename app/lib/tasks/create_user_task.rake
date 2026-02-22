@@ -62,6 +62,53 @@ namespace :user do
     end
   end
 
+  desc "Update user password by email"
+  task :update_password, [:email] => :environment do |_t, args|
+    # Validate arguments
+    if args[:email].blank?
+      puts "❌ Error: Email is required"
+      puts "Usage: rake user:update_password[email@example.com]"
+      exit 1
+    end
+
+    email = args[:email]
+
+    # Find user by email
+    user = User.find_by(email: email)
+
+    unless user
+      puts "❌ Error: User with email '#{email}' not found"
+      exit 1
+    end
+
+    # Generate new secure password
+    password = generate_secure_password
+
+    # Update the user's password
+    begin
+      user.update!(
+        password: password,
+        password_confirmation: password
+      )
+
+      puts "✅ Contraseña actualizada exitosamente!"
+      puts ""
+      puts "Hola,"
+      puts ""
+      puts "Tu password para el servidor https://cloud-stack.palermo.edu:35500/ de programación fue cambiado:"
+      puts ""
+      puts "Usuario: #{email}"
+      puts "Contraseña: #{password}"
+      puts ""
+      puts "¡Ya podés empezar a programar!"
+      puts ""
+      puts "Saludos!"
+    rescue StandardError => e
+      puts "❌ Error updating password: #{e.message}"
+      exit 1
+    end
+  end
+
   private
 
   def generate_secure_password

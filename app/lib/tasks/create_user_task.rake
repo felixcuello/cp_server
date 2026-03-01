@@ -1,5 +1,21 @@
 # frozen_string_literal: true
 
+def generate_secure_password
+  uppercase = ("A".."Z").to_a
+  lowercase = ("a".."z").to_a
+  digits = ("0".."9").to_a
+  symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?".chars
+  password = [
+    uppercase.sample,
+    lowercase.sample,
+    digits.sample,
+    symbols.sample
+  ]
+  all_chars = uppercase + lowercase + digits + symbols
+  password += Array.new(12) { all_chars.sample }
+  password.shuffle.join
+end
+
 namespace :user do
   desc "Create a new user with generated credentials"
   task :create, [:first_name, :last_name, :email] => :environment do |_t, args|
@@ -109,28 +125,53 @@ namespace :user do
     end
   end
 
-  private
+  namespace :password do
+    desc "Update user password by username or email (with confirmation)"
+    task :update, [:identifier] => :environment do |_t, args|
+      if args[:identifier].blank?
+        puts "❌ Error: Username or email is required"
+        puts "Usage: rake user:password:update[user@example.com]"
+        puts "   or: rake user:password:update[username]"
+        exit 1
+      end
 
-  def generate_secure_password
-    # Character sets for password generation
-    uppercase = ("A".."Z").to_a
-    lowercase = ("a".."z").to_a
-    digits = ("0".."9").to_a
-    symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?".chars
+      identifier = args[:identifier].to_s.strip
+      user = if identifier.include?("@")
+               User.find_by(email: identifier)
+             else
+               User.find_by(alias: identifier)
+             end
 
-    # Ensure at least one character from each set
-    password = [
-      uppercase.sample,
-      lowercase.sample,
-      digits.sample,
-      symbols.sample
-    ]
+      unless user
+        puts "❌ Error: User not found for '#{identifier}'"
+        exit 1
+      end
 
-    # Fill remaining 12 characters randomly from all sets
-    all_chars = uppercase + lowercase + digits + symbols
-    password += Array.new(12) { all_chars.sample }
+      display_name = "#{user.first_name} #{user.last_name} (#{user.email})"
+      print "Do you want to update the password to \"#{display_name}\"?  (y/N): "
+      answer = $stdin.gets&.strip&.downcase
 
-    # Shuffle to avoid predictable pattern
-    password.shuffle.join
+      unless answer == "y"
+        puts "Aborted."
+        exit 0
+      end
+
+      password = generate_secure_password
+
+      begin
+        user.update!(
+          password: password,
+          password_confirmation: password
+        )
+
+        puts "✅ Contraseña actualizada exitosamente!"
+        puts ""
+        puts "Usuario: #{user.email}"
+        puts "Contraseña: #{password}"
+      rescue StandardError => e
+        puts "❌ Error updating password: #{e.message}"
+        exit 1
+      end
+    end
   end
 end

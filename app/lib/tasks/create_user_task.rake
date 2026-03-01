@@ -22,7 +22,8 @@ namespace :user do
     # Validate arguments
     if args[:first_name].blank? || args[:last_name].blank? || args[:email].blank?
       puts "❌ Error: All arguments are required"
-      puts "Usage: rake user:create[FirstName,LastName,email@example.com]"
+      puts "Usage: rake \"user:create[FirstName,LastName,email@example.com]\""
+      puts "       (Quote the task+args so the shell doesn't split on brackets/commas)"
       exit 1
     end
 

@@ -302,6 +302,7 @@ class NsjailExecutionService
       NSJAIL_BINARY,
       "--quiet",                                    # Suppress nsjail messages
       "--chroot", CHROOT_PATH,                     # Chroot to isolated filesystem
+      "--rw",                                      # Mount root R/W (avoids MS_REMOUNT|MS_RDONLY which fails in Docker on kernel < 6.3)
       "--user", "65534",                           # Run as nobody user
       "--group", "65534",                          # Run as nobody group
       "--hostname", "NSJAIL",                      # Set hostname
@@ -332,6 +333,7 @@ class NsjailExecutionService
       NSJAIL_BINARY,
       "--quiet",
       "--chroot", CHROOT_PATH,
+      "--rw",     # Mount root R/W (avoids MS_REMOUNT|MS_RDONLY which fails in Docker on kernel < 6.3)
       "--user", "65534",
       "--group", "65534",
       "--hostname", "NSJAIL",

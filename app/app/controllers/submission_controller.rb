@@ -21,6 +21,10 @@ class SubmissionController < AuthenticatedController
       @submissions = @submissions.where(user: current_user)
     end
 
+    if @show_all
+      @submissions = @submissions.where.not(user_id: User.admin.select(:id))
+    end
+
     # Pagination
     @page = (params[:page] || 1).to_i
     @per_page = 20
@@ -47,6 +51,9 @@ class SubmissionController < AuthenticatedController
       # Filter by user if specified
       if params[:user_id].present?
         @submissions = @submissions.where(user_id: params[:user_id])
+      else
+        # Exclude admin users' submissions to reduce noise from admin testing
+        @submissions = @submissions.where.not(user_id: User.admin.select(:id))
       end
     else
       @submissions = @contest.submissions.where(user: current_user)

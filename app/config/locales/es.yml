@@ -6,6 +6,7 @@ es:
     problems: "Problemas"
     submissions: "Envíos"
     contests: "Concursos"
+    sandbox: "Sandbox"
     sign_out: "Cerrar Sesión"
     toggle_theme: "Cambiar Tema"
     view_profile: "Ver Perfil"
@@ -167,6 +168,15 @@ es:
     joined: "Se unió"
     solved_problems: "Problemas Resueltos"
     recent_submissions: "Envíos Recientes"
+  
+  # Sandbox
+  sandbox:
+    code: "Código"
+    input: "Entrada"
+    output: "Salida"
+    run: "EJECUTAR"
+    reset: "Restablecer"
+    output_placeholder: "Ejecuta tu código para ver la salida aquí..."
   
   # Común
   common:

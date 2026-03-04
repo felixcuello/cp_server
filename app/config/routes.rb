@@ -36,6 +36,9 @@ Rails.application.routes.draw do
     end
   end
 
+  get "sandbox", to: "sandbox#show", as: "sandbox"
+  post "sandbox/run", to: "sandbox#run", as: "sandbox_run"
+
   get 'user/:alias', to: 'user#show', as: 'user'
 
   # Admin namespace

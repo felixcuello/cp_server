@@ -25,6 +25,7 @@
             <%= link_to t('navigation.problems'), problems_path, class: "navbar-link" %>
             <%= link_to t('navigation.submissions'), submission_path, class: "navbar-link" %>
             <%= link_to t('navigation.contests'), contests_path, class: "navbar-link" %>
+            <%= link_to t('navigation.sandbox'), sandbox_path, class: "navbar-link" %>
           </div>
         <% end %>
       </div>
@@ -107,6 +108,11 @@
         <%= link_to contests_path, class: "drawer-link" do %>
           <span class="drawer-icon">🏆</span>
           <span><%= t('navigation.contests') %></span>
+        <% end %>
+
+        <%= link_to sandbox_path, class: "drawer-link" do %>
+          <span class="drawer-icon">🧪</span>
+          <span><%= t('navigation.sandbox') %></span>
         <% end %>
 
         <div class="drawer-divider"></div>

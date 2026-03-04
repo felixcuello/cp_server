@@ -1,0 +1,89 @@
+<% content_for(:title) { "Sandbox | UP" } %>
+
+<div class="page-container">
+  <div class="sandbox-container"
+       data-controller="sandbox resize"
+       data-sandbox-languages-value="<%= @languages.map { |l| { id: l.id, name: l.name } }.to_json %>">
+
+    <!-- Left Pane: Code Editor -->
+    <div class="sandbox-left-pane" data-resize-target="leftPane">
+      <div class="editor-section">
+        <div class="editor-header">
+          <div class="editor-header-left">
+            <span style="font-weight: 600; color: var(--text-heading);"><%= t('sandbox.code') %></span>
+            <select data-sandbox-target="languageSelect" data-action="change->sandbox#changeLanguage">
+              <% @languages.each_with_index do |language, index| %>
+                <option value="<%= language.id %>" data-lang="<%= language.name.downcase %>" <%= 'selected' if index == 0 %>>
+                  <%= language.name %>
+                </option>
+              <% end %>
+            </select>
+          </div>
+          <div class="editor-header-actions">
+            <button class="btn-search" data-action="click->sandbox#openSearch" title="Search & Replace (Ctrl+F / Ctrl+H)">
+              🔍
+            </button>
+            <button class="btn-secondary" data-action="click->sandbox#resetCode">
+              🔄 <%= t('sandbox.reset') %>
+            </button>
+          </div>
+        </div>
+        <div class="editor-container" data-sandbox-target="codeEditor"></div>
+      </div>
+    </div>
+
+    <!-- Horizontal Resizer -->
+    <div class="problem-split-resizer" data-resize-target="resizer"></div>
+
+    <!-- Right Pane: Input + Run + Output -->
+    <div class="sandbox-right-pane" data-resize-target="rightPane">
+
+      <!-- Input Section -->
+      <div class="sandbox-input-section">
+        <div class="sandbox-section-header">
+          <span class="sandbox-section-title"><%= t('sandbox.input') %></span>
+        </div>
+        <div class="sandbox-input-editor" data-sandbox-target="inputEditor"></div>
+      </div>
+
+      <!-- Run Button Bar -->
+      <div class="sandbox-run-bar">
+        <button class="sandbox-run-button" data-action="click->sandbox#run" data-sandbox-target="runButton">
+          <span class="run-icon">|▶</span> <span><%= t('sandbox.run') %></span>
+        </button>
+        <span class="sandbox-runtime" data-sandbox-target="runtime"></span>
+      </div>
+
+      <!-- Output Section -->
+      <div class="sandbox-output-section">
+        <div class="sandbox-section-header">
+          <span class="sandbox-section-title"><%= t('sandbox.output') %></span>
+          <span class="sandbox-status-badge" data-sandbox-target="statusBadge"></span>
+        </div>
+        <div class="sandbox-output" data-sandbox-target="output">
+          <pre class="sandbox-output-content" data-sandbox-target="outputContent"><span class="sandbox-output-placeholder"><%= t('sandbox.output_placeholder') %></span></pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Monaco Editor -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<script>
+  if (typeof require !== 'undefined') {
+    require.config({
+      paths: {
+        vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs'
+      }
+    });
+
+    window.monacoLoaded = new Promise((resolve) => {
+      require(['vs/editor/editor.main'], function() {
+        window.monacoReady = true;
+        resolve();
+      });
+    });
+  }
+</script>

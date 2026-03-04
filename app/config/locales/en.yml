@@ -33,6 +33,7 @@ en:
     problems: "Problems"
     submissions: "Submissions"
     contests: "Contests"
+    sandbox: "Sandbox"
     sign_out: "Sign Out"
     toggle_theme: "Toggle Theme"
     view_profile: "View Profile"
@@ -194,6 +195,15 @@ en:
     joined: "Joined"
     solved_problems: "Solved Problems"
     recent_submissions: "Recent Submissions"
+  
+  # Sandbox
+  sandbox:
+    code: "Code"
+    input: "Input"
+    output: "Output"
+    run: "RUN"
+    reset: "Reset"
+    output_placeholder: "Run your code to see output here..."
   
   # Common
   common:

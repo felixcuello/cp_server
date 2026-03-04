@@ -1,0 +1,235 @@
+// Sandbox page - code playground
+
+.page-container:has(.sandbox-container) {
+  max-width: 100%;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.sandbox-container {
+  display: flex;
+  gap: 0;
+  height: calc(100vh - 120px);
+  width: 100%;
+  position: relative;
+
+  .main-body:has(.upcoming-contest-banner) & {
+    height: calc(100vh - 180px);
+  }
+
+  @media (max-width: 1200px) {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 200px);
+  }
+}
+
+// Left pane: code editor
+.sandbox-left-pane {
+  flex: 0 0 55%;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .editor-section {
+    border-radius: 8px 0 0 8px;
+    border: 1px solid var(--border-primary);
+    border-right: none;
+
+    @media (max-width: 1200px) {
+      border-radius: 8px;
+      border: 1px solid var(--border-primary);
+    }
+  }
+
+  @media (max-width: 1200px) {
+    flex: none;
+    min-height: 400px;
+  }
+}
+
+// Right pane: input + run + output
+.sandbox-right-pane {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-primary);
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  background-color: var(--bg-secondary);
+
+  @media (max-width: 1200px) {
+    border-radius: 8px;
+    border: 1px solid var(--border-primary);
+    margin-top: 20px;
+    min-height: 400px;
+  }
+}
+
+.sandbox-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background-color: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.sandbox-section-title {
+  font-weight: 600;
+  font-size: 0.85em;
+  color: var(--text-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// Input editor area
+.sandbox-input-section {
+  flex: 0 0 35%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 100px;
+}
+
+.sandbox-input-editor {
+  flex: 1;
+  min-height: 80px;
+}
+
+// Run button bar
+.sandbox-run-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background-color: var(--bg-tertiary);
+  border-top: 1px solid var(--border-primary);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.sandbox-run-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  .run-icon {
+    font-family: monospace;
+    font-weight: bold;
+  }
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &.running {
+    background-color: #ff9800;
+    animation: pulse-run 1.5s infinite;
+  }
+}
+
+@keyframes pulse-run {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+.sandbox-runtime {
+  font-size: 0.85em;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+// Output area
+.sandbox-output-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 100px;
+}
+
+.sandbox-output {
+  flex: 1;
+  overflow: auto;
+  padding: 12px 16px;
+}
+
+.sandbox-output-content {
+  margin: 0;
+  padding: 0;
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.sandbox-output-placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+// Status badge
+.sandbox-status-badge {
+  font-size: 0.75em;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  &:empty {
+    display: none;
+  }
+
+  &.sandbox-status-success {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: var(--status-accepted);
+  }
+
+  &.sandbox-status-error,
+  &.sandbox-status-runtime-error {
+    background-color: rgba(244, 67, 54, 0.15);
+    color: var(--status-wrong);
+  }
+
+  &.sandbox-status-compilation-error {
+    background-color: rgba(255, 152, 0, 0.15);
+    color: #e65100;
+  }
+
+  &.sandbox-status-time-limit-exceeded {
+    background-color: rgba(156, 39, 176, 0.15);
+    color: var(--status-tle);
+  }
+
+  &.sandbox-status-memory-limit-exceeded {
+    background-color: rgba(156, 39, 176, 0.15);
+    color: var(--status-tle);
+  }
+}

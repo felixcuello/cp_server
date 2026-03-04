@@ -166,8 +166,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_28_094531) do
     t.string "status", default: "queued", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "sandbox", default: false, null: false
-    t.text "sandbox_input"
     t.bigint "contest_id"
     t.text "user_output", size: :medium
     t.index ["contest_id"], name: "index_submissions_on_contest_id"

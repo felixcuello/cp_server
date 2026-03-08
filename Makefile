@@ -21,6 +21,10 @@ all:
 	@echo "  make contests-update                      # Actualizar contests existentes"
 	@echo "  make contests-destroy                     # Borrar todos los contests"
 	@echo ""
+	@echo "  PROBLEM MANAGEMENT:"
+	@echo "  make problems-update                      # Actualizar todos los problems desde app/problems/"
+	@echo "  make problem-update FILE=path/to/file   # Actualizar un problem: FILE=problems/foo.problem.json"
+	@echo ""
 
 # Esto sólo construye para desarrollo
 # DOCKER_BUILD_FLAGS can be set to add flags like --no-cache
@@ -75,4 +79,14 @@ contests-update:
 
 contests-destroy:
 	docker compose run --rm cp_server bundle exec rake contests:destroy
+
+problems-update:
+	docker compose run --rm cp_server bundle exec rake problems:update
+
+problem-update:
+	@if [ -z "$(FILE)" ]; then \
+		echo "Usage: make problem-update FILE=problems/your_problem.problem.json"; \
+		exit 1; \
+	fi
+	docker compose run --rm cp_server bundle exec rake "problem:update[$(FILE)]"
 

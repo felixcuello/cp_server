@@ -38,6 +38,7 @@ Rails.application.routes.draw do
 
   get "sandbox", to: "sandbox#show", as: "sandbox"
   post "sandbox/run", to: "sandbox#run", as: "sandbox_run"
+  get "leaderboard", to: "leaderboard#index", as: "leaderboard"
 
   get 'user/:alias', to: 'user#show', as: 'user'
 

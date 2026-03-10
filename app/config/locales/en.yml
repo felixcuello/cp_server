@@ -34,6 +34,7 @@ en:
     submissions: "Submissions"
     contests: "Contests"
     sandbox: "Sandbox"
+    leaderboard: "Leaderboard"
     sign_out: "Sign Out"
     toggle_theme: "Toggle Theme"
     view_profile: "View Profile"
@@ -195,6 +196,19 @@ en:
     joined: "Joined"
     solved_problems: "Solved Problems"
     recent_submissions: "Recent Submissions"
+
+  # Leaderboard
+  leaderboard:
+    title: "Leaderboard"
+    top_solvers: "Top Solvers"
+    solver_name: "Name"
+    solved_count: "Solved"
+    problems_by_difficulty: "Problems by Acceptance"
+    problem_title: "Problem"
+    sort_hardest_first: "Show hardest first"
+    sort_easiest_first: "Show easiest first"
+    no_solvers: "No solvers yet."
+    no_problems: "No attempted problems yet."
   
   # Sandbox
   sandbox:

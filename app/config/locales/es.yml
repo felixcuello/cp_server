@@ -7,6 +7,7 @@ es:
     submissions: "Envíos"
     contests: "Concursos"
     sandbox: "Sandbox"
+    leaderboard: "Clasificación"
     sign_out: "Cerrar Sesión"
     toggle_theme: "Cambiar Tema"
     view_profile: "Ver Perfil"
@@ -168,6 +169,19 @@ es:
     joined: "Se unió"
     solved_problems: "Problemas Resueltos"
     recent_submissions: "Envíos Recientes"
+
+  # Leaderboard
+  leaderboard:
+    title: "Clasificación"
+    top_solvers: "Top de Resolvedores"
+    solver_name: "Nombre"
+    solved_count: "Resueltos"
+    problems_by_difficulty: "Problemas por Aceptación"
+    problem_title: "Problema"
+    sort_hardest_first: "Ver más difíciles"
+    sort_easiest_first: "Ver más fáciles"
+    no_solvers: "Aún no hay resolvedores."
+    no_problems: "Aún no hay problemas intentados."
   
   # Sandbox
   sandbox:

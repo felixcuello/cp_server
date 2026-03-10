@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_28_094531) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_09_000002) do
   create_table "constraint_translations", charset: "utf8", force: :cascade do |t|
     t.bigint "constraint_id", null: false
     t.string "locale", null: false
@@ -67,8 +67,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_28_094531) do
   end
 
   create_table "examples", charset: "utf8", force: :cascade do |t|
-    t.text "input", size: :medium
-    t.text "output", size: :medium
+    t.text "input", size: :long
+    t.text "output", size: :long
     t.integer "sort_order"
     t.boolean "is_hidden", default: true, null: false
     t.bigint "problem_id", null: false
@@ -167,6 +167,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_28_094531) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "contest_id"
+    t.boolean "sandbox", default: false, null: false
+    t.text "sandbox_input"
     t.text "user_output", size: :medium
     t.index ["contest_id"], name: "index_submissions_on_contest_id"
     t.index ["problem_id"], name: "index_submissions_on_problem_id"

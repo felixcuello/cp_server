@@ -43,6 +43,7 @@ services:
     platform: linux/amd64
     image: mysql:5.7
     env_file: .env
+    command: --max-allowed-packet=536870912
     volumes:
       - db_cp_server:/var/lib/mysql
 

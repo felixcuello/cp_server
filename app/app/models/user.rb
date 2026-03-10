@@ -34,4 +34,14 @@ class User < ApplicationRecord
   def locale
     super.presence || I18n.default_locale.to_s
   end
+
+  # Leaderboard format: "John Spencer Doe" => "John S.D."
+  def leaderboard_display_name
+    full_name = "#{first_name} #{last_name}".strip
+    words = full_name.split
+    return full_name if words.empty?
+    return words.first if words.length == 1
+
+    "#{words.first} #{words[1..].map { |word| "#{word[0]}." }.join}"
+  end
 end

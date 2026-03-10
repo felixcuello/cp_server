@@ -1,0 +1,65 @@
+<div class="page-container">
+  <h1 class="leaderboard-page-title"><%= t("leaderboard.title") %></h1>
+
+  <div class="leaderboard-content">
+    <section class="leaderboard-column">
+      <h2 class="leaderboard-column-title"><%= t("leaderboard.top_solvers") %></h2>
+      <% if @top_users.any? %>
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th><%= t("leaderboard.solver_name") %></th>
+              <th class="leaderboard-count-cell"><%= t("leaderboard.solved_count") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @top_users.each do |user| %>
+              <tr>
+                <td>
+                  <%= link_to user.leaderboard_display_name, user_path(alias: user.alias), class: "leaderboard-user-link" %>
+                </td>
+                <td class="leaderboard-count-cell"><%= user.read_attribute("problems_solved_count").to_i %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="leaderboard-empty"><%= t("leaderboard.no_solvers") %></p>
+      <% end %>
+    </section>
+
+    <section class="leaderboard-column">
+      <div class="leaderboard-problems-header">
+        <h2 class="leaderboard-column-title"><%= t("leaderboard.problems_by_difficulty") %></h2>
+        <% if params[:problem_sort] == "acceptance_desc" %>
+          <%= link_to t("leaderboard.sort_hardest_first"), leaderboard_path(problem_sort: "acceptance_asc"), class: "leaderboard-sort-link" %>
+        <% else %>
+          <%= link_to t("leaderboard.sort_easiest_first"), leaderboard_path(problem_sort: "acceptance_desc"), class: "leaderboard-sort-link" %>
+        <% end %>
+      </div>
+
+      <% if @problems.any? %>
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th><%= t("leaderboard.problem_title") %></th>
+              <th class="leaderboard-count-cell"><%= t("problems.table.acceptance") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @problems.each do |problem| %>
+              <tr>
+                <td>
+                  <%= link_to problem.translated_title, problem_path(problem), class: "leaderboard-user-link" %>
+                </td>
+                <td class="leaderboard-count-cell"><%= problem.acceptance_rate %>%</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="leaderboard-empty"><%= t("leaderboard.no_problems") %></p>
+      <% end %>
+    </section>
+  </div>
+</div>

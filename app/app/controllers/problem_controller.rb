@@ -45,9 +45,9 @@ class ProblemController < AuthenticatedController
     # Sorting
     case params[:sort]
     when 'acceptance_asc'
-      @problems = @problems.order(Arel.sql('CAST(accepted_submissions AS FLOAT) / NULLIF(total_submissions, 0) ASC'))
+      @problems = @problems.order(Arel.sql('(accepted_submissions * 1.0) / NULLIF(total_submissions, 0) ASC'))
     when 'acceptance_desc'
-      @problems = @problems.order(Arel.sql('CAST(accepted_submissions AS FLOAT) / NULLIF(total_submissions, 0) DESC'))
+      @problems = @problems.order(Arel.sql('(accepted_submissions * 1.0) / NULLIF(total_submissions, 0) DESC'))
     when 'difficulty_asc'
       @problems = @problems.order(difficulty: :asc)
     when 'difficulty_desc'

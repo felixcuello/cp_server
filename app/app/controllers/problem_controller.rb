@@ -91,6 +91,15 @@ class ProblemController < AuthenticatedController
                                     .order(created_at: :desc)
                                     .limit(10)
 
+      # Admins can inspect recent submissions from all non-admin users.
+      if current_user.admin?
+        @all_submissions = Submission.where(problem: @problem)
+                                     .where.not(user_id: User.admin.select(:id))
+                                     .includes(:programming_language, :user)
+                                     .order(created_at: :desc)
+                                     .limit(50)
+      end
+
       # Get best submission
       @best_submission = Submission.where(user: current_user, problem: @problem, status: 'accepted')
                                    .order(time_used: :asc)

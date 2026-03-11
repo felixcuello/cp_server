@@ -50,6 +50,10 @@ es:
   problem:
     description: "Descripción"
     my_submissions: "Mis Envíos"
+    all_submissions: "Todos los Envíos"
+    no_my_submissions: "Todavía no tienes envíos para este problema."
+    no_all_submissions: "No se encontraron envíos de usuarios no administradores para este problema."
+    by_user: "Por"
     time_limit: "Límite de Tiempo"
     memory_limit: "Límite de Memoria"
     sec: "seg"

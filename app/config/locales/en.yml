@@ -77,6 +77,10 @@ en:
   problem:
     description: "Description"
     my_submissions: "My Submissions"
+    all_submissions: "All Submissions"
+    no_my_submissions: "You do not have submissions for this problem yet."
+    no_all_submissions: "No non-admin submissions found for this problem."
+    by_user: "By"
     time_limit: "Time Limit"
     memory_limit: "Memory Limit"
     sec: "sec"

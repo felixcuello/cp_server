@@ -81,9 +81,12 @@
             <button class="tab active" data-tab="description" data-problem-tabs-target="tab" data-action="click->problem-tabs#switch">
               <%= t('problem.description') %>
             </button>
-            <% if @user_submissions&.any? %>
-              <button class="tab" data-tab="submissions" data-problem-tabs-target="tab" data-action="click->problem-tabs#switch">
-                <%= t('problem.my_submissions') %>
+            <button class="tab" data-tab="submissions" data-problem-tabs-target="tab" data-action="click->problem-tabs#switch">
+              <%= t('problem.my_submissions') %>
+            </button>
+            <% if current_user&.admin? %>
+              <button class="tab" data-tab="all-submissions" data-problem-tabs-target="tab" data-action="click->problem-tabs#switch">
+                <%= t('problem.all_submissions') %>
               </button>
             <% end %>
           </div>
@@ -215,17 +218,17 @@
           </div>
 
           <!-- Submissions Tab -->
-          <% if @user_submissions&.any? %>
-            <div class="tab-panel" data-panel="submissions" data-problem-tabs-target="panel">
-              <h2><%= t('problem.my_submissions') %></h2>
+          <div class="tab-panel" data-panel="submissions" data-problem-tabs-target="panel">
+            <h2><%= t('problem.my_submissions') %></h2>
 
-              <% if @best_submission %>
-                <div style="padding: 15px; background-color: var(--status-accepted); color: white; border-radius: 8px; margin-bottom: 20px;">
-                  <strong>✓ <%= t('problem.best_submission') %>:</strong>
-                  <%= @best_submission.time_used.round(3) %> <%= t('problem.sec') %> in <%= @best_submission.programming_language.name %>
-                </div>
-              <% end %>
+            <% if @best_submission %>
+              <div style="padding: 15px; background-color: var(--status-accepted); color: white; border-radius: 8px; margin-bottom: 20px;">
+                <strong>✓ <%= t('problem.best_submission') %>:</strong>
+                <%= @best_submission.time_used.round(3) %> <%= t('problem.sec') %> in <%= @best_submission.programming_language.name %>
+              </div>
+            <% end %>
 
+            <% if @user_submissions&.any? %>
               <div class="submission-history">
                 <% @user_submissions.each do |submission| %>
                   <%= link_to submission_detail_path(submission), class: "submission-item-link" do %>
@@ -246,6 +249,41 @@
                   <% end %>
                 <% end %>
               </div>
+            <% else %>
+              <p><%= t('problem.no_my_submissions') %></p>
+            <% end %>
+          </div>
+
+          <!-- All Submissions Tab (Admin only) -->
+          <% if current_user&.admin? %>
+            <div class="tab-panel" data-panel="all-submissions" data-problem-tabs-target="panel">
+              <h2><%= t('problem.all_submissions') %></h2>
+
+              <% if @all_submissions&.any? %>
+                <div class="submission-history">
+                  <% @all_submissions.each do |submission| %>
+                    <%= link_to submission_detail_path(submission), class: "submission-item-link" do %>
+                      <div class="submission-item">
+                        <div class="submission-info">
+                          <span class="submission-status-<%= submission.status.downcase.gsub(/\s+/, '-') %>">
+                            <%= submission.status.upcase %>
+                          </span>
+                          <span class="submission-lang"><%= submission.programming_language.name %></span>
+                          <span class="submission-time"><%= t('problem.by_user') %>: <%= submission.user.alias %></span>
+                          <span class="submission-time">
+                            <%= time_ago_in_words(submission.created_at) %> <%= t('problem.ago') %>
+                          </span>
+                        </div>
+                        <% if submission.time_used %>
+                          <div><%= submission.time_used.round(3) %> <%= t('problem.sec') %></div>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  <% end %>
+                </div>
+              <% else %>
+                <p><%= t('problem.no_all_submissions') %></p>
+              <% end %>
             </div>
           <% end %>
         </div>

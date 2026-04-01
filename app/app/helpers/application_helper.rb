@@ -163,19 +163,19 @@ module ApplicationHelper
     case status.downcase
     when 'accepted'
       '✓'
-    when 'wrong answer', /wrong answer/
+    when /wrong answer/
       '✗'
     when 'running', 'queued', 'enqueued', 'compiling'
       '⏱'
-    when 'time limit exceeded'
+    when /time limit exceeded/
       '⏱'
-    when 'memory limit exceeded'
+    when /memory limit exceeded/
       '💾'
-    when 'compilation error'
+    when /compilation error/
       '🔧'
-    when 'runtime error'
+    when /runtime error/
       '⚠'
-    when 'presentation error'
+    when /presentation error/
       '~'
     else
       '•'

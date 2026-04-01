@@ -61,7 +61,7 @@
               <span class="problem-number">#<%= submission.problem.id %></span>
               <%= link_to submission.problem.title, problem_path(submission.problem), class: "problem-title-link", data: { turbo: false } %>
             </div>
-            <div class="submission-status-badge <%= submission.status.downcase.gsub(/\s+/, '-') %>">
+            <div class="submission-status-badge <%= submission.status.downcase.gsub(/\s*\(.*\)/, '').gsub(/\s+/, '-') %>">
               <%= submission.status.titleize %>
             </div>
           </div>

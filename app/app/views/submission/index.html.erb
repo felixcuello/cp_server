@@ -38,7 +38,7 @@
                 </span>
               <% end %>
             </div>
-            <div class="submission-status-badge <%= submission.status.downcase.gsub(/\s+/, '-') %>">
+            <div class="submission-status-badge <%= submission.status.downcase.gsub(/\s*\(.*\)/, '').gsub(/\s+/, '-') %>">
               <%= status_icon(submission.status) %>
               <span><%= submission.status.titleize %></span>
             </div>
@@ -49,7 +49,7 @@
             <div class="submission-meta">
               <span class="meta-item">
                 <span class="meta-icon">👤</span>
-                <%= link_to submission.user.alias, user_path(alias: submission.user.alias), class: "user-link", onclick: "event.stopPropagation();" %>
+                <%= link_to "#{submission.user.alias} (#{submission.user.leaderboard_display_name})", user_path(alias: submission.user.alias), class: "user-link", onclick: "event.stopPropagation();" %>
               </span>
               <span class="meta-item">
                 <span class="meta-icon">💻</span>

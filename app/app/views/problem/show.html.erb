@@ -234,7 +234,7 @@
                   <%= link_to submission_detail_path(submission), class: "submission-item-link" do %>
                     <div class="submission-item">
                       <div class="submission-info">
-                        <span class="submission-status-<%= submission.status.downcase.gsub(/\s+/, '-') %>">
+                        <span class="submission-status-<%= submission.status.downcase.gsub(/\s*\(.*\)/, '').gsub(/\s+/, '-') %>">
                           <%= submission.status.upcase %>
                         </span>
                         <span class="submission-lang"><%= submission.programming_language.name %></span>
@@ -265,7 +265,7 @@
                     <%= link_to submission_detail_path(submission), class: "submission-item-link" do %>
                       <div class="submission-item">
                         <div class="submission-info">
-                          <span class="submission-status-<%= submission.status.downcase.gsub(/\s+/, '-') %>">
+                          <span class="submission-status-<%= submission.status.downcase.gsub(/\s*\(.*\)/, '').gsub(/\s+/, '-') %>">
                             <%= submission.status.upcase %>
                           </span>
                           <span class="submission-lang"><%= submission.programming_language.name %></span>

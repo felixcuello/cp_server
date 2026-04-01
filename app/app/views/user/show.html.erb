@@ -114,7 +114,7 @@
                 <div class="submission-problem"><%= submission.problem.title %></div>
                 <div class="submission-time"><%= time_ago_in_words(submission.created_at) %> ago</div>
               </div>
-              <div class="submission-status <%= submission.status %>">
+              <div class="submission-status <%= submission.status.downcase.gsub(/\s*\(.*\)/, '').gsub(/\s+/, '-') %>">
                 <%= submission.status.titleize %>
               </div>
             </div>

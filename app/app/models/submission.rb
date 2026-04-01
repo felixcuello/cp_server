@@ -85,11 +85,11 @@ class Submission < ApplicationRecord
       # Map service result status to Submission status constants
       case result[:status]
       when "time_limit_exceeded"
-        final_status = TIME_LIMIT_EXCEEDED
+        final_status = TIME_LIMIT_EXCEEDED + " (example #{index + 1})"
       when "memory_limit_exceeded"
-        final_status = MEMORY_LIMIT_EXCEEDED
+        final_status = MEMORY_LIMIT_EXCEEDED + " (example #{index + 1})"
       when "runtime_error"
-        final_status = RUNTIME_ERROR
+        final_status = RUNTIME_ERROR + " (example #{index + 1})"
       when "compilation_error"
         final_status = COMPILATION_ERROR
         # Store compiler error for admin debugging
@@ -110,7 +110,7 @@ class Submission < ApplicationRecord
           user_output_to_save = result[:output] || ""
         end
       else
-        final_status = RUNTIME_ERROR
+        final_status = RUNTIME_ERROR + " (example #{index + 1})"
       end
 
       # Break if we already have a non-accepted status
@@ -154,11 +154,11 @@ class Submission < ApplicationRecord
 
         case result[:status]
         when "time_limit_exceeded"
-          final_status = TIME_LIMIT_EXCEEDED
+          final_status = TIME_LIMIT_EXCEEDED + " (example #{index + 1})"
         when "memory_limit_exceeded"
-          final_status = MEMORY_LIMIT_EXCEEDED
+          final_status = MEMORY_LIMIT_EXCEEDED + " (example #{index + 1})"
         when "runtime_error"
-          final_status = RUNTIME_ERROR
+          final_status = RUNTIME_ERROR + " (example #{index + 1})"
         when "compilation_error"
           final_status = COMPILATION_ERROR
           self.compiler_output = result[:error_message] if result[:error_message].present?
@@ -175,7 +175,7 @@ class Submission < ApplicationRecord
             user_output_to_save = result[:output] || ""
           end
         else
-          final_status = RUNTIME_ERROR
+          final_status = RUNTIME_ERROR + " (example #{index + 1})"
         end
 
         break if final_status != ACCEPTED
@@ -236,11 +236,11 @@ class Submission < ApplicationRecord
         # Map service result status to Submission status constants
         case result[:status]
         when "time_limit_exceeded"
-          final_status = TIME_LIMIT_EXCEEDED
+          final_status = TIME_LIMIT_EXCEEDED + " (example #{index + 1})"
         when "memory_limit_exceeded"
-          final_status = MEMORY_LIMIT_EXCEEDED
+          final_status = MEMORY_LIMIT_EXCEEDED + " (example #{index + 1})"
         when "runtime_error"
-          final_status = RUNTIME_ERROR
+          final_status = RUNTIME_ERROR + " (example #{index + 1})"
         when "compilation_error"
           final_status = COMPILATION_ERROR
           # Store compiler error for admin debugging
@@ -261,7 +261,7 @@ class Submission < ApplicationRecord
             user_output_to_save = result[:output] || ""
           end
         else
-          final_status = RUNTIME_ERROR
+          final_status = RUNTIME_ERROR + " (example #{index + 1})"
         end
 
         # Break if we already have a non-accepted status

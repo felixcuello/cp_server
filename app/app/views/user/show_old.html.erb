@@ -136,7 +136,7 @@
         <% @recent_submissions.each do |submission| %>
           <div class="submission-row" onclick="window.location='<%= submission_detail_path(submission) %>'">
             <div class="submission-status">
-              <span class="status-badge status-<%= submission.status.downcase.gsub(/\s+/, '-') %>">
+              <span class="status-badge status-<%= submission.status.downcase.gsub(/\s*\(.*\)/, '').gsub(/\s+/, '-') %>">
                 <%= status_icon(submission.status) %>
                 <%= submission.status.titleize %>
               </span>

@@ -201,4 +201,25 @@ module ApplicationHelper
     }
     mapping[language_name] || 'text'
   end
+
+  # True on /sandbox/:token (live sandbox or invalid-token 404).
+  def sandbox_token_access?
+    params[:controller] == "sandbox" && params[:token].present?
+  end
+
+  # Guest sandbox links must keep the token in the URL instead of bouncing to login.
+  def navbar_logo_path
+    if sandbox_token_access?
+      sandbox_token_path(params[:token])
+    else
+      home_path
+    end
+  end
+
+  # Formats a time for datetime-local inputs using Argentina wall-clock time.
+  def argentina_datetime_local_value(time)
+    return if time.blank?
+
+    time.in_time_zone(SandboxAccessToken.time_zone).strftime("%Y-%m-%dT%H:%M")
+  end
 end

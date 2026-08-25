@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_09_000002) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_25_000001) do
   create_table "constraint_translations", charset: "utf8", force: :cascade do |t|
     t.bigint "constraint_id", null: false
     t.string "locale", null: false
@@ -154,6 +154,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_09_000002) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "sandbox_access_tokens", charset: "utf8", force: :cascade do |t|
+    t.string "token", null: false
+    t.string "label"
+    t.datetime "valid_from", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "revoked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token"], name: "index_sandbox_access_tokens_on_token", unique: true
+  end
+
   create_table "submissions", charset: "utf8", force: :cascade do |t|
     t.bigint "problem_id", null: false
     t.bigint "programming_language_id", null: false
@@ -166,9 +177,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_09_000002) do
     t.string "status", default: "queued", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "contest_id"
     t.boolean "sandbox", default: false, null: false
     t.text "sandbox_input"
+    t.bigint "contest_id"
     t.text "user_output", size: :medium
     t.index ["contest_id"], name: "index_submissions_on_contest_id"
     t.index ["problem_id"], name: "index_submissions_on_problem_id"

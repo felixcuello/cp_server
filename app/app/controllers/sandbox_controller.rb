@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
 class SandboxController < AuthenticatedController
+  skip_before_action :authenticate_user!, if: :token_param_present?
+  before_action :reject_invalid_sandbox_token!, if: :token_param_present?
+
   def show
     @languages = ProgrammingLanguage.all
+    @sandbox_access_token = current_sandbox_access_token
   end
 
   def run
@@ -35,5 +39,25 @@ class SandboxController < AuthenticatedController
   rescue => e
     Rails.logger.error "Sandbox run error: #{e.message}"
     render json: { success: false, error: "Server error: #{e.message}" }, status: :internal_server_error
+  end
+
+  private
+
+  def token_param_present?
+    params[:token].present?
+  end
+
+  def current_sandbox_access_token
+    return @found_sandbox_access_token if defined?(@found_sandbox_access_token)
+
+    @found_sandbox_access_token = SandboxAccessToken.find_by(token: params[:token])
+  end
+
+  # Renders the bilingual 404 for unknown, expired, or revoked tokens. Must not run code.
+  def reject_invalid_sandbox_token!
+    token = current_sandbox_access_token
+    return if token&.live?
+
+    render "sandbox/invalid_token", status: :not_found
   end
 end

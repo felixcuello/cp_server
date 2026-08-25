@@ -3,7 +3,8 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["codeEditor", "inputEditor", "languageSelect", "output", "outputContent", "runButton", "runtime", "statusBadge"]
   static values = {
-    language: { type: String, default: "python" }
+    language: { type: String, default: "python" },
+    token: { type: String, default: "" }
   }
 
   connect() {
@@ -137,13 +138,18 @@ export default class extends Controller {
     formData.append('source_code', blob, 'sandbox.' + this.getFileExtension());
 
     try {
-      const response = await fetch('/sandbox/run', {
+      const response = await fetch(this.runUrl(), {
         method: 'POST',
         body: formData,
         headers: {
           'X-CSRF-Token': this.getCSRFToken()
         }
       });
+
+      if (response.status === 404) {
+        window.location.assign(window.location.pathname);
+        return;
+      }
 
       const result = await response.json();
 
@@ -355,5 +361,13 @@ export default class extends Controller {
 
   getCSRFToken() {
     return document.querySelector('meta[name="csrf-token"]').content;
+  }
+
+  // Logged-in sandbox posts to /sandbox/run. Guest capability URLs must keep the token in the path.
+  runUrl() {
+    if (this.tokenValue) {
+      return '/sandbox/' + encodeURIComponent(this.tokenValue) + '/run';
+    }
+    return '/sandbox/run';
   }
 }

@@ -5,7 +5,7 @@
     <div class="navbar-content">
       <!-- Left: Hamburger (mobile only) + Logo + Desktop Nav Links -->
       <div class="navbar-left">
-        <% if user_signed_in? %>
+        <% if user_signed_in? && !sandbox_token_access? %>
           <button
             class="hamburger-button"
             data-action="click->drawer#toggle"
@@ -13,20 +13,23 @@
             <span class="hamburger-icon">☰</span>
           </button>
         <% end %>
-        <%= link_to home_path, class: "navbar-logo" do %>
+        <%= link_to navbar_logo_path, class: "navbar-logo" do %>
           <span class="navbar-logo-up">UP</span>
           <span class="navbar-logo-separator">|</span>
           <span class="navbar-logo-text">Competitive Programming Platform</span>
         <% end %>
 
         <!-- Desktop Navigation Links (hidden on mobile) -->
-        <% if user_signed_in? %>
+        <% if user_signed_in? && !sandbox_token_access? %>
           <div class="navbar-desktop-links">
             <%= link_to t('navigation.problems'), problems_path, class: "navbar-link" %>
             <%= link_to t('navigation.submissions'), submission_path, class: "navbar-link" %>
             <%= link_to t('navigation.contests'), contests_path, class: "navbar-link" %>
             <%= link_to t('navigation.sandbox'), sandbox_path, class: "navbar-link" %>
             <%= link_to t('navigation.leaderboard'), leaderboard_path, class: "navbar-link" %>
+            <% if current_user.admin? %>
+              <%= link_to "Sandbox tokens", admin_sandbox_tokens_path, class: "navbar-link" %>
+            <% end %>
           </div>
         <% end %>
       </div>
@@ -43,7 +46,7 @@
           🌙
         </button>
 
-        <% if user_signed_in? %>
+        <% if user_signed_in? && !sandbox_token_access? %>
           <%= link_to user_path(alias: current_user.alias), class: "user-menu-link navbar-desktop-only" do %>
             <div class="user-menu">
               <div class="user-avatar">
@@ -62,7 +65,7 @@
     </div>
   </nav>
 
-  <% if user_signed_in? %>
+  <% if user_signed_in? && !sandbox_token_access? %>
     <!-- Overlay (backdrop) -->
     <div
       class="drawer-overlay"
@@ -119,6 +122,13 @@
         <%= link_to leaderboard_path, class: "drawer-link" do %>
           <span class="drawer-icon">🏅</span>
           <span><%= t('navigation.leaderboard') %></span>
+        <% end %>
+
+        <% if current_user.admin? %>
+          <%= link_to admin_sandbox_tokens_path, class: "drawer-link" do %>
+            <span class="drawer-icon">🔑</span>
+            <span>Sandbox tokens</span>
+          <% end %>
         <% end %>
 
         <div class="drawer-divider"></div>

@@ -36,8 +36,11 @@ Rails.application.routes.draw do
     end
   end
 
+  sandbox_token_constraint = { token: /[A-Za-z0-9_-]{20,}/ }
   get "sandbox", to: "sandbox#show", as: "sandbox"
   post "sandbox/run", to: "sandbox#run", as: "sandbox_run"
+  get "sandbox/:token", to: "sandbox#show", as: "sandbox_token", constraints: sandbox_token_constraint
+  post "sandbox/:token/run", to: "sandbox#run", as: "sandbox_token_run", constraints: sandbox_token_constraint
   get "leaderboard", to: "leaderboard#index", as: "leaderboard"
 
   get 'user/:alias', to: 'user#show', as: 'user'
@@ -51,6 +54,11 @@ Rails.application.routes.draw do
       end
       collection do
         post :toggle_problem_visibility
+      end
+    end
+    resources :sandbox_tokens, only: [:index, :new, :create], controller: "sandbox_tokens" do
+      member do
+        post :expire
       end
     end
   end

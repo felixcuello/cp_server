@@ -1,8 +1,26 @@
 <% content_for(:title) { "Sandbox | UP" } %>
+<% if @sandbox_access_token.present? %>
+  <% content_for(:head) do %>
+    <meta name="robots" content="noindex, nofollow">
+  <% end %>
+<% end %>
 
 <div class="page-container">
+  <% if @sandbox_access_token.present? %>
+    <div class="sandbox-token-countdown"
+         data-controller="sandbox-token-countdown"
+         data-sandbox-token-countdown-expires-at-value="<%= @sandbox_access_token.expires_at.to_i * 1000 %>">
+      <span class="sandbox-token-countdown-label"><%= t('sandbox.time_remaining') %></span>
+      <span class="sandbox-token-countdown-value">
+        <span data-sandbox-token-countdown-target="hours">00</span>h
+        <span data-sandbox-token-countdown-target="minutes">00</span>m
+      </span>
+    </div>
+  <% end %>
+
   <div class="sandbox-container"
        data-controller="sandbox resize"
+       data-sandbox-token-value="<%= @sandbox_access_token&.token %>"
        data-sandbox-languages-value="<%= @languages.map { |l| { id: l.id, name: l.name } }.to_json %>">
 
     <!-- Left Pane: Code Editor -->

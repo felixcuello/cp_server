@@ -79,7 +79,7 @@ class ProblemController < AuthenticatedController
     if @problem.function_based?
       @languages = @problem.available_languages_for_function_mode
     else
-      @languages = ProgrammingLanguage.order(:name)
+      @languages = ProgrammingLanguage.by_name
     end
 
     # Get user's status for this problem

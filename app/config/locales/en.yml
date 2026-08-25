@@ -222,6 +222,7 @@ en:
     run: "RUN"
     reset: "Reset"
     output_placeholder: "Run your code to see output here..."
+    time_remaining: "Time remaining"
   
   # Common
   common:

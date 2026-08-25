@@ -1,0 +1,53 @@
+<% form_url = sandbox_access_token.persisted? ? admin_sandbox_token_path(sandbox_access_token) : admin_sandbox_tokens_path %>
+<%= form_with model: sandbox_access_token, url: form_url, scope: :sandbox_access_token, local: true, data: { turbo: false } do |f| %>
+  <% if sandbox_access_token.errors.any? %>
+    <div class="error-messages">
+      <h3><%= pluralize(sandbox_access_token.errors.count, "error") %> prohibited this token from being saved:</h3>
+      <ul>
+        <% sandbox_access_token.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :label, "Label (optional)", class: "form-label" %>
+    <%= f.text_field :label, class: "form-input" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :valid_from, "Valid from", class: "form-label" %>
+    <%= f.datetime_local_field :valid_from, class: "form-input", required: true,
+        value: argentina_datetime_local_value(sandbox_access_token.valid_from) %>
+    <p class="form-hint">Time is Argentina (UTC-3). The link starts working at this moment.</p>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :expires_at, "Expires at", class: "form-label" %>
+    <%= f.datetime_local_field :expires_at, class: "form-input", required: true,
+        value: argentina_datetime_local_value(sandbox_access_token.expires_at) %>
+    <p class="form-hint">Time is Argentina (UTC-3). The link stops working at this moment. Extending this time updates the guest countdown after reload.</p>
+  </div>
+
+  <div class="form-group">
+    <span class="form-label">Languages</span>
+    <div class="language-checkboxes">
+      <% @programming_languages.each do |language| %>
+        <label class="checkbox-label" for="sandbox_access_token_language_<%= language.id %>">
+          <%= check_box_tag "sandbox_access_token[programming_language_ids][]",
+              language.id,
+              sandbox_access_token.programming_language_ids.include?(language.id),
+              id: "sandbox_access_token_language_#{language.id}" %>
+          <%= language.name %>
+        </label>
+      <% end %>
+    </div>
+    <p class="form-hint">At least one language is required. Token sandbox can only use these languages.</p>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit submit_label, class: "btn-primary" %>
+    <%= link_to "Cancel", admin_sandbox_tokens_path, class: "btn-secondary" %>
+  </div>
+<% end %>

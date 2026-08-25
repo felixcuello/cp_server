@@ -1,0 +1,8 @@
+<div class="page-container admin-page">
+  <div class="page-header">
+    <h1 class="page-title">Edit sandbox token</h1>
+    <%= link_to "Back to tokens", admin_sandbox_tokens_path, class: "btn-secondary" %>
+  </div>
+
+  <%= render "form", sandbox_access_token: @sandbox_access_token, submit_label: "Save token" %>
+</div>

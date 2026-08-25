@@ -7,5 +7,9 @@ FactoryBot.define do
     sequence(:first_name) { |n| "User" }
     sequence(:last_name) { |n| "Test#{n}" }
     password { "password" }
+
+    trait :admin do
+      role { :admin }
+    end
   end
 end

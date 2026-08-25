@@ -195,6 +195,7 @@ es:
     run: "EJECUTAR"
     reset: "Restablecer"
     output_placeholder: "Ejecuta tu código para ver la salida aquí..."
+    time_remaining: "Tiempo restante"
   
   # Común
   common:

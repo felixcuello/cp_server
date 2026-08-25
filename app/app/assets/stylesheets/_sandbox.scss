@@ -18,6 +18,10 @@
     height: calc(100vh - 180px);
   }
 
+  .page-container:has(.sandbox-token-countdown) & {
+    height: calc(100vh - 168px);
+  }
+
   @media (max-width: 1200px) {
     flex-direction: column;
     height: auto;
@@ -232,4 +236,41 @@
     background-color: rgba(156, 39, 176, 0.15);
     color: var(--status-tle);
   }
+}
+
+.invalid-sandbox-token {
+  max-width: 720px;
+  padding-top: 80px;
+  text-align: center;
+}
+
+.invalid-sandbox-token-title {
+  color: var(--text-heading);
+  font-size: 1.75em;
+  margin: 0 0 12px 0;
+}
+
+.invalid-sandbox-token-subtitle {
+  color: var(--text-secondary);
+  font-size: 1.35em;
+  margin: 0;
+}
+
+.sandbox-token-countdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 8px 16px;
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  background-color: var(--bg-secondary);
+  color: var(--text-heading);
+  font-weight: 600;
+}
+
+.sandbox-token-countdown-value {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
 }

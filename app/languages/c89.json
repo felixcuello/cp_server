@@ -1,0 +1,10 @@
+{
+  "name": "C89",
+  "compiler_binary": "gcc",
+  "compiler_flags": "-std=c89 -D_XOPEN_SOURCE=700 -pedantic -Wall -Werror -o {compiled_file} {source_file} -lpthread -lrt",
+  "interpreter_binary": "",
+  "interpreter_flags": "",
+  "memory_limit_kb": 2048,
+  "time_limit_sec": 2,
+  "extension": "c"
+}

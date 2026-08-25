@@ -5,7 +5,7 @@ class SandboxController < AuthenticatedController
   before_action :reject_invalid_sandbox_token!, if: :token_param_present?
 
   def show
-    @languages = ProgrammingLanguage.all
+    @languages = ProgrammingLanguage.by_name
     @sandbox_access_token = current_sandbox_access_token
   end
 

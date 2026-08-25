@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ProgrammingLanguage < ApplicationRecord
+  scope :by_name, -> { order(:name) }
+
   validates :name, presence: true
   validates :memory_limit_kb, numericality: { greater_than: 0 }
   validates :time_limit_sec, numericality: { greater_than: 0 }

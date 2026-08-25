@@ -158,6 +158,21 @@ RUN cp -r /lib/x86_64-linux-gnu/* /chroot/lib/ 2>/dev/null || true && \
     cp -r /usr/lib/x86_64-linux-gnu/* /chroot/usr/lib/ 2>/dev/null || true && \
     cp -r /lib64/* /chroot/lib64/ 2>/dev/null || true
 
+# Copy pthread and rt so C89 threaded binaries can run inside nsjail
+RUN for lib in \
+      /lib/x86_64-linux-gnu/libpthread.so* \
+      /lib/x86_64-linux-gnu/librt.so* \
+      /usr/lib/x86_64-linux-gnu/libpthread.so* \
+      /usr/lib/x86_64-linux-gnu/librt.so* \
+      /lib64/libpthread.so* \
+      /lib64/librt.so*; do \
+      if [ -e "$lib" ]; then \
+        mkdir -p "/chroot$(dirname "$lib")" && \
+        cp -a "$lib" "/chroot$lib" && \
+        cp -a "$lib" /chroot/lib/; \
+      fi; \
+    done
+
 # Fix the dynamic linker symlink to use relative path
 RUN rm -f /chroot/lib64/ld-linux-x86-64.so.2 && \
     ln -s ../lib/ld-linux-x86-64.so.2 /chroot/lib64/ld-linux-x86-64.so.2

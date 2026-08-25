@@ -272,6 +272,7 @@ export default class extends Controller {
       'node.js': 'javascript',
       'ruby': 'ruby',
       'c': 'c',
+      'c89': 'c',
       'cpp': 'cpp',
       'c++': 'cpp',
       'c++11': 'cpp',

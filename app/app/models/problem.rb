@@ -121,13 +121,13 @@ class Problem < ApplicationRecord
   # Get available languages for function-based problems
   # Only returns languages that have both template and tester
   def available_languages_for_function_mode
-    return ProgrammingLanguage.all unless function_based?
+    return ProgrammingLanguage.by_name unless function_based?
 
     template_language_ids = problem_templates.pluck(:programming_language_id)
     tester_language_ids = problem_testers.pluck(:programming_language_id)
     available_language_ids = template_language_ids & tester_language_ids
 
-    ProgrammingLanguage.where(id: available_language_ids)
+    ProgrammingLanguage.where(id: available_language_ids).by_name
   end
 
   # Get translated title for the current locale

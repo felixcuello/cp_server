@@ -193,6 +193,7 @@ module ApplicationHelper
       'Node.js' => 'javascript',
       'Ruby' => 'ruby',
       'C' => 'c',
+      'C89' => 'c',
       'C++11' => 'cpp',
       'C++' => 'cpp',
       'C++ 11' => 'cpp',

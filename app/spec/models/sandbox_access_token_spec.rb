@@ -5,14 +5,33 @@ require "rails_helper"
 RSpec.describe SandboxAccessToken, type: :model do
   describe "validations" do
     it "assigns a long token on create" do
-      token = described_class.create!(valid_from: 1.minute.ago, expires_at: 2.hours.from_now)
+      language = create(:programming_language)
+      token = described_class.new(valid_from: 1.minute.ago, expires_at: 2.hours.from_now)
+      token.programming_languages << language
+      token.save!
 
       expect(token.token).to be_present
       expect(token.token.length).to be >= 20
     end
 
+    it "rejects a token with no languages" do
+      token = described_class.new(valid_from: 1.minute.ago, expires_at: 2.hours.from_now)
+
+      expect(token).not_to be_valid
+      expect(token.errors[:programming_languages]).to include("must include at least one language")
+    end
+
     it "rejects an expiry in the past on create" do
       token = described_class.new(valid_from: 2.hours.ago, expires_at: 1.hour.ago)
+
+      expect(token).not_to be_valid
+      expect(token.errors[:expires_at]).to include("must be in the future")
+    end
+
+    it "rejects an expiry in the past on update" do
+      token = create(:sandbox_access_token)
+
+      token.expires_at = 1.minute.ago
 
       expect(token).not_to be_valid
       expect(token.errors[:expires_at]).to include("must be in the future")

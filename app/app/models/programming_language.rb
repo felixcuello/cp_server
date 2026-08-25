@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class ProgrammingLanguage < ApplicationRecord
+  has_many :sandbox_access_token_languages, dependent: :destroy
+  has_many :sandbox_access_tokens, through: :sandbox_access_token_languages
+
   scope :by_name, -> { order(:name) }
 
   validates :name, presence: true

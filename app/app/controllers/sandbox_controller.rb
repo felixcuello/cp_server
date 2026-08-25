@@ -5,13 +5,13 @@ class SandboxController < AuthenticatedController
   before_action :reject_invalid_sandbox_token!, if: :token_param_present?
 
   def show
-    @languages = ProgrammingLanguage.by_name
     @sandbox_access_token = current_sandbox_access_token
+    @languages = languages_for_sandbox
   end
 
   def run
     language = ProgrammingLanguage.find_by(id: params[:programming_language_id])
-    unless language
+    unless language && language_allowed?(language)
       render json: { success: false, error: "Invalid language" }, status: :unprocessable_entity
       return
     end
@@ -51,6 +51,22 @@ class SandboxController < AuthenticatedController
     return @found_sandbox_access_token if defined?(@found_sandbox_access_token)
 
     @found_sandbox_access_token = SandboxAccessToken.find_by(token: params[:token])
+  end
+
+  def languages_for_sandbox
+    token = current_sandbox_access_token
+    if token
+      token.programming_languages.by_name
+    else
+      ProgrammingLanguage.by_name
+    end
+  end
+
+  def language_allowed?(language)
+    token = current_sandbox_access_token
+    return true unless token
+
+    token.allows_language?(language)
   end
 
   # Renders the bilingual 404 for unknown, expired, or revoked tokens. Must not run code.

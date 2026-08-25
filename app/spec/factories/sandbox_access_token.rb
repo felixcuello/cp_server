@@ -7,6 +7,12 @@ FactoryBot.define do
     valid_from { 1.minute.ago }
     expires_at { 2.hours.from_now }
 
+    after(:build) do |token|
+      next if token.programming_languages.any?
+
+      token.programming_languages << create(:programming_language)
+    end
+
     trait :upcoming do
       valid_from { 1.day.from_now }
       expires_at { 8.days.from_now }

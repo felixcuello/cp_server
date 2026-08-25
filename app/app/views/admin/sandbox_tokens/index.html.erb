@@ -10,6 +10,7 @@
         <tr>
           <th>Label</th>
           <th>URL</th>
+          <th>Languages</th>
           <th>Valid from (Argentina)</th>
           <th>Expires (Argentina)</th>
           <th>Status</th>
@@ -23,6 +24,7 @@
             <td>
               <code class="admin-token-url"><%= sandbox_token_url(token.token) %></code>
             </td>
+            <td><%= token.language_names.presence || "-" %></td>
             <td><%= token.valid_from_in_argentina.strftime("%Y-%m-%d %H:%M") %></td>
             <td><%= token.expires_at_in_argentina.strftime("%Y-%m-%d %H:%M") %></td>
             <td>
@@ -30,9 +32,12 @@
             </td>
             <td>
               <% if token.expirable? %>
-                <%= button_to "Expire", expire_admin_sandbox_token_path(token), method: :post,
-                    class: "btn-small btn-danger",
-                    data: { turbo: false } %>
+                <div class="admin-actions">
+                  <%= link_to "Edit", edit_admin_sandbox_token_path(token), class: "btn-small btn-secondary" %>
+                  <%= button_to "Expire", expire_admin_sandbox_token_path(token), method: :post,
+                      class: "btn-small btn-danger",
+                      data: { turbo: false } %>
+                </div>
               <% else %>
                 -
               <% end %>

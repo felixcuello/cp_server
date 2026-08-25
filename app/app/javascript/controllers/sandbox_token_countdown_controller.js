@@ -34,6 +34,7 @@ export default class extends Controller {
         clearInterval(this.interval)
         this.interval = null
       }
+      // Reload so an admin extension of expires_at shows a new timer instead of a 404.
       window.location.reload()
       return
     }

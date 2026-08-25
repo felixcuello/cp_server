@@ -73,6 +73,20 @@
     margin: 6px 0 0 0;
   }
 
+  .language-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+    cursor: pointer;
+  }
+
   .form-actions {
     display: flex;
     gap: 12px;
@@ -112,6 +126,13 @@
   .btn-small {
     padding: 6px 12px;
     font-size: 0.85em;
+  }
+
+  .admin-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
   }
 
   .btn-danger {

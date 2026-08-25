@@ -3,18 +3,22 @@
 class SandboxAccessToken < ApplicationRecord
   TIME_ZONE_NAME = "America/Argentina/Buenos_Aires"
 
+  has_many :sandbox_access_token_languages, dependent: :destroy
+  has_many :programming_languages, through: :sandbox_access_token_languages
+
   validates :token, presence: true, uniqueness: true
   validates :valid_from, presence: true
   validates :expires_at, presence: true
   validate :expires_at_must_be_after_valid_from
-  validate :expires_at_must_be_in_the_future, on: :create
+  validate :expires_at_must_be_in_the_future
+  validate :must_have_at_least_one_language
 
   before_validation :assign_token, on: :create
 
   # Non-dead rows first by valid_from, then expired and revoked at the end.
   scope :for_admin_list, lambda {
     now = Time.current
-    order(
+    includes(:programming_languages).order(
       Arel.sql(
         sanitize_sql_array(
           [
@@ -82,6 +86,15 @@ class SandboxAccessToken < ApplicationRecord
     "live"
   end
 
+  # Comma-separated language names for the admin list.
+  def language_names
+    programming_languages.sort_by(&:name).map(&:name).join(", ")
+  end
+
+  def allows_language?(language)
+    programming_languages.exists?(id: language.id)
+  end
+
   private
 
   def assign_token
@@ -100,5 +113,11 @@ class SandboxAccessToken < ApplicationRecord
     return if expires_at > Time.current
 
     errors.add(:expires_at, "must be in the future")
+  end
+
+  def must_have_at_least_one_language
+    return if programming_languages.any?
+
+    errors.add(:programming_languages, "must include at least one language")
   end
 end

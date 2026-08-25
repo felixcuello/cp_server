@@ -56,7 +56,7 @@ Rails.application.routes.draw do
         post :toggle_problem_visibility
       end
     end
-    resources :sandbox_tokens, only: [:index, :new, :create], controller: "sandbox_tokens" do
+    resources :sandbox_tokens, only: [:index, :new, :create, :edit, :update], controller: "sandbox_tokens" do
       member do
         post :expire
       end

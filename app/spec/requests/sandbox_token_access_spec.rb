@@ -30,6 +30,19 @@ RSpec.describe "Sandbox token access", type: :request do
       expect(response.body).not_to include("sandbox-token-countdown")
     end
 
+    it "lists every language including ones not attached to a token" do
+      sign_in create(:user)
+      allowed = create(:programming_language, name: "AllowedLang")
+      blocked = create(:programming_language, name: "BlockedLang")
+      create(:sandbox_access_token, programming_languages: [allowed])
+
+      get sandbox_path
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("AllowedLang")
+      expect(response.body).to include("BlockedLang")
+    end
+
     it "keeps app navigation for a logged-in user" do
       sign_in create(:user)
 
@@ -51,6 +64,32 @@ RSpec.describe "Sandbox token access", type: :request do
       expect(response.body).not_to include("This token is not valid.")
       expect(response.body).to include("sandbox-token-countdown")
       expect(response.body).to include("Time remaining")
+    end
+
+    it "keeps the sandbox after the original expiry when expires_at was extended" do
+      original_expiry = 10.minutes.from_now
+      token = create(:sandbox_access_token, valid_from: 1.hour.ago, expires_at: original_expiry)
+      token.update!(expires_at: 2.hours.from_now)
+
+      travel_to original_expiry + 1.minute do
+        get sandbox_token_path(token.token)
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("sandbox-token-countdown")
+        expect(response.body).not_to include("This token is not valid.")
+      end
+    end
+
+    it "lists only languages allowed on the token" do
+      allowed = create(:programming_language, name: "AllowedLang")
+      create(:programming_language, name: "BlockedLang")
+      token = create(:sandbox_access_token, programming_languages: [allowed])
+
+      get sandbox_token_path(token.token)
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("AllowedLang")
+      expect(response.body).not_to include("BlockedLang")
     end
 
     it "hides app navigation even when the visitor is signed in" do
@@ -112,11 +151,29 @@ RSpec.describe "Sandbox token access", type: :request do
 
       expect(response).to redirect_to(new_user_session_path)
     end
+
+    it "executes any language for a logged-in user" do
+      sign_in create(:user)
+      allowed = create(:programming_language, name: "AllowedLang")
+      blocked = create(:programming_language, name: "BlockedLang")
+      create(:sandbox_access_token, programming_languages: [allowed])
+      stub_sandbox_execution
+
+      post sandbox_run_path, params: {
+        programming_language_id: blocked.id,
+        source_code: "puts 1",
+        input: ""
+      }
+
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body["success"]).to eq(true)
+      expect(SandboxExecutionService).to have_received(:new)
+    end
   end
 
   describe "POST /sandbox/:token/run" do
     it "executes for a live token without login" do
-      token = create(:sandbox_access_token)
+      token = create(:sandbox_access_token, programming_languages: [language])
       stub_sandbox_execution
 
       post sandbox_token_run_path(token.token), params: {
@@ -128,6 +185,23 @@ RSpec.describe "Sandbox token access", type: :request do
       expect(response).to have_http_status(:success)
       expect(response.parsed_body["success"]).to eq(true)
       expect(SandboxExecutionService).to have_received(:new)
+    end
+
+    it "does not execute a language that is not on the token" do
+      allowed = create(:programming_language, name: "AllowedLang")
+      blocked = create(:programming_language, name: "BlockedLang")
+      token = create(:sandbox_access_token, programming_languages: [allowed])
+      allow(SandboxExecutionService).to receive(:new)
+
+      post sandbox_token_run_path(token.token), params: {
+        programming_language_id: blocked.id,
+        source_code: "puts 1",
+        input: ""
+      }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body["success"]).to eq(false)
+      expect(SandboxExecutionService).not_to have_received(:new)
     end
 
     it "does not execute for an upcoming token" do

@@ -196,7 +196,24 @@ es:
     reset: "Restablecer"
     output_placeholder: "Ejecuta tu código para ver la salida aquí..."
     time_remaining: "Tiempo restante"
-  
+    checkin:
+      title: "Identificate"
+      intro: "Ingresa tus datos antes de usar el sandbox. Esto es obligatorio."
+      first_name: "Nombre"
+      last_name: "Apellido"
+      id_type: "Tipo de documento"
+      id_type_blank: "Selecciona un tipo de documento"
+      document_number: "Numero de documento"
+      continue: "Continuar"
+      confirm_title: "Confirma tus datos"
+      confirm_intro: "Revisa que esta informacion sea correcta. No podras cambiarla despues de confirmar."
+      confirm: "Confirmar"
+      back: "Volver"
+      id_types:
+        dni: "DNI"
+        pasaporte: "Pasaporte"
+        legajo: "Legajo"
+
   # Común
   common:
     save: "Guardar"

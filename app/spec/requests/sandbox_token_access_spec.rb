@@ -14,6 +14,20 @@ RSpec.describe "Sandbox token access", type: :request do
     service
   end
 
+  def complete_sandbox_checkin(token, attrs = {})
+    payload = {
+      first_name: "Ana",
+      last_name: "Perez",
+      id_type: "dni",
+      document_number: "12345678"
+    }.merge(attrs)
+
+    post sandbox_token_checkin_path(token.token), params: {
+      sandbox_access_token_checkin: payload
+    }
+    post sandbox_token_confirm_checkin_path(token.token)
+  end
+
   describe "GET /sandbox" do
     it "requires login when no token is present" do
       get sandbox_path
@@ -55,8 +69,21 @@ RSpec.describe "Sandbox token access", type: :request do
   end
 
   describe "GET /sandbox/:token" do
-    it "renders the sandbox for a live token without login" do
+    it "redirects a live token without a check-in cookie to the identity form" do
       token = create(:sandbox_access_token)
+
+      get sandbox_token_path(token.token)
+
+      expect(response).to redirect_to(sandbox_token_checkin_path(token.token))
+      follow_redirect!
+      expect(response.body).to include("Identify yourself")
+      expect(response.body).not_to include("sandbox-token-countdown")
+      expect(response.body).not_to include("sandbox-container")
+    end
+
+    it "renders the sandbox for a live token after check-in without login" do
+      token = create(:sandbox_access_token)
+      complete_sandbox_checkin(token)
 
       get sandbox_token_path(token.token)
 
@@ -70,6 +97,7 @@ RSpec.describe "Sandbox token access", type: :request do
       original_expiry = 10.minutes.from_now
       token = create(:sandbox_access_token, valid_from: 1.hour.ago, expires_at: original_expiry)
       token.update!(expires_at: 2.hours.from_now)
+      complete_sandbox_checkin(token)
 
       travel_to original_expiry + 1.minute do
         get sandbox_token_path(token.token)
@@ -84,6 +112,7 @@ RSpec.describe "Sandbox token access", type: :request do
       allowed = create(:programming_language, name: "AllowedLang")
       create(:programming_language, name: "BlockedLang")
       token = create(:sandbox_access_token, programming_languages: [allowed])
+      complete_sandbox_checkin(token)
 
       get sandbox_token_path(token.token)
 
@@ -95,6 +124,7 @@ RSpec.describe "Sandbox token access", type: :request do
     it "hides app navigation even when the visitor is signed in" do
       sign_in create(:user, :admin)
       token = create(:sandbox_access_token)
+      complete_sandbox_checkin(token)
 
       get sandbox_token_path(token.token)
 
@@ -102,6 +132,15 @@ RSpec.describe "Sandbox token access", type: :request do
       expect(response.body).not_to include("navbar-desktop-links")
       expect(response.body).not_to include(">#{I18n.t('navigation.problems')}<")
       expect(response.body).not_to include("Sandbox tokens")
+    end
+
+    it "still requires check-in when the visitor is signed in" do
+      sign_in create(:user)
+      token = create(:sandbox_access_token)
+
+      get sandbox_token_path(token.token)
+
+      expect(response).to redirect_to(sandbox_token_checkin_path(token.token))
     end
 
     it "returns the bilingual 404 for an upcoming token" do
@@ -172,8 +211,24 @@ RSpec.describe "Sandbox token access", type: :request do
   end
 
   describe "POST /sandbox/:token/run" do
-    it "executes for a live token without login" do
+    it "does not execute without a check-in cookie" do
       token = create(:sandbox_access_token, programming_languages: [language])
+      allow(SandboxExecutionService).to receive(:new)
+
+      post sandbox_token_run_path(token.token), params: {
+        programming_language_id: language.id,
+        source_code: "puts 1",
+        input: ""
+      }
+
+      expect(response).to have_http_status(:forbidden)
+      expect(response.parsed_body["success"]).to eq(false)
+      expect(SandboxExecutionService).not_to have_received(:new)
+    end
+
+    it "executes for a live token after check-in without login" do
+      token = create(:sandbox_access_token, programming_languages: [language])
+      complete_sandbox_checkin(token)
       stub_sandbox_execution
 
       post sandbox_token_run_path(token.token), params: {
@@ -191,6 +246,7 @@ RSpec.describe "Sandbox token access", type: :request do
       allowed = create(:programming_language, name: "AllowedLang")
       blocked = create(:programming_language, name: "BlockedLang")
       token = create(:sandbox_access_token, programming_languages: [allowed])
+      complete_sandbox_checkin(token)
       allow(SandboxExecutionService).to receive(:new)
 
       post sandbox_token_run_path(token.token), params: {
@@ -257,6 +313,94 @@ RSpec.describe "Sandbox token access", type: :request do
 
       expect(response).to have_http_status(:not_found)
       expect(SandboxExecutionService).not_to have_received(:new)
+    end
+  end
+
+  describe "sandbox token check-in" do
+    let(:checkin_params) do
+      {
+        first_name: "Ana",
+        last_name: "Perez",
+        id_type: "dni",
+        document_number: "12.345.678"
+      }
+    end
+
+    it "does not insert a row when submitting the form" do
+      token = create(:sandbox_access_token)
+
+      expect {
+        post sandbox_token_checkin_path(token.token), params: {
+          sandbox_access_token_checkin: checkin_params
+        }
+      }.not_to change(SandboxAccessTokenCheckin, :count)
+
+      expect(response).to redirect_to(sandbox_token_confirm_checkin_path(token.token))
+      follow_redirect!
+      expect(response.body).to include("Confirm your details")
+      expect(response.body).to include("Ana")
+      expect(response.body).to include("12345678")
+    end
+
+    it "inserts a row with IP and sets a cookie on confirm" do
+      token = create(:sandbox_access_token)
+
+      post sandbox_token_checkin_path(token.token), params: {
+        sandbox_access_token_checkin: checkin_params
+      }
+
+      expect {
+        post sandbox_token_confirm_checkin_path(token.token)
+      }.to change(SandboxAccessTokenCheckin, :count).by(1)
+
+      checkin = SandboxAccessTokenCheckin.last
+      expect(checkin.first_name).to eq("Ana")
+      expect(checkin.last_name).to eq("Perez")
+      expect(checkin.id_type).to eq("dni")
+      expect(checkin.document_number).to eq("12345678")
+      expect(checkin.ip_address).to be_present
+      expect(checkin.sandbox_access_token).to eq(token)
+      expect(response).to redirect_to(sandbox_token_path(token.token))
+
+      follow_redirect!
+      expect(response.body).to include("sandbox-token-countdown")
+    end
+
+    it "reuses an existing row for the same identity on the same token" do
+      token = create(:sandbox_access_token)
+      existing = create(
+        :sandbox_access_token_checkin,
+        sandbox_access_token: token,
+        id_type: :dni,
+        document_number: "12345678",
+        first_name: "Ana"
+      )
+
+      expect {
+        complete_sandbox_checkin(token, document_number: "12345678")
+      }.not_to change(SandboxAccessTokenCheckin, :count)
+
+      expect(response).to redirect_to(sandbox_token_path(token.token))
+      follow_redirect!
+      expect(response.body).to include("sandbox-token-countdown")
+      expect(SandboxAccessTokenCheckin.last).to eq(existing)
+    end
+
+    it "returns 404 for check-in on an expired token" do
+      token = create(:sandbox_access_token, :expired)
+
+      get sandbox_token_checkin_path(token.token)
+
+      expect(response).to have_http_status(:not_found)
+      expect(response.body).to include("This token is not valid.")
+    end
+
+    it "redirects confirm back to the form when there is no pending identity" do
+      token = create(:sandbox_access_token)
+
+      get sandbox_token_confirm_checkin_path(token.token)
+
+      expect(response).to redirect_to(sandbox_token_checkin_path(token.token))
     end
   end
 end

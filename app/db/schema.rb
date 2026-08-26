@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_25_121800) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_25_223700) do
   create_table "constraint_translations", charset: "utf8", force: :cascade do |t|
     t.bigint "constraint_id", null: false
     t.string "locale", null: false
@@ -154,6 +154,18 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_25_121800) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "sandbox_access_token_checkins", charset: "utf8", force: :cascade do |t|
+    t.bigint "sandbox_access_token_id", null: false
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.integer "id_type", null: false
+    t.string "document_number", null: false
+    t.string "ip_address", null: false
+    t.datetime "created_at", null: false
+    t.index ["id_type", "document_number"], name: "index_sandbox_checkins_on_identity"
+    t.index ["sandbox_access_token_id", "id_type", "document_number"], name: "index_sandbox_checkins_on_token_and_identity", unique: true
+  end
+
   create_table "sandbox_access_token_languages", charset: "utf8", force: :cascade do |t|
     t.bigint "sandbox_access_token_id", null: false
     t.bigint "programming_language_id", null: false
@@ -187,9 +199,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_25_121800) do
     t.string "status", default: "queued", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "contest_id"
     t.boolean "sandbox", default: false, null: false
     t.text "sandbox_input"
-    t.bigint "contest_id"
     t.text "user_output", size: :medium
     t.index ["contest_id"], name: "index_submissions_on_contest_id"
     t.index ["problem_id"], name: "index_submissions_on_problem_id"
@@ -255,6 +267,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_25_121800) do
   add_foreign_key "problem_testers", "programming_languages"
   add_foreign_key "problem_translations", "problems"
   add_foreign_key "problems", "contests"
+  add_foreign_key "sandbox_access_token_checkins", "sandbox_access_tokens"
   add_foreign_key "sandbox_access_token_languages", "programming_languages"
   add_foreign_key "sandbox_access_token_languages", "sandbox_access_tokens"
   add_foreign_key "submissions", "contests"

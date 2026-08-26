@@ -274,3 +274,76 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
 }
+
+.sandbox-checkin {
+  max-width: 480px;
+  margin: 24px auto;
+  padding: 32px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 10px;
+}
+
+.sandbox-checkin-title {
+  color: var(--text-heading);
+  font-size: 1.6em;
+  margin: 0 0 12px 0;
+}
+
+.sandbox-checkin-intro {
+  color: var(--text-secondary);
+  margin: 0 0 24px 0;
+}
+
+.sandbox-checkin-field {
+  margin-bottom: 16px;
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+  }
+
+  input[type="text"],
+  select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    box-sizing: border-box;
+  }
+}
+
+.sandbox-checkin-review {
+  margin: 0 0 24px 0;
+
+  div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-primary);
+  }
+
+  dt {
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--text-heading);
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+}
+
+.sandbox-checkin-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}

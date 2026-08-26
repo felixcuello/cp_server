@@ -26,9 +26,9 @@ RSpec.describe "Admin sandbox tokens", type: :request do
   describe "GET /admin/sandbox_tokens" do
     it "lists tokens by valid_from with expired last" do
       sign_in admin
-      later = create(:sandbox_access_token, :upcoming, label: "Later", valid_from: 2.days.from_now, expires_at: 9.days.from_now)
-      earlier = create(:sandbox_access_token, label: "Next class", valid_from: 1.hour.ago, expires_at: 3.hours.from_now)
-      create(:sandbox_access_token, :expired, label: "Old")
+      later = create(:sandbox_access_token, :upcoming, user: admin, label: "Later", valid_from: 2.days.from_now, expires_at: 9.days.from_now)
+      earlier = create(:sandbox_access_token, user: admin, label: "Next class", valid_from: 1.hour.ago, expires_at: 3.hours.from_now)
+      create(:sandbox_access_token, :expired, user: admin, label: "Old")
 
       get admin_sandbox_tokens_path
 
@@ -38,8 +38,24 @@ RSpec.describe "Admin sandbox tokens", type: :request do
       expect(response.body).to include(sandbox_token_url(earlier.token))
       expect(response.body).to include(sandbox_token_url(later.token))
       expect(response.body).to include("Languages")
+      expect(response.body).to include("Owner")
+      expect(response.body).to include(admin.alias)
       expect(response.body).to include(earlier.language_names)
       expect(response.body).to include("Edit")
+    end
+
+    it "shows a Submissions link only when the token has runs" do
+      sign_in admin
+      with_runs = create(:sandbox_access_token, label: "Has runs")
+      without_runs = create(:sandbox_access_token, label: "No runs")
+      create(:sandbox_access_token_run, sandbox_access_token: with_runs)
+
+      get admin_sandbox_tokens_path
+
+      expect(response.body).to include("Has runs")
+      expect(response.body).to include(admin_sandbox_token_runs_path(with_runs))
+      expect(response.body).to include("No runs")
+      expect(response.body).not_to include(admin_sandbox_token_runs_path(without_runs))
     end
   end
 
@@ -64,6 +80,7 @@ RSpec.describe "Admin sandbox tokens", type: :request do
         expect(token.valid_from_in_argentina.strftime("%Y-%m-%d %H:%M")).to eq("2026-08-24 10:00")
         expect(token.expires_at_in_argentina.strftime("%Y-%m-%d %H:%M")).to eq("2026-08-24 23:00")
         expect(token.live?).to be(true)
+        expect(token.user).to eq(admin)
         expect(token.programming_languages).to contain_exactly(language)
       end
     end
@@ -115,13 +132,15 @@ RSpec.describe "Admin sandbox tokens", type: :request do
       travel_to argentina.local(2026, 8, 24, 12, 0, 0) do
         token = create(:sandbox_access_token, programming_languages: [language],
                        valid_from: 1.hour.ago, expires_at: 3.hours.from_now)
+        original_owner = token.user
 
         patch admin_sandbox_token_path(token), params: {
           sandbox_access_token: {
             label: token.label,
             valid_from: "2026-08-24T11:00",
             expires_at: "2026-08-24T23:30",
-            programming_language_ids: [language.id, extra.id]
+            programming_language_ids: [language.id, extra.id],
+            user_id: admin.id
           }
         }
 
@@ -129,6 +148,7 @@ RSpec.describe "Admin sandbox tokens", type: :request do
         expect(response).to redirect_to(admin_sandbox_tokens_path)
         expect(token.expires_at_in_argentina.strftime("%Y-%m-%d %H:%M")).to eq("2026-08-24 23:30")
         expect(token.programming_languages).to contain_exactly(language, extra)
+        expect(token.user).to eq(original_owner)
       end
     end
 

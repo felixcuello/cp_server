@@ -6,6 +6,7 @@ class Admin::SandboxTokensController < AdminController
 
   def index
     @sandbox_access_tokens = SandboxAccessToken.for_admin_list
+    @token_ids_with_runs = SandboxAccessTokenRun.distinct.pluck(:sandbox_access_token_id).to_set
   end
 
   def new
@@ -14,6 +15,7 @@ class Admin::SandboxTokensController < AdminController
 
   def create
     @sandbox_access_token = SandboxAccessToken.new
+    @sandbox_access_token.user = current_user
     assign_token_attributes(@sandbox_access_token)
 
     if @sandbox_access_token.save

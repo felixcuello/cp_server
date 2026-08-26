@@ -223,7 +223,24 @@ en:
     reset: "Reset"
     output_placeholder: "Run your code to see output here..."
     time_remaining: "Time remaining"
-  
+    checkin:
+      title: "Identify yourself"
+      intro: "Enter your details before using the sandbox. This is required."
+      first_name: "First name"
+      last_name: "Last name"
+      id_type: "ID type"
+      id_type_blank: "Select an ID type"
+      document_number: "ID number"
+      continue: "Continue"
+      confirm_title: "Confirm your details"
+      confirm_intro: "Check that this information is correct. You cannot change it after confirming."
+      confirm: "Confirm"
+      back: "Back"
+      id_types:
+        dni: "DNI"
+        pasaporte: "Passport"
+        legajo: "Student ID"
+
   # Common
   common:
     save: "Save"

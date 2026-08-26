@@ -176,4 +176,81 @@
     font-size: 1.2em;
     margin-top: 8px;
   }
+
+  .admin-page-subtitle {
+    display: block;
+    font-size: 0.55em;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  .admin-run-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px 24px;
+    margin-bottom: 24px;
+
+    div {
+      margin: 0;
+    }
+
+    dt {
+      color: var(--text-secondary);
+      font-size: 0.85em;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    dd {
+      margin: 0;
+      color: var(--text-heading);
+    }
+  }
+
+  .admin-run-pane {
+    margin-bottom: 20px;
+
+    h2 {
+      font-size: 1em;
+      color: var(--text-heading);
+      margin: 0 0 8px 0;
+    }
+
+    pre {
+      margin: 0;
+      padding: 12px;
+      overflow-x: auto;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 6px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .status-badge {
+    &.run-submitted {
+      background-color: #f59e0b;
+      color: #ffffff;
+    }
+
+    &.run-success {
+      background-color: #22c55e;
+      color: #ffffff;
+    }
+
+    &.run-compilation_error,
+    &.run-runtime_error,
+    &.run-error {
+      background-color: #dc2626;
+      color: #ffffff;
+    }
+
+    &.run-time_limit_exceeded,
+    &.run-memory_limit_exceeded {
+      background-color: #ea580c;
+      color: #ffffff;
+    }
+  }
 }

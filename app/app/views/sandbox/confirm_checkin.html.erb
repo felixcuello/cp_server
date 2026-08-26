@@ -1,0 +1,38 @@
+<% content_for(:title) { "#{t('sandbox.checkin.confirm_title')} | UP" } %>
+<% content_for(:head) do %>
+  <meta name="robots" content="noindex, nofollow">
+<% end %>
+
+<div class="page-container">
+  <div class="sandbox-checkin">
+    <h1 class="sandbox-checkin-title"><%= t("sandbox.checkin.confirm_title") %></h1>
+    <p class="sandbox-checkin-intro"><%= t("sandbox.checkin.confirm_intro") %></p>
+
+    <dl class="sandbox-checkin-review">
+      <div>
+        <dt><%= t("sandbox.checkin.first_name") %></dt>
+        <dd><%= @checkin.first_name %></dd>
+      </div>
+      <div>
+        <dt><%= t("sandbox.checkin.last_name") %></dt>
+        <dd><%= @checkin.last_name %></dd>
+      </div>
+      <div>
+        <dt><%= t("sandbox.checkin.id_type") %></dt>
+        <dd><%= t("sandbox.checkin.id_types.#{@checkin.id_type}") %></dd>
+      </div>
+      <div>
+        <dt><%= t("sandbox.checkin.document_number") %></dt>
+        <dd><%= @checkin.document_number %></dd>
+      </div>
+    </dl>
+
+    <div class="sandbox-checkin-actions">
+      <%= form_with url: sandbox_token_confirm_checkin_path(params[:token]), method: :post,
+          local: true, data: { turbo: false } do %>
+        <%= submit_tag t("sandbox.checkin.confirm"), class: "btn-primary" %>
+      <% end %>
+      <%= link_to t("sandbox.checkin.back"), sandbox_token_checkin_path(params[:token]), class: "btn-secondary" %>
+    </div>
+  </div>
+</div>

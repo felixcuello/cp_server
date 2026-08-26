@@ -1,0 +1,51 @@
+<% content_for(:title) { "#{t('sandbox.checkin.title')} | UP" } %>
+<% content_for(:head) do %>
+  <meta name="robots" content="noindex, nofollow">
+<% end %>
+
+<div class="page-container">
+  <div class="sandbox-checkin">
+    <h1 class="sandbox-checkin-title"><%= t("sandbox.checkin.title") %></h1>
+    <p class="sandbox-checkin-intro"><%= t("sandbox.checkin.intro") %></p>
+
+    <%= form_with model: @checkin, url: sandbox_token_checkin_path(params[:token]), method: :post,
+        local: true, data: { turbo: false } do |f| %>
+      <% if @checkin.errors.any? %>
+        <div class="error-messages">
+          <ul>
+            <% @checkin.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="sandbox-checkin-field">
+        <%= f.label :first_name, t("sandbox.checkin.first_name") %>
+        <%= f.text_field :first_name, required: true, autocomplete: "given-name" %>
+      </div>
+
+      <div class="sandbox-checkin-field">
+        <%= f.label :last_name, t("sandbox.checkin.last_name") %>
+        <%= f.text_field :last_name, required: true, autocomplete: "family-name" %>
+      </div>
+
+      <div class="sandbox-checkin-field">
+        <%= f.label :id_type, t("sandbox.checkin.id_type") %>
+        <%= f.select :id_type,
+            SandboxAccessTokenCheckin.id_types.keys.map { |key| [t("sandbox.checkin.id_types.#{key}"), key] },
+            { include_blank: t("sandbox.checkin.id_type_blank") },
+            required: true %>
+      </div>
+
+      <div class="sandbox-checkin-field">
+        <%= f.label :document_number, t("sandbox.checkin.document_number") %>
+        <%= f.text_field :document_number, required: true, autocomplete: "off" %>
+      </div>
+
+      <div class="sandbox-checkin-actions">
+        <%= f.submit t("sandbox.checkin.continue"), class: "btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

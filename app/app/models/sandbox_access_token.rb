@@ -5,8 +5,12 @@ class SandboxAccessToken < ApplicationRecord
 
   has_many :sandbox_access_token_languages, dependent: :destroy
   has_many :programming_languages, through: :sandbox_access_token_languages
+  has_many :sandbox_access_token_runs, dependent: :destroy
+  has_many :sandbox_access_token_checkins, dependent: :destroy
+  belongs_to :user
 
   validates :token, presence: true, uniqueness: true
+  validates :user, presence: true
   validates :valid_from, presence: true
   validates :expires_at, presence: true
   validate :expires_at_must_be_after_valid_from
@@ -18,7 +22,7 @@ class SandboxAccessToken < ApplicationRecord
   # Non-dead rows first by valid_from, then expired and revoked at the end.
   scope :for_admin_list, lambda {
     now = Time.current
-    includes(:programming_languages).order(
+    includes(:user, :programming_languages).order(
       Arel.sql(
         sanitize_sql_array(
           [

@@ -22,7 +22,7 @@
         <% @sandbox_access_tokens.each do |token| %>
           <tr>
             <td><%= token.label.presence || "-" %></td>
-            <td><%= token.user.alias %></td>
+            <td><%= token.user&.alias.presence || "-" %></td>
             <td>
               <code class="admin-token-url"><%= sandbox_token_url(token.token) %></code>
             </td>

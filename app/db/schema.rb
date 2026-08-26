@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_26_122000) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_26_195500) do
   create_table "constraint_translations", charset: "utf8", force: :cascade do |t|
     t.bigint "constraint_id", null: false
     t.string "locale", null: false
@@ -194,7 +194,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_26_122000) do
   end
 
   create_table "sandbox_access_tokens", charset: "utf8", force: :cascade do |t|
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.string "token", null: false
     t.string "label"
     t.datetime "valid_from", null: false

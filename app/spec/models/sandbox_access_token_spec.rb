@@ -16,6 +16,15 @@ RSpec.describe SandboxAccessToken, type: :model do
       expect(token.token.length).to be >= 20
     end
 
+    it "rejects a token with no user on create" do
+      language = create(:programming_language)
+      token = described_class.new(valid_from: 1.minute.ago, expires_at: 2.hours.from_now)
+      token.programming_languages << language
+
+      expect(token).not_to be_valid
+      expect(token.errors[:user]).to include("can't be blank")
+    end
+
     it "rejects a token with no languages" do
       token = described_class.new(user: owner, valid_from: 1.minute.ago, expires_at: 2.hours.from_now)
 

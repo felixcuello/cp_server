@@ -7,10 +7,10 @@ class SandboxAccessToken < ApplicationRecord
   has_many :programming_languages, through: :sandbox_access_token_languages
   has_many :sandbox_access_token_runs, dependent: :destroy
   has_many :sandbox_access_token_checkins, dependent: :destroy
-  belongs_to :user
+  belongs_to :user, optional: true
 
   validates :token, presence: true, uniqueness: true
-  validates :user, presence: true
+  validates :user, presence: true, on: :create
   validates :valid_from, presence: true
   validates :expires_at, presence: true
   validate :expires_at_must_be_after_valid_from

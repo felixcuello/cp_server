@@ -44,6 +44,18 @@ RSpec.describe "Admin sandbox tokens", type: :request do
       expect(response.body).to include("Edit")
     end
 
+    it "lists a token with no owner without error" do
+      sign_in admin
+      token = create(:sandbox_access_token, label: "Legacy class")
+      token.update_column(:user_id, nil)
+
+      get admin_sandbox_tokens_path
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Legacy class")
+      expect(response.body).to include("-")
+    end
+
     it "shows a Submissions link only when the token has runs" do
       sign_in admin
       with_runs = create(:sandbox_access_token, label: "Has runs")

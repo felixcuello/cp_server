@@ -31,17 +31,25 @@ class SandboxController < AuthenticatedController
     end
 
     input = params[:input].to_s
+    audit_run = start_token_run_audit(source_code, language, input)
+    result = nil
+    execute_error = nil
 
-    result = SandboxExecutionService.new(
-      source_code: source_code,
-      language: language,
-      input: input
-    ).execute
+    begin
+      result = SandboxExecutionService.new(
+        source_code: source_code,
+        language: language,
+        input: input
+      ).execute
 
-    render json: { success: true, **result }
-  rescue => e
-    Rails.logger.error "Sandbox run error: #{e.message}"
-    render json: { success: false, error: "Server error: #{e.message}" }, status: :internal_server_error
+      render json: { success: true, **result }
+    rescue => e
+      execute_error = e
+      Rails.logger.error "Sandbox run error: #{e.message}"
+      render json: { success: false, error: "Server error: #{e.message}" }, status: :internal_server_error
+    ensure
+      finish_token_run_audit(audit_run, result, execute_error)
+    end
   end
 
   # Identity form shown before the editor on a token URL.
@@ -219,5 +227,41 @@ class SandboxController < AuthenticatedController
       id_type: attrs["id_type"],
       document_number: attrs["document_number"]
     )
+  end
+
+  # Creates a submitted audit row before execute. No-op without a token check-in.
+  def start_token_run_audit(source_code, language, input)
+    checkin = current_sandbox_checkin
+    return if checkin.blank?
+
+    SandboxAccessTokenRun.create!(
+      sandbox_access_token: current_sandbox_access_token,
+      sandbox_access_token_checkin: checkin,
+      programming_language: language,
+      source_code: source_code,
+      stdin: input,
+      status: :submitted
+    )
+  end
+
+  # Writes the final status after execute. Uses error when execute raised.
+  def finish_token_run_audit(audit_run, result, execute_error)
+    return if audit_run.blank?
+
+    if execute_error
+      audit_run.update!(
+        status: :error,
+        stderr: execute_error.message,
+        finished_at: Time.current
+      )
+    elsif result
+      audit_run.update!(
+        status: result[:status],
+        stdout: result[:output],
+        stderr: result[:error],
+        runtime_ms: result[:runtime_ms],
+        finished_at: Time.current
+      )
+    end
   end
 end

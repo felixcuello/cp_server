@@ -2,6 +2,7 @@
 
 class SandboxAccessTokenCheckin < ApplicationRecord
   belongs_to :sandbox_access_token
+  has_many :sandbox_access_token_runs, dependent: :destroy
 
   enum :id_type, {
     dni: 0,

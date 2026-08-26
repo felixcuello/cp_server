@@ -31,16 +31,19 @@
               <span class="status-badge <%= token.status_label %>"><%= token.status_label %></span>
             </td>
             <td>
-              <% if token.expirable? %>
-                <div class="admin-actions">
+              <div class="admin-actions">
+                <% if @token_ids_with_runs.include?(token.id) %>
+                  <%= link_to "Submissions", admin_sandbox_token_runs_path(token), class: "btn-small btn-secondary" %>
+                <% end %>
+                <% if token.expirable? %>
                   <%= link_to "Edit", edit_admin_sandbox_token_path(token), class: "btn-small btn-secondary" %>
                   <%= button_to "Expire", expire_admin_sandbox_token_path(token), method: :post,
                       class: "btn-small btn-danger",
                       data: { turbo: false } %>
-                </div>
-              <% else %>
-                -
-              <% end %>
+                <% elsif !@token_ids_with_runs.include?(token.id) %>
+                  -
+                <% end %>
+              </div>
             </td>
           </tr>
         <% end %>

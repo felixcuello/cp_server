@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_25_223700) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_26_122000) do
   create_table "constraint_translations", charset: "utf8", force: :cascade do |t|
     t.bigint "constraint_id", null: false
     t.string "locale", null: false
@@ -176,6 +176,23 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_25_223700) do
     t.index ["sandbox_access_token_id"], name: "idx_on_sandbox_access_token_id_33baceb65b"
   end
 
+  create_table "sandbox_access_token_runs", charset: "utf8", force: :cascade do |t|
+    t.bigint "sandbox_access_token_id", null: false
+    t.bigint "sandbox_access_token_checkin_id", null: false
+    t.bigint "programming_language_id", null: false
+    t.text "source_code", null: false
+    t.text "stdin", null: false
+    t.text "stdout"
+    t.text "stderr"
+    t.string "status", default: "submitted", null: false
+    t.integer "runtime_ms"
+    t.datetime "created_at", null: false
+    t.datetime "finished_at"
+    t.index ["programming_language_id"], name: "index_sandbox_access_token_runs_on_programming_language_id"
+    t.index ["sandbox_access_token_checkin_id", "created_at"], name: "index_sandbox_runs_on_checkin_and_created_at"
+    t.index ["sandbox_access_token_id", "created_at"], name: "index_sandbox_runs_on_token_and_created_at"
+  end
+
   create_table "sandbox_access_tokens", charset: "utf8", force: :cascade do |t|
     t.string "token", null: false
     t.string "label"
@@ -270,6 +287,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_25_223700) do
   add_foreign_key "sandbox_access_token_checkins", "sandbox_access_tokens"
   add_foreign_key "sandbox_access_token_languages", "programming_languages"
   add_foreign_key "sandbox_access_token_languages", "sandbox_access_tokens"
+  add_foreign_key "sandbox_access_token_runs", "programming_languages"
+  add_foreign_key "sandbox_access_token_runs", "sandbox_access_token_checkins"
+  add_foreign_key "sandbox_access_token_runs", "sandbox_access_tokens"
   add_foreign_key "submissions", "contests"
   add_foreign_key "submissions", "problems"
   add_foreign_key "submissions", "programming_languages"

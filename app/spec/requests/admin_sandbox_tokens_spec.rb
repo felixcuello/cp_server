@@ -41,6 +41,20 @@ RSpec.describe "Admin sandbox tokens", type: :request do
       expect(response.body).to include(earlier.language_names)
       expect(response.body).to include("Edit")
     end
+
+    it "shows a Submissions link only when the token has runs" do
+      sign_in admin
+      with_runs = create(:sandbox_access_token, label: "Has runs")
+      without_runs = create(:sandbox_access_token, label: "No runs")
+      create(:sandbox_access_token_run, sandbox_access_token: with_runs)
+
+      get admin_sandbox_tokens_path
+
+      expect(response.body).to include("Has runs")
+      expect(response.body).to include(admin_sandbox_token_runs_path(with_runs))
+      expect(response.body).to include("No runs")
+      expect(response.body).not_to include(admin_sandbox_token_runs_path(without_runs))
+    end
   end
 
   describe "POST /admin/sandbox_tokens" do

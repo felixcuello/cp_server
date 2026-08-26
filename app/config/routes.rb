@@ -64,6 +64,7 @@ Rails.application.routes.draw do
       member do
         post :expire
       end
+      resources :runs, only: [:index, :show], controller: "sandbox_token_runs"
     end
   end
 

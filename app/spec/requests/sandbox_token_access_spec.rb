@@ -198,11 +198,13 @@ RSpec.describe "Sandbox token access", type: :request do
       create(:sandbox_access_token, programming_languages: [allowed])
       stub_sandbox_execution
 
-      post sandbox_run_path, params: {
-        programming_language_id: blocked.id,
-        source_code: "puts 1",
-        input: ""
-      }
+      expect {
+        post sandbox_run_path, params: {
+          programming_language_id: blocked.id,
+          source_code: "puts 1",
+          input: ""
+        }
+      }.not_to change(SandboxAccessTokenRun, :count)
 
       expect(response).to have_http_status(:success)
       expect(response.parsed_body["success"]).to eq(true)
@@ -215,11 +217,13 @@ RSpec.describe "Sandbox token access", type: :request do
       token = create(:sandbox_access_token, programming_languages: [language])
       allow(SandboxExecutionService).to receive(:new)
 
-      post sandbox_token_run_path(token.token), params: {
-        programming_language_id: language.id,
-        source_code: "puts 1",
-        input: ""
-      }
+      expect {
+        post sandbox_token_run_path(token.token), params: {
+          programming_language_id: language.id,
+          source_code: "puts 1",
+          input: ""
+        }
+      }.not_to change(SandboxAccessTokenRun, :count)
 
       expect(response).to have_http_status(:forbidden)
       expect(response.parsed_body["success"]).to eq(false)
@@ -242,6 +246,67 @@ RSpec.describe "Sandbox token access", type: :request do
       expect(SandboxExecutionService).to have_received(:new)
     end
 
+    it "stores source, stdin, and the result for a token check-in run" do
+      token = create(:sandbox_access_token, programming_languages: [language])
+      complete_sandbox_checkin(token)
+      stub_sandbox_execution
+
+      expect {
+        post sandbox_token_run_path(token.token), params: {
+          programming_language_id: language.id,
+          source_code: "puts 1",
+          input: "hello"
+        }
+      }.to change(SandboxAccessTokenRun, :count).by(1)
+
+      run = SandboxAccessTokenRun.last
+      expect(run.sandbox_access_token).to eq(token)
+      expect(run.source_code).to eq("puts 1")
+      expect(run.stdin).to eq("hello")
+      expect(run.stdout).to eq("hello")
+      expect(run.status).to eq("success")
+      expect(run.runtime_ms).to eq(12)
+      expect(run.finished_at).to be_present
+    end
+
+    it "marks the audit row as error when execute raises" do
+      token = create(:sandbox_access_token, programming_languages: [language])
+      complete_sandbox_checkin(token)
+      service = instance_double(SandboxExecutionService)
+      allow(SandboxExecutionService).to receive(:new).and_return(service)
+      allow(service).to receive(:execute).and_raise(StandardError, "boom")
+
+      expect {
+        post sandbox_token_run_path(token.token), params: {
+          programming_language_id: language.id,
+          source_code: "puts 1",
+          input: ""
+        }
+      }.to change(SandboxAccessTokenRun, :count).by(1)
+
+      run = SandboxAccessTokenRun.last
+      expect(run.status).to eq("error")
+      expect(run.stderr).to eq("boom")
+      expect(run.finished_at).to be_present
+      expect(response).to have_http_status(:internal_server_error)
+    end
+
+    it "does not create a run for blank source" do
+      token = create(:sandbox_access_token, programming_languages: [language])
+      complete_sandbox_checkin(token)
+      allow(SandboxExecutionService).to receive(:new)
+
+      expect {
+        post sandbox_token_run_path(token.token), params: {
+          programming_language_id: language.id,
+          source_code: "",
+          input: ""
+        }
+      }.not_to change(SandboxAccessTokenRun, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
     it "does not execute a language that is not on the token" do
       allowed = create(:programming_language, name: "AllowedLang")
       blocked = create(:programming_language, name: "BlockedLang")
@@ -249,11 +314,13 @@ RSpec.describe "Sandbox token access", type: :request do
       complete_sandbox_checkin(token)
       allow(SandboxExecutionService).to receive(:new)
 
-      post sandbox_token_run_path(token.token), params: {
-        programming_language_id: blocked.id,
-        source_code: "puts 1",
-        input: ""
-      }
+      expect {
+        post sandbox_token_run_path(token.token), params: {
+          programming_language_id: blocked.id,
+          source_code: "puts 1",
+          input: ""
+        }
+      }.not_to change(SandboxAccessTokenRun, :count)
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(response.parsed_body["success"]).to eq(false)

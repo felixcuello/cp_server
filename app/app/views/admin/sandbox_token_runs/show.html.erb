@@ -1,0 +1,75 @@
+<% checkin = @sandbox_access_token_run.sandbox_access_token_checkin %>
+
+<div class="page-container admin-page">
+  <div class="page-header">
+    <h1 class="page-title">Submission</h1>
+    <%= link_to "Back to submissions", admin_sandbox_token_runs_path(@sandbox_access_token), class: "btn-secondary" %>
+  </div>
+
+  <dl class="admin-run-meta">
+    <div>
+      <dt>Name</dt>
+      <dd><%= checkin.first_name %> <%= checkin.last_name %></dd>
+    </div>
+    <div>
+      <dt>ID type</dt>
+      <dd><%= checkin.id_type %></dd>
+    </div>
+    <div>
+      <dt>Document</dt>
+      <dd><%= checkin.document_number %></dd>
+    </div>
+    <div>
+      <dt>Language</dt>
+      <dd><%= @sandbox_access_token_run.programming_language.name %></dd>
+    </div>
+    <div>
+      <dt>Status</dt>
+      <dd><span class="status-badge run-<%= @sandbox_access_token_run.status %>"><%= @sandbox_access_token_run.status %></span></dd>
+    </div>
+    <div>
+      <dt>Submitted (Argentina)</dt>
+      <dd><%= @sandbox_access_token_run.created_at_in_argentina.strftime("%Y-%m-%d %H:%M:%S") %></dd>
+    </div>
+    <div>
+      <dt>Finished (Argentina)</dt>
+      <dd>
+        <% if @sandbox_access_token_run.finished_at.present? %>
+          <%= @sandbox_access_token_run.finished_at_in_argentina.strftime("%Y-%m-%d %H:%M:%S") %>
+        <% else %>
+          -
+        <% end %>
+      </dd>
+    </div>
+    <div>
+      <dt>Runtime</dt>
+      <dd>
+        <% if @sandbox_access_token_run.runtime_ms.present? %>
+          <%= @sandbox_access_token_run.runtime_ms %> ms
+        <% else %>
+          -
+        <% end %>
+      </dd>
+    </div>
+  </dl>
+
+  <section class="admin-run-pane">
+    <h2>Source</h2>
+    <pre><%= @sandbox_access_token_run.source_code %></pre>
+  </section>
+
+  <section class="admin-run-pane">
+    <h2>Stdin</h2>
+    <pre><%= @sandbox_access_token_run.stdin.presence || "(empty)" %></pre>
+  </section>
+
+  <section class="admin-run-pane">
+    <h2>Stdout</h2>
+    <pre><%= @sandbox_access_token_run.stdout.presence || "(empty)" %></pre>
+  </section>
+
+  <section class="admin-run-pane">
+    <h2>Stderr</h2>
+    <pre><%= @sandbox_access_token_run.stderr.presence || "(empty)" %></pre>
+  </section>
+</div>

@@ -5,6 +5,7 @@ class SandboxAccessToken < ApplicationRecord
 
   has_many :sandbox_access_token_languages, dependent: :destroy
   has_many :programming_languages, through: :sandbox_access_token_languages
+  has_many :sandbox_access_token_runs, dependent: :destroy
   has_many :sandbox_access_token_checkins, dependent: :destroy
 
   validates :token, presence: true, uniqueness: true

@@ -1,0 +1,83 @@
+<div class="page-container admin-page">
+  <div class="page-header">
+    <h1 class="page-title">
+      Submissions
+      <% if @sandbox_access_token.label.present? %>
+        <span class="admin-page-subtitle"><%= @sandbox_access_token.label %></span>
+      <% end %>
+    </h1>
+    <%= link_to "Back to tokens", admin_sandbox_tokens_path, class: "btn-secondary" %>
+  </div>
+
+  <div class="admin-table-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Submitted (Argentina)</th>
+          <th>Name</th>
+          <th>ID type</th>
+          <th>Document</th>
+          <th>Language</th>
+          <th>Status</th>
+          <th>Runtime</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @sandbox_access_token_runs.each do |run| %>
+          <% checkin = run.sandbox_access_token_checkin %>
+          <tr>
+            <td><%= run.created_at_in_argentina.strftime("%Y-%m-%d %H:%M:%S") %></td>
+            <td><%= checkin.first_name %> <%= checkin.last_name %></td>
+            <td><%= checkin.id_type %></td>
+            <td><%= checkin.document_number %></td>
+            <td><%= run.programming_language.name %></td>
+            <td>
+              <span class="status-badge run-<%= run.status %>"><%= run.status %></span>
+            </td>
+            <td>
+              <% if run.runtime_ms.present? %>
+                <%= run.runtime_ms %> ms
+              <% else %>
+                -
+              <% end %>
+            </td>
+            <td>
+              <%= link_to "View", admin_sandbox_token_run_path(@sandbox_access_token, run), class: "btn-small btn-secondary" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if @sandbox_access_token_runs.empty? %>
+      <div class="empty-state">
+        <div class="empty-title">No submissions yet</div>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @total_pages > 1 %>
+    <div class="pagination-container">
+      <% if @page > 1 %>
+        <%= link_to admin_sandbox_token_runs_path(@sandbox_access_token, page: @page - 1), class: "pagination-btn" do %>
+          Previous
+        <% end %>
+      <% else %>
+        <span class="pagination-btn disabled">Previous</span>
+      <% end %>
+
+      <div class="pagination-info">
+        Page <strong><%= @page %></strong> of <strong><%= @total_pages %></strong>
+      </div>
+
+      <% if @page < @total_pages %>
+        <%= link_to admin_sandbox_token_runs_path(@sandbox_access_token, page: @page + 1), class: "pagination-btn" do %>
+          Next
+        <% end %>
+      <% else %>
+        <span class="pagination-btn disabled">Next</span>
+      <% end %>
+    </div>
+  <% end %>
+</div>

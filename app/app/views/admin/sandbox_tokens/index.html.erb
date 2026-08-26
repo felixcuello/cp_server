@@ -9,6 +9,7 @@
       <thead>
         <tr>
           <th>Label</th>
+          <th>Owner</th>
           <th>URL</th>
           <th>Languages</th>
           <th>Valid from (Argentina)</th>
@@ -21,6 +22,7 @@
         <% @sandbox_access_tokens.each do |token| %>
           <tr>
             <td><%= token.label.presence || "-" %></td>
+            <td><%= token.user.alias %></td>
             <td>
               <code class="admin-token-url"><%= sandbox_token_url(token.token) %></code>
             </td>

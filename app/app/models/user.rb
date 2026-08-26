@@ -22,6 +22,7 @@ class User < ApplicationRecord
   has_many :contest_participants
   has_many :contests, through: :contest_participants
   has_many :contest_submissions, -> { where.not(contest_id: nil) }, class_name: 'Submission'
+  has_many :sandbox_access_tokens
 
   validates :locale, inclusion: { in: LOCALES }, allow_nil: true
 

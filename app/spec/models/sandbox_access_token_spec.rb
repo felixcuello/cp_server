@@ -4,9 +4,11 @@ require "rails_helper"
 
 RSpec.describe SandboxAccessToken, type: :model do
   describe "validations" do
+    let(:owner) { create(:user) }
+
     it "assigns a long token on create" do
       language = create(:programming_language)
-      token = described_class.new(valid_from: 1.minute.ago, expires_at: 2.hours.from_now)
+      token = described_class.new(user: owner, valid_from: 1.minute.ago, expires_at: 2.hours.from_now)
       token.programming_languages << language
       token.save!
 
@@ -15,14 +17,14 @@ RSpec.describe SandboxAccessToken, type: :model do
     end
 
     it "rejects a token with no languages" do
-      token = described_class.new(valid_from: 1.minute.ago, expires_at: 2.hours.from_now)
+      token = described_class.new(user: owner, valid_from: 1.minute.ago, expires_at: 2.hours.from_now)
 
       expect(token).not_to be_valid
       expect(token.errors[:programming_languages]).to include("must include at least one language")
     end
 
     it "rejects an expiry in the past on create" do
-      token = described_class.new(valid_from: 2.hours.ago, expires_at: 1.hour.ago)
+      token = described_class.new(user: owner, valid_from: 2.hours.ago, expires_at: 1.hour.ago)
 
       expect(token).not_to be_valid
       expect(token.errors[:expires_at]).to include("must be in the future")
@@ -38,7 +40,7 @@ RSpec.describe SandboxAccessToken, type: :model do
     end
 
     it "rejects an expiry that is not after valid_from" do
-      token = described_class.new(valid_from: 2.hours.from_now, expires_at: 1.hour.from_now)
+      token = described_class.new(user: owner, valid_from: 2.hours.from_now, expires_at: 1.hour.from_now)
 
       expect(token).not_to be_valid
       expect(token.errors[:expires_at]).to include("must be after valid from")

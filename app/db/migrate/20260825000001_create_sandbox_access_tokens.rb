@@ -3,6 +3,7 @@
 class CreateSandboxAccessTokens < ActiveRecord::Migration[7.2]
   def change
     create_table :sandbox_access_tokens do |t|
+      t.references :user, null: false, foreign_key: true
       t.string :token, null: false
       t.string :label
       t.datetime :valid_from, null: false

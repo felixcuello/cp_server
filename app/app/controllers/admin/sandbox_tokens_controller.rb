@@ -15,6 +15,7 @@ class Admin::SandboxTokensController < AdminController
 
   def create
     @sandbox_access_token = SandboxAccessToken.new
+    @sandbox_access_token.user = current_user
     assign_token_attributes(@sandbox_access_token)
 
     if @sandbox_access_token.save

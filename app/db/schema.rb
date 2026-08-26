@@ -194,6 +194,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_26_122000) do
   end
 
   create_table "sandbox_access_tokens", charset: "utf8", force: :cascade do |t|
+    t.bigint "user_id", null: false
     t.string "token", null: false
     t.string "label"
     t.datetime "valid_from", null: false
@@ -202,6 +203,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_26_122000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["token"], name: "index_sandbox_access_tokens_on_token", unique: true
+    t.index ["user_id"], name: "index_sandbox_access_tokens_on_user_id"
   end
 
   create_table "submissions", charset: "utf8", force: :cascade do |t|
@@ -290,6 +292,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_26_122000) do
   add_foreign_key "sandbox_access_token_runs", "programming_languages"
   add_foreign_key "sandbox_access_token_runs", "sandbox_access_token_checkins"
   add_foreign_key "sandbox_access_token_runs", "sandbox_access_tokens"
+  add_foreign_key "sandbox_access_tokens", "users"
   add_foreign_key "submissions", "contests"
   add_foreign_key "submissions", "problems"
   add_foreign_key "submissions", "programming_languages"

@@ -2,6 +2,7 @@
 
 FactoryBot.define do
   factory :sandbox_access_token do
+    user
     sequence(:label) { |n| "Class #{n}" }
     token { SecureRandom.urlsafe_base64(24).delete("=") }
     valid_from { 1.minute.ago }

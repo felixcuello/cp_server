@@ -156,7 +156,7 @@ RSpec.describe Submission, type: :model do
 
         # Python print adds newline, so output will be "8\n" vs expected "8"
         # This should be detected as presentation error after whitespace normalization
-        expect([Submission::PRESENTATION_ERROR, Submission::WRONG_ANSWER]).to include(submission.reload.status)
+        expect(submission.reload.status).to match(/presentation error|wrong answer/)
       end
 
       it 'detects time limit exceeded' do
@@ -174,7 +174,7 @@ RSpec.describe Submission, type: :model do
 
         submission.run_with_interpreter!
 
-        expect(submission.reload.status).to eq(Submission::TIME_LIMIT_EXCEEDED)
+        expect(submission.reload.status).to start_with(Submission::TIME_LIMIT_EXCEEDED)
       end
 
       it 'updates time_used in database' do

@@ -1,0 +1,4 @@
+[
+  {"name": "pthread_create", "section": "3", "title": "create a new thread"},
+  {"name": "fork", "section": "2", "title": "create a child process"}
+]

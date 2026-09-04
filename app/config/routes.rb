@@ -39,6 +39,10 @@ Rails.application.routes.draw do
   sandbox_token_constraint = { token: /[A-Za-z0-9_-]{20,}/ }
   get "sandbox", to: "sandbox#show", as: "sandbox"
   post "sandbox/run", to: "sandbox#run", as: "sandbox_run"
+  get "sandbox/man/index", to: "sandbox#man_index", as: "sandbox_man_index"
+  get "sandbox/man/:section/:page", to: "sandbox#man_show", as: "sandbox_man_page"
+  get "sandbox/:token/man/index", to: "sandbox#man_index", as: "sandbox_token_man_index", constraints: sandbox_token_constraint
+  get "sandbox/:token/man/:section/:page", to: "sandbox#man_show", as: "sandbox_token_man_page", constraints: sandbox_token_constraint
   get "sandbox/:token/checkin", to: "sandbox#checkin", as: :sandbox_token_checkin, constraints: sandbox_token_constraint
   post "sandbox/:token/checkin", to: "sandbox#create_checkin", constraints: sandbox_token_constraint
   get "sandbox/:token/checkin/confirm", to: "sandbox#confirm_checkin", as: :sandbox_token_confirm_checkin, constraints: sandbox_token_constraint

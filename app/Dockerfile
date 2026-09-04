@@ -45,6 +45,36 @@ RUN apt-get update -qq && \
       neovim && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
+# Enable contrib/non-free so POSIX man pages can be installed, then convert to HTML.
+# Official Debian images exclude /usr/share/man. Keep those files for the sandbox docs drawer.
+RUN set -eux; \
+    if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
+      grep -q non-free /etc/apt/sources.list.d/debian.sources || \
+        sed -i 's/Components: main$/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources; \
+    elif [ -f /etc/apt/sources.list ]; then \
+      grep -q non-free /etc/apt/sources.list || \
+        sed -i 's/ main$/ main contrib non-free non-free-firmware/' /etc/apt/sources.list; \
+    fi; \
+    for cfg in /etc/dpkg/dpkg.cfg.d/*; do \
+      if [ -f "$cfg" ]; then \
+        sed -i '/usr\/share\/man/d' "$cfg"; \
+      fi; \
+    done; \
+    printf '%s\n' 'path-include=/usr/share/man/*' > /etc/dpkg/dpkg.cfg.d/keep-man; \
+    apt-get update -qq; \
+    apt-get install --no-install-recommends -y \
+      mandoc \
+      manpages \
+      manpages-dev \
+      manpages-posix \
+      manpages-posix-dev \
+      manpages-es \
+      manpages-es-dev; \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+COPY script/build_sandbox_manpages.sh /tmp/build_sandbox_manpages.sh
+RUN chmod +x /tmp/build_sandbox_manpages.sh && /tmp/build_sandbox_manpages.sh
+
 # Build and install nsjail from source (needed for secure code execution)
 RUN git clone --depth 1 https://github.com/google/nsjail.git /tmp/nsjail && \
     cd /tmp/nsjail && \

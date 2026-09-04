@@ -2,6 +2,7 @@
 require 'spec_helper'
 # Docker Compose sets RAILS_ENV=development. Specs must always run as test.
 ENV['RAILS_ENV'] = 'test'
+ENV['SANDBOX_MAN_ROOT'] = File.expand_path('fixtures/sandbox_man', __dir__)
 require_relative '../config/environment'
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?

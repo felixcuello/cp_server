@@ -5,7 +5,7 @@ class SandboxController < AuthenticatedController
 
   skip_before_action :authenticate_user!, if: :token_param_present?
   before_action :reject_invalid_sandbox_token!, if: :token_param_present?
-  before_action :require_sandbox_checkin!, only: [:show, :run], if: :token_param_present?
+  before_action :require_sandbox_checkin!, only: [ :show, :run, :man_index, :man_show ], if: :token_param_present?
 
   def show
     @sandbox_access_token = current_sandbox_access_token
@@ -21,9 +21,9 @@ class SandboxController < AuthenticatedController
 
     source_code = if params[:source_code].respond_to?(:read)
                     params[:source_code].read
-                  else
+    else
                     params[:source_code].to_s
-                  end
+    end
 
     if source_code.blank?
       render json: { success: false, error: "No source code provided" }, status: :unprocessable_entity
@@ -50,6 +50,26 @@ class SandboxController < AuthenticatedController
     ensure
       finish_token_run_audit(audit_run, result, execute_error)
     end
+  end
+
+  # JSON index of man pages and topic groups for the docs drawer.
+  def man_index
+    render json: SandboxManPages.new(locale: I18n.locale).index
+  end
+
+  # JSON body for one man page. Missing names return 200 with missing: true.
+  def man_show
+    result = SandboxManPages.new(locale: I18n.locale).page(
+      section: params[:section],
+      name: params[:page]
+    )
+
+    if result[:error]
+      render json: { error: "Invalid man page" }, status: :unprocessable_entity
+      return
+    end
+
+    render json: result
   end
 
   # Identity form shown before the editor on a token URL.
@@ -165,7 +185,7 @@ class SandboxController < AuthenticatedController
     raw_id = cookies.signed[sandbox_checkin_cookie_name]
     @current_sandbox_checkin = if raw_id.present?
                                  token.sandbox_access_token_checkins.find_by(id: raw_id)
-                               end
+    end
   end
 
   def sandbox_checkin_cookie_name

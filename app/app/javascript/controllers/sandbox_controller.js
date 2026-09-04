@@ -1,13 +1,30 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["codeEditor", "inputEditor", "languageSelect", "output", "outputContent", "runButton", "runtime", "statusBadge"]
+  static targets = [
+    "codeEditor", "inputEditor", "languageSelect", "output", "outputContent",
+    "runButton", "runtime", "statusBadge",
+    "manButton", "runPane", "docsPane", "manSearch", "manNav", "manFallback",
+    "manTitle", "manBody"
+  ]
   static values = {
     language: { type: String, default: "python" },
-    token: { type: String, default: "" }
+    token: { type: String, default: "" },
+    locale: { type: String, default: "en" },
+    missingLabel: { type: String, default: "Missing" }
   }
 
   connect() {
+    this.docsOpen = false
+    this.manIndexData = null
+    this.boundManKeydown = this.onManKeydown.bind(this)
+    this.boundManBodyClick = this.onManBodyClick.bind(this)
+    document.addEventListener("keydown", this.boundManKeydown)
+
+    if (this.hasManBodyTarget) {
+      this.manBodyTarget.addEventListener("click", this.boundManBodyClick)
+    }
+
     if (typeof window.monacoLoaded !== 'undefined') {
       window.monacoLoaded.then(() => this.initializeEditors());
     } else {
@@ -29,6 +46,10 @@ export default class extends Controller {
   }
 
   disconnect() {
+    document.removeEventListener("keydown", this.boundManKeydown)
+    if (this.hasManBodyTarget) {
+      this.manBodyTarget.removeEventListener("click", this.boundManBodyClick)
+    }
     if (this.codeEditorInstance) this.codeEditorInstance.dispose();
     if (this.inputEditorInstance) this.inputEditorInstance.dispose();
   }
@@ -37,6 +58,12 @@ export default class extends Controller {
     if (typeof monaco === 'undefined') return;
 
     this.loadFromLocalStorage();
+
+    if (this.hasLanguageSelectTarget) {
+      const selected = this.languageSelectTarget.selectedOptions[0];
+      const langName = selected && selected.getAttribute("data-lang");
+      if (langName) this.languageValue = langName;
+    }
 
     this.codeEditorInstance = monaco.editor.create(this.codeEditorTarget, {
       value: this.getSavedCode() || this.getDefaultCode(),
@@ -93,6 +120,8 @@ export default class extends Controller {
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
       () => this.run()
     );
+
+    this.syncManButton();
   }
 
   changeLanguage(event) {
@@ -114,6 +143,10 @@ export default class extends Controller {
     }
 
     this.saveToLocalStorage();
+    this.syncManButton();
+    if (!this.manAvailable() && this.docsOpen) {
+      this.closeMan();
+    }
   }
 
   async run() {
@@ -196,6 +229,229 @@ export default class extends Controller {
     if (this.codeEditorInstance) {
       this.codeEditorInstance.trigger('keyboard', 'actions.find');
     }
+  }
+
+  manAvailable() {
+    const monacoLang = this.getMonacoLanguage(this.languageValue);
+    return monacoLang === "c" || monacoLang === "cpp";
+  }
+
+  syncManButton() {
+    if (!this.hasManButtonTarget) return;
+    this.manButtonTarget.hidden = !this.manAvailable();
+  }
+
+  toggleMan(event) {
+    if (event) event.preventDefault();
+    if (!this.manAvailable()) return;
+    if (this.docsOpen) {
+      this.closeMan();
+    } else {
+      this.openMan();
+    }
+  }
+
+  async openMan() {
+    if (!this.hasDocsPaneTarget || !this.hasRunPaneTarget) return;
+
+    this.docsOpen = true;
+    this.runPaneTarget.hidden = true;
+    this.docsPaneTarget.hidden = false;
+    if (this.hasManSearchTarget) this.manSearchTarget.focus();
+
+    await this.ensureManIndex();
+    this.renderManNav();
+  }
+
+  closeMan() {
+    if (!this.hasDocsPaneTarget || !this.hasRunPaneTarget) return;
+
+    this.docsOpen = false;
+    this.docsPaneTarget.hidden = true;
+    this.runPaneTarget.hidden = false;
+    if (this.inputEditorInstance) {
+      this.inputEditorInstance.layout();
+    }
+  }
+
+  onManKeydown(event) {
+    if (event.key === "Escape" && this.docsOpen) {
+      event.preventDefault();
+      this.closeMan();
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && (event.key === "M" || event.key === "m")) {
+      if (!this.manAvailable()) return;
+      event.preventDefault();
+      this.toggleMan();
+    }
+  }
+
+  async ensureManIndex() {
+    if (this.manIndexData) return;
+
+    try {
+      const response = await fetch(this.manIndexUrl(), {
+        headers: { "Accept": "application/json" }
+      });
+      if (response.status === 404) {
+        window.location.assign(window.location.pathname);
+        return;
+      }
+      if (!response.ok) {
+        this.manIndexData = { pages: [], topics: [] };
+        return;
+      }
+      this.manIndexData = await response.json();
+    } catch (_error) {
+      this.manIndexData = { pages: [], topics: [] };
+    }
+  }
+
+  filterManPages() {
+    this.renderManNav();
+  }
+
+  renderManNav() {
+    if (!this.hasManNavTarget || !this.manIndexData) return;
+
+    const query = this.hasManSearchTarget ? this.manSearchTarget.value.trim().toLowerCase() : "";
+    if (query) {
+      this.renderManSearchResults(query);
+    } else {
+      this.renderManTopics();
+    }
+  }
+
+  renderManTopics() {
+    const topics = this.manIndexData.topics || [];
+    const html = topics.map((topic) => {
+      const pages = (topic.pages || []).map((page) => this.manNavPageHtml(page)).join("");
+      return `<div class="sandbox-docs-topic">
+        <div class="sandbox-docs-topic-label">${this.escapeHtml(topic.label || topic.key || "")}</div>
+        ${pages}
+      </div>`;
+    }).join("");
+    this.manNavTarget.innerHTML = html || `<div class="sandbox-docs-empty">${this.escapeHtml(this.missingLabelValue)}</div>`;
+    this.bindManNavClicks();
+  }
+
+  renderManSearchResults(query) {
+    const pages = (this.manIndexData.pages || []).filter((page) => {
+      const name = (page.name || "").toLowerCase();
+      const title = (page.title || "").toLowerCase();
+      const section = (page.section || "").toLowerCase();
+      return name.includes(query) || title.includes(query) || `${name}(${section})`.includes(query);
+    }).slice(0, 80);
+
+    if (!pages.length) {
+      this.manNavTarget.innerHTML = `<div class="sandbox-docs-empty">${this.escapeHtml(this.missingLabelValue)}</div>`;
+      return;
+    }
+
+    this.manNavTarget.innerHTML = pages.map((page) => this.manNavPageHtml(page)).join("");
+    this.bindManNavClicks();
+  }
+
+  manNavPageHtml(page) {
+    const missing = page.missing === true;
+    const label = page.section ? `${page.name}(${page.section})` : page.name;
+    const extra = missing ? ` <span class="sandbox-docs-missing-tag">${this.escapeHtml(this.missingLabelValue)}</span>` : "";
+    const active = this.currentManKey === `${page.name}:${page.section || ""}` ? " is-active" : "";
+    const missingClass = missing ? " is-missing" : "";
+    return `<button type="button" class="sandbox-docs-topic-page${active}${missingClass}"
+              data-man-name="${this.escapeHtml(page.name || "")}"
+              data-man-section="${this.escapeHtml(page.section || "")}"
+              data-man-missing="${missing ? "true" : "false"}">${this.escapeHtml(label)}${extra}</button>`;
+  }
+
+  bindManNavClicks() {
+    this.manNavTarget.querySelectorAll("[data-man-name]").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (button.dataset.manMissing === "true") {
+          this.showManMissing(button.dataset.manName, button.dataset.manSection);
+          return;
+        }
+        this.openManPage(button.dataset.manSection, button.dataset.manName);
+      });
+    });
+  }
+
+  onManBodyClick(event) {
+    const link = event.target.closest("[data-man-name]");
+    if (!link || !this.manBodyTarget.contains(link)) return;
+    event.preventDefault();
+    const section = link.dataset.manSection;
+    const name = link.dataset.manName;
+    if (!section || !name) {
+      this.showManMissing(name, section);
+      return;
+    }
+    this.openManPage(section, name);
+  }
+
+  showManMissing(name, section) {
+    this.currentManKey = `${name || ""}:${section || ""}`;
+    if (this.hasManFallbackTarget) this.manFallbackTarget.hidden = true;
+    if (this.hasManTitleTarget) {
+      const suffix = section ? `(${section})` : "";
+      this.manTitleTarget.textContent = `${name || ""}${suffix}`;
+    }
+    if (this.hasManBodyTarget) {
+      this.manBodyTarget.innerHTML = `<p class="sandbox-docs-missing">${this.escapeHtml(this.missingLabelValue)}</p>`;
+    }
+    this.renderManNav();
+  }
+
+  async openManPage(section, name) {
+    this.currentManKey = `${name}:${section}`;
+    try {
+      const response = await fetch(this.manPageUrl(section, name), {
+        headers: { "Accept": "application/json" }
+      });
+      if (response.status === 404) {
+        window.location.assign(window.location.pathname);
+        return;
+      }
+      if (response.status === 422) {
+        this.showManMissing(name, section);
+        return;
+      }
+      const result = await response.json();
+      if (result.missing) {
+        this.showManMissing(result.name || name, result.section || section);
+        return;
+      }
+      if (this.hasManFallbackTarget) {
+        this.manFallbackTarget.hidden = !result.fallback;
+      }
+      if (this.hasManTitleTarget) {
+        this.manTitleTarget.textContent = `${result.name}(${result.section})`;
+      }
+      if (this.hasManBodyTarget) {
+        this.manBodyTarget.innerHTML = result.html || `<p class="sandbox-docs-missing">${this.escapeHtml(this.missingLabelValue)}</p>`;
+      }
+      this.renderManNav();
+    } catch (_error) {
+      this.showManMissing(name, section);
+    }
+  }
+
+  manIndexUrl() {
+    const locale = "?locale=" + encodeURIComponent(this.localeValue);
+    if (this.tokenValue) {
+      return "/sandbox/" + encodeURIComponent(this.tokenValue) + "/man/index" + locale;
+    }
+    return "/sandbox/man/index" + locale;
+  }
+
+  manPageUrl(section, name) {
+    const prefix = this.tokenValue
+      ? "/sandbox/" + encodeURIComponent(this.tokenValue) + "/man/"
+      : "/sandbox/man/";
+    return prefix + encodeURIComponent(section) + "/" + encodeURIComponent(name) +
+      "?locale=" + encodeURIComponent(this.localeValue);
   }
 
   // --- UI helpers ---

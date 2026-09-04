@@ -21,6 +21,8 @@
   <div class="sandbox-container"
        data-controller="sandbox resize"
        data-sandbox-token-value="<%= @sandbox_access_token&.token %>"
+       data-sandbox-locale-value="<%= I18n.locale %>"
+       data-sandbox-missing-label-value="<%= t('sandbox.man_missing') %>"
        data-sandbox-languages-value="<%= @languages.map { |l| { id: l.id, name: l.name } }.to_json %>">
 
     <!-- Left Pane: Code Editor -->
@@ -41,6 +43,15 @@
             <button class="btn-search" data-action="click->sandbox#openSearch" title="Search & Replace (Ctrl+F / Ctrl+H)">
               🔍
             </button>
+            <% first_lang = @languages.first %>
+            <button class="sandbox-man-button"
+                    type="button"
+                    data-sandbox-target="manButton"
+                    data-action="click->sandbox#toggleMan"
+                    title="man (Ctrl+Shift+M)"
+                    <%= "hidden" unless first_lang && %w[c cpp].include?(language_class(first_lang.name)) %>>
+              <%= t('sandbox.man') %>
+            </button>
             <button class="btn-secondary" data-action="click->sandbox#resetCode">
               🔄 <%= t('sandbox.reset') %>
             </button>
@@ -53,33 +64,62 @@
     <!-- Horizontal Resizer -->
     <div class="problem-split-resizer" data-resize-target="resizer"></div>
 
-    <!-- Right Pane: Input + Run + Output -->
+    <!-- Right Pane: Input + Run + Output (replaced by docs while man is open) -->
     <div class="sandbox-right-pane" data-resize-target="rightPane">
 
-      <!-- Input Section -->
-      <div class="sandbox-input-section">
-        <div class="sandbox-section-header">
-          <span class="sandbox-section-title"><%= t('sandbox.input') %></span>
+      <div class="sandbox-run-pane" data-sandbox-target="runPane">
+        <!-- Input Section -->
+        <div class="sandbox-input-section">
+          <div class="sandbox-section-header">
+            <span class="sandbox-section-title"><%= t('sandbox.input') %></span>
+          </div>
+          <div class="sandbox-input-editor" data-sandbox-target="inputEditor"></div>
         </div>
-        <div class="sandbox-input-editor" data-sandbox-target="inputEditor"></div>
+
+        <!-- Run Button Bar -->
+        <div class="sandbox-run-bar">
+          <button class="sandbox-run-button" data-action="click->sandbox#run" data-sandbox-target="runButton">
+            <span class="run-icon">|▶</span> <span><%= t('sandbox.run') %></span>
+          </button>
+          <span class="sandbox-runtime" data-sandbox-target="runtime"></span>
+        </div>
+
+        <!-- Output Section -->
+        <div class="sandbox-output-section">
+          <div class="sandbox-section-header">
+            <span class="sandbox-section-title"><%= t('sandbox.output') %></span>
+            <span class="sandbox-status-badge" data-sandbox-target="statusBadge"></span>
+          </div>
+          <div class="sandbox-output" data-sandbox-target="output">
+            <pre class="sandbox-output-content" data-sandbox-target="outputContent"><span class="sandbox-output-placeholder"><%= t('sandbox.output_placeholder') %></span></pre>
+          </div>
+        </div>
       </div>
 
-      <!-- Run Button Bar -->
-      <div class="sandbox-run-bar">
-        <button class="sandbox-run-button" data-action="click->sandbox#run" data-sandbox-target="runButton">
-          <span class="run-icon">|▶</span> <span><%= t('sandbox.run') %></span>
-        </button>
-        <span class="sandbox-runtime" data-sandbox-target="runtime"></span>
-      </div>
-
-      <!-- Output Section -->
-      <div class="sandbox-output-section">
+      <div class="sandbox-docs-pane" hidden data-sandbox-target="docsPane">
         <div class="sandbox-section-header">
-          <span class="sandbox-section-title"><%= t('sandbox.output') %></span>
-          <span class="sandbox-status-badge" data-sandbox-target="statusBadge"></span>
+          <span class="sandbox-section-title"><%= t('sandbox.man_docs') %></span>
+          <button type="button" class="sandbox-docs-close" data-action="click->sandbox#closeMan" aria-label="<%= t('sandbox.man_close') %>">
+            x
+          </button>
         </div>
-        <div class="sandbox-output" data-sandbox-target="output">
-          <pre class="sandbox-output-content" data-sandbox-target="outputContent"><span class="sandbox-output-placeholder"><%= t('sandbox.output_placeholder') %></span></pre>
+        <div class="sandbox-docs-search">
+          <input type="search"
+                 class="sandbox-docs-search-input"
+                 data-sandbox-target="manSearch"
+                 data-action="input->sandbox#filterManPages"
+                 placeholder="<%= t('sandbox.man_search') %>"
+                 autocomplete="off">
+        </div>
+        <div class="sandbox-docs-split">
+          <nav class="sandbox-docs-nav" data-sandbox-target="manNav"></nav>
+          <div class="sandbox-docs-main">
+            <div class="sandbox-docs-fallback" hidden data-sandbox-target="manFallback"><%= t('sandbox.man_english_fallback') %></div>
+            <div class="sandbox-docs-page-title" data-sandbox-target="manTitle"></div>
+            <div class="sandbox-docs-body" data-sandbox-target="manBody">
+              <p class="sandbox-docs-placeholder"><%= t('sandbox.man_placeholder') %></p>
+            </div>
+          </div>
         </div>
       </div>
 

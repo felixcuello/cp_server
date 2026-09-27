@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rails_helper"
+require "tempfile"
 
 RSpec.describe "Sandbox token access", type: :request do
   let(:language) { create(:programming_language) }
@@ -42,6 +43,7 @@ RSpec.describe "Sandbox token access", type: :request do
 
       expect(response).to have_http_status(:success)
       expect(response.body).not_to include("sandbox-token-countdown")
+      expect(response.body).to include('data-sandbox-persist-editor-value="true"')
     end
 
     it "lists every language including ones not attached to a token" do
@@ -91,6 +93,17 @@ RSpec.describe "Sandbox token access", type: :request do
       expect(response.body).not_to include("This token is not valid.")
       expect(response.body).to include("sandbox-token-countdown")
       expect(response.body).to include("Time remaining")
+      expect(response.body).to include('data-sandbox-persist-editor-value="false"')
+    end
+
+    it "enables editor persistence when the token flag is on" do
+      token = create(:sandbox_access_token, persistent_code_in_editor: true)
+      complete_sandbox_checkin(token)
+
+      get sandbox_token_path(token.token)
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('data-sandbox-persist-editor-value="true"')
     end
 
     it "keeps the sandbox after the original expiry when expires_at was extended" do
@@ -267,6 +280,43 @@ RSpec.describe "Sandbox token access", type: :request do
       expect(run.status).to eq("success")
       expect(run.runtime_ms).to eq(12)
       expect(run.finished_at).to be_present
+    end
+
+    it "accepts UTF-8 source uploaded as a binary file" do
+      token = create(:sandbox_access_token, programming_languages: [language])
+      complete_sandbox_checkin(token)
+
+      source = "print('año')"
+      utf8_output = "año".dup.force_encoding(Encoding::ASCII_8BIT)
+      service = instance_double(
+        SandboxExecutionService,
+        execute: { status: "success", output: utf8_output, error: nil, runtime_ms: 12 }
+      )
+      allow(SandboxExecutionService).to receive(:new).and_return(service)
+
+      tempfile = Tempfile.new(["source", ".rb"])
+      tempfile.binmode
+      tempfile.write(source.dup.force_encoding(Encoding::ASCII_8BIT))
+      tempfile.rewind
+
+      expect {
+        post sandbox_token_run_path(token.token), params: {
+          programming_language_id: language.id,
+          source_code: Rack::Test::UploadedFile.new(tempfile.path, "text/plain"),
+          input: "año"
+        }
+      }.to change(SandboxAccessTokenRun, :count).by(1)
+
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body["success"]).to eq(true)
+      expect(response.parsed_body["output"]).to eq("año")
+
+      run = SandboxAccessTokenRun.last
+      expect(run.source_code).to eq(source)
+      expect(run.stdin).to eq("año")
+      expect(run.stdout).to eq("año")
+    ensure
+      tempfile&.close!
     end
 
     it "marks the audit row as error when execute raises" do

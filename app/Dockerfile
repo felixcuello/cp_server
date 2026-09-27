@@ -18,6 +18,8 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 ARG WORKDIR_PATH
 WORKDIR ${WORKDIR_PATH}
 
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONIOENCODING=utf-8
+
 # Install base packages
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \

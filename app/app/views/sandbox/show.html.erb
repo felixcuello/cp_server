@@ -21,6 +21,7 @@
   <div class="sandbox-container"
        data-controller="sandbox resize"
        data-sandbox-token-value="<%= @sandbox_access_token&.token %>"
+       data-sandbox-persist-editor-value="<%= @sandbox_access_token.nil? || @sandbox_access_token.persistent_code_in_editor? %>"
        data-sandbox-locale-value="<%= I18n.locale %>"
        data-sandbox-missing-label-value="<%= t('sandbox.man_missing') %>"
        data-sandbox-languages-value="<%= @languages.map { |l| { id: l.id, name: l.name } }.to_json %>">

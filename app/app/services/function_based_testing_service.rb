@@ -79,6 +79,7 @@ class FunctionBasedTestingService
 
     # Use Open3.capture3 with array arguments to prevent command injection
     stdout, stderr, status = Open3.capture3(language.compiler_binary, *compiler_args)
+    stderr = Utf8.ensure(stderr)
 
     unless status.success?
       compiler_errors = stderr.present? ? stderr : "Compilation failed (no error details)"

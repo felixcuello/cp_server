@@ -10,6 +10,7 @@ export default class extends Controller {
   static values = {
     language: { type: String, default: "python" },
     token: { type: String, default: "" },
+    persistEditor: { type: Boolean, default: true },
     locale: { type: String, default: "en" },
     missingLabel: { type: String, default: "Missing" }
   }
@@ -167,7 +168,7 @@ export default class extends Controller {
     formData.append('programming_language_id', languageId);
     formData.append('input', input);
 
-    const blob = new Blob([code], { type: 'text/plain' });
+    const blob = new Blob([code], { type: 'text/plain;charset=UTF-8' });
     formData.append('source_code', blob, 'sandbox.' + this.getFileExtension());
 
     try {
@@ -580,40 +581,67 @@ export default class extends Controller {
 
   // --- localStorage ---
 
+  storagePrefix() {
+    return "sandbox:" + (this.tokenValue || "user");
+  }
+
+  storageKey(suffix) {
+    return this.storagePrefix() + ":" + suffix;
+  }
+
   saveToLocalStorage() {
+    if (!this.persistEditorValue) return;
+
     if (this.codeEditorInstance) {
-      localStorage.setItem('sandbox_code', this.codeEditorInstance.getValue());
+      localStorage.setItem(this.storageKey("code"), this.codeEditorInstance.getValue());
     }
     if (this.inputEditorInstance) {
-      localStorage.setItem('sandbox_input', this.inputEditorInstance.getValue());
+      localStorage.setItem(this.storageKey("input"), this.inputEditorInstance.getValue());
     }
-    localStorage.setItem('sandbox_language', this.languageValue);
+    localStorage.setItem(this.storageKey("language"), this.languageValue);
   }
 
   loadFromLocalStorage() {
-    const savedLanguage = localStorage.getItem('sandbox_language');
+    if (!this.persistEditorValue) return;
+
+    const savedLanguage = this.readStored("language");
     if (savedLanguage) {
       this.languageValue = savedLanguage;
       if (this.hasLanguageSelectTarget) {
         const options = Array.from(this.languageSelectTarget.options);
-        const match = options.find(opt => opt.getAttribute('data-lang') === savedLanguage.toLowerCase());
+        const match = options.find(opt => opt.getAttribute("data-lang") === savedLanguage.toLowerCase());
         if (match) this.languageSelectTarget.value = match.value;
       }
     }
   }
 
   getSavedCode() {
-    return localStorage.getItem('sandbox_code');
+    return this.readStored("code");
   }
 
   getSavedInput() {
-    return localStorage.getItem('sandbox_input');
+    return this.readStored("input");
+  }
+
+  // Namespaced key first. Legacy global keys only for logged-in /sandbox.
+  readStored(suffix) {
+    if (!this.persistEditorValue) return null;
+
+    const namespaced = localStorage.getItem(this.storageKey(suffix));
+    if (namespaced !== null) return namespaced;
+    if (this.tokenValue) return null;
+    return localStorage.getItem("sandbox_" + suffix);
   }
 
   clearLocalStorage() {
-    localStorage.removeItem('sandbox_code');
-    localStorage.removeItem('sandbox_input');
-    localStorage.removeItem('sandbox_language');
+    localStorage.removeItem(this.storageKey("code"));
+    localStorage.removeItem(this.storageKey("input"));
+    localStorage.removeItem(this.storageKey("language"));
+    if (!this.tokenValue) {
+      localStorage.removeItem("sandbox_code");
+      localStorage.removeItem("sandbox_input");
+      localStorage.removeItem("sandbox_language");
+    }
   }
 
   getCSRFToken() {

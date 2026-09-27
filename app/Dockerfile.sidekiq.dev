@@ -4,6 +4,8 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim
 
 WORKDIR /app
 
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONIOENCODING=utf-8
+
 # Install base packages
 # The SIDEKIQ server is mean to run all the code in the background
 # therefor we need to install all the packages that are needed to run the code

@@ -54,6 +54,12 @@ RSpec.describe SandboxAccessToken, type: :model do
       expect(token).not_to be_valid
       expect(token.errors[:expires_at]).to include("must be after valid from")
     end
+
+    it "defaults persistent_code_in_editor to false" do
+      token = create(:sandbox_access_token)
+
+      expect(token.persistent_code_in_editor).to eq(false)
+    end
   end
 
   describe "#live?" do

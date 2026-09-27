@@ -46,6 +46,14 @@
     <p class="form-hint">At least one language is required. Token sandbox can only use these languages.</p>
   </div>
 
+  <div class="form-group">
+    <label class="checkbox-label" for="sandbox_access_token_persistent_code_in_editor">
+      <%= f.check_box :persistent_code_in_editor %>
+      Remember code in the editor
+    </label>
+    <p class="form-hint">Remembers code and input in this browser for this token only. Leave off for exams so practice code does not appear.</p>
+  </div>
+
   <div class="form-actions">
     <%= f.submit submit_label, class: "btn-primary" %>
     <%= link_to "Cancel", admin_sandbox_tokens_path, class: "btn-secondary" %>

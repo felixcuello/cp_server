@@ -94,7 +94,26 @@ RSpec.describe "Admin sandbox tokens", type: :request do
         expect(token.live?).to be(true)
         expect(token.user).to eq(admin)
         expect(token.programming_languages).to contain_exactly(language)
+        expect(token.persistent_code_in_editor).to eq(false)
       end
+    end
+
+    it "creates a token with persistent_code_in_editor enabled" do
+      sign_in admin
+
+      post admin_sandbox_tokens_path, params: {
+        sandbox_access_token: {
+          label: "Practice",
+          valid_from: 1.hour.from_now.strftime("%Y-%m-%dT%H:%M"),
+          expires_at: 2.hours.from_now.strftime("%Y-%m-%dT%H:%M"),
+          programming_language_ids: [language.id],
+          persistent_code_in_editor: "1"
+        }
+      }
+
+      token = SandboxAccessToken.last
+      expect(response).to redirect_to(admin_sandbox_tokens_path)
+      expect(token.persistent_code_in_editor).to eq(true)
     end
 
     it "rejects a token with no languages" do
@@ -123,6 +142,7 @@ RSpec.describe "Admin sandbox tokens", type: :request do
       expect(response).to have_http_status(:success)
       expect(response.body).to include("Edit sandbox token")
       expect(response.body).to include("Save token")
+      expect(response.body).to include("Remember code in the editor")
     end
 
     it "redirects away from an expired token" do
@@ -162,6 +182,36 @@ RSpec.describe "Admin sandbox tokens", type: :request do
         expect(token.programming_languages).to contain_exactly(language, extra)
         expect(token.user).to eq(original_owner)
       end
+    end
+
+    it "toggles persistent_code_in_editor on a live token" do
+      sign_in admin
+      token = create(:sandbox_access_token, programming_languages: [language], persistent_code_in_editor: false)
+
+      patch admin_sandbox_token_path(token), params: {
+        sandbox_access_token: {
+          label: token.label,
+          valid_from: token.valid_from_in_argentina.strftime("%Y-%m-%dT%H:%M"),
+          expires_at: token.expires_at_in_argentina.strftime("%Y-%m-%dT%H:%M"),
+          programming_language_ids: [language.id],
+          persistent_code_in_editor: "1"
+        }
+      }
+
+      expect(response).to redirect_to(admin_sandbox_tokens_path)
+      expect(token.reload.persistent_code_in_editor).to eq(true)
+
+      patch admin_sandbox_token_path(token), params: {
+        sandbox_access_token: {
+          label: token.label,
+          valid_from: token.valid_from_in_argentina.strftime("%Y-%m-%dT%H:%M"),
+          expires_at: token.expires_at_in_argentina.strftime("%Y-%m-%dT%H:%M"),
+          programming_language_ids: [language.id],
+          persistent_code_in_editor: "0"
+        }
+      }
+
+      expect(token.reload.persistent_code_in_editor).to eq(false)
     end
 
     it "does not update an expired token" do

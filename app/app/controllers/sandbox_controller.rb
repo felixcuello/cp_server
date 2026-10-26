@@ -19,18 +19,20 @@ class SandboxController < AuthenticatedController
       return
     end
 
-    source_code = if params[:source_code].respond_to?(:read)
-                    params[:source_code].read
-    else
-                    params[:source_code].to_s
-    end
+    source_code = Utf8.ensure(
+      if params[:source_code].respond_to?(:read)
+        params[:source_code].read
+      else
+        params[:source_code].to_s
+      end
+    )
 
     if source_code.blank?
       render json: { success: false, error: "No source code provided" }, status: :unprocessable_entity
       return
     end
 
-    input = params[:input].to_s
+    input = Utf8.ensure(params[:input])
     audit_run = start_token_run_audit(source_code, language, input)
     result = nil
     execute_error = nil
@@ -41,6 +43,7 @@ class SandboxController < AuthenticatedController
         language: language,
         input: input
       ).execute
+      result = utf8_execution_result(result)
 
       render json: { success: true, **result }
     rescue => e
@@ -249,6 +252,15 @@ class SandboxController < AuthenticatedController
     )
   end
 
+  def utf8_execution_result(result)
+    {
+      status: result[:status],
+      output: Utf8.ensure(result[:output]),
+      error: result[:error].nil? ? nil : Utf8.ensure(result[:error]),
+      runtime_ms: result[:runtime_ms]
+    }
+  end
+
   # Creates a submitted audit row before execute. No-op without a token check-in.
   def start_token_run_audit(source_code, language, input)
     checkin = current_sandbox_checkin
@@ -271,7 +283,7 @@ class SandboxController < AuthenticatedController
     if execute_error
       audit_run.update!(
         status: :error,
-        stderr: execute_error.message,
+        stderr: Utf8.ensure(execute_error.message),
         finished_at: Time.current
       )
     elsif result

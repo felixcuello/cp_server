@@ -85,6 +85,7 @@ class SubmissionService
 
     # Use Open3.capture3 with array arguments to prevent command injection
     stdout, stderr, status = Open3.capture3(language.compiler_binary, *compiler_args)
+    stderr = Utf8.ensure(stderr)
 
     unless status.success?
       compiler_errors = stderr.present? ? stderr : "Compilation failed (no error details)"
@@ -109,6 +110,7 @@ class SubmissionService
     Rails.logger.info "Compiling once with: #{language.compiler_binary} #{compiler_args.join(' ')}"
 
     stdout, stderr, status = Open3.capture3(language.compiler_binary, *compiler_args)
+    stderr = Utf8.ensure(stderr)
 
     # Clean up source file immediately (we only need the binary)
     File.delete(source_file) rescue nil

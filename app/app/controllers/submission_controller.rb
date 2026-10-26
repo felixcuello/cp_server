@@ -219,7 +219,7 @@ class SubmissionController < AuthenticatedController
     {
       problem_id: params[:problem_id]&.to_i,
       programming_language_id: params[:programming_language_id]&.to_i,
-      source_code: source_code_content
+      source_code: Utf8.ensure(source_code_content)
     }
   end
 
@@ -235,7 +235,7 @@ class SubmissionController < AuthenticatedController
     {
       problem_id: params[:problem_id]&.to_i,
       programming_language_id: params[:programming_language_id]&.to_i,
-      source_code: source_code_content
+      source_code: Utf8.ensure(source_code_content)
     }
   end
 
@@ -340,12 +340,12 @@ class SubmissionController < AuthenticatedController
 
         results << {
           example_number: index + 1,
-          input: example.input,
-          expected_output: example.output,
-          actual_output: result[:output],
+          input: Utf8.ensure(example.input),
+          expected_output: Utf8.ensure(example.output),
+          actual_output: Utf8.ensure(result[:output]),
           status: result[:status],
           runtime: result[:runtime],
-          error_message: result[:error_message]
+          error_message: result[:error_message].nil? ? nil : Utf8.ensure(result[:error_message])
         }
 
         overall_status = "failed" if result[:status] != "passed"

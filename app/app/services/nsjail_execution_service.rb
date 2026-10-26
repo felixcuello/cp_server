@@ -98,6 +98,8 @@ class NsjailExecutionService
         stdout_str, stderr_str, status = Timeout.timeout(ruby_timeout_sec) do
           Open3.capture3(time_command)
         end
+        stdout_str = Utf8.ensure(stdout_str)
+        stderr_str = Utf8.ensure(stderr_str)
 
         exit_code = status.exitstatus
 
@@ -127,6 +129,8 @@ class NsjailExecutionService
         stdout_str, stderr_str, status = Timeout.timeout(ruby_timeout_sec) do
           Open3.capture3(command)
         end
+        stdout_str = Utf8.ensure(stdout_str)
+        stderr_str = Utf8.ensure(stderr_str)
         exit_code = status.exitstatus
 
         if stderr_str.present?
@@ -149,7 +153,7 @@ class NsjailExecutionService
 
       # Read output from file (the program's stdout is redirected to the output file inside nsjail)
       if File.exist?(@output_file)
-        result.stdout = File.read(@output_file)
+        result.stdout = Utf8.ensure(File.read(@output_file, encoding: Encoding::UTF_8))
       end
 
     rescue Timeout::Error => e
@@ -219,6 +223,8 @@ class NsjailExecutionService
         stdout_str, stderr_str, status = Timeout.timeout(ruby_timeout_sec) do
           Open3.capture3(time_command)
         end
+        stdout_str = Utf8.ensure(stdout_str)
+        stderr_str = Utf8.ensure(stderr_str)
 
         exit_code = status.exitstatus
 
@@ -248,6 +254,8 @@ class NsjailExecutionService
         stdout_str, stderr_str, status = Timeout.timeout(ruby_timeout_sec) do
           Open3.capture3(command)
         end
+        stdout_str = Utf8.ensure(stdout_str)
+        stderr_str = Utf8.ensure(stderr_str)
         exit_code = status.exitstatus
 
         if stderr_str.present?
@@ -269,7 +277,7 @@ class NsjailExecutionService
 
       # Read output from file (the program's stdout is redirected to the output file inside nsjail)
       if File.exist?(@output_file)
-        result.stdout = File.read(@output_file)
+        result.stdout = Utf8.ensure(File.read(@output_file, encoding: Encoding::UTF_8))
       end
 
     rescue Timeout::Error => e

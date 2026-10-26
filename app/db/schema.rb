@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_26_195500) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_21_120000) do
   create_table "constraint_translations", charset: "utf8", force: :cascade do |t|
     t.bigint "constraint_id", null: false
     t.string "locale", null: false
@@ -202,6 +202,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_26_195500) do
     t.datetime "revoked_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "persistent_code_in_editor", default: false, null: false
     t.index ["token"], name: "index_sandbox_access_tokens_on_token", unique: true
     t.index ["user_id"], name: "index_sandbox_access_tokens_on_user_id"
   end

@@ -293,7 +293,7 @@ export default class extends Controller {
     formData.append('programming_language_id', languageId)
 
     // Create a blob from the code string
-    const blob = new Blob([code], { type: 'text/plain' })
+    const blob = new Blob([code], { type: 'text/plain;charset=UTF-8' })
     formData.append('source_code', blob, 'solution.' + this.getFileExtension())
 
     console.log('Sending test request to /submissions/test')
@@ -344,7 +344,7 @@ export default class extends Controller {
     formData.append('programming_language_id', this.languageSelectTarget.value)
 
     // Create a blob from the code string
-    const blob = new Blob([code], { type: 'text/plain' })
+    const blob = new Blob([code], { type: 'text/plain;charset=UTF-8' })
     formData.append('source_code', blob, 'solution.' + this.getFileExtension())
     formData.append('authenticity_token', this.getCSRFToken())
 

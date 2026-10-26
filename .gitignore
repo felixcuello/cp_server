@@ -2,3 +2,4 @@
 app/problems/
 .env
 app/config/credentials.yml.enc
+.cursor

@@ -67,6 +67,7 @@ class SandboxExecutionService
     compiler_args = flags_with_paths.split(/\s+/).reject(&:empty?)
 
     _stdout, stderr, status = Open3.capture3(@language.compiler_binary, *compiler_args)
+    stderr = Utf8.ensure(stderr)
 
     unless status.success?
       raise CompilationError, stderr.present? ? stderr : "Compilation failed (no error details)"

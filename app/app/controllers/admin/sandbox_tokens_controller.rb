@@ -56,7 +56,13 @@ class Admin::SandboxTokensController < AdminController
   private
 
   def token_params
-    params.require(:sandbox_access_token).permit(:label, :valid_from, :expires_at, programming_language_ids: [])
+    params.require(:sandbox_access_token).permit(
+      :label,
+      :valid_from,
+      :expires_at,
+      :persistent_code_in_editor,
+      programming_language_ids: []
+    )
   end
 
   def load_programming_languages
@@ -76,6 +82,7 @@ class Admin::SandboxTokensController < AdminController
     token.label = token_params[:label]
     token.valid_from = parse_argentina_datetime(token_params[:valid_from])
     token.expires_at = parse_argentina_datetime(token_params[:expires_at])
+    token.persistent_code_in_editor = !!ActiveModel::Type::Boolean.new.cast(token_params[:persistent_code_in_editor])
     token.programming_language_ids = Array(token_params[:programming_language_ids]).reject(&:blank?)
   end
 

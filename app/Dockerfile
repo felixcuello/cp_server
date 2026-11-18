@@ -5,14 +5,15 @@
 # For development: docker build --build-arg RAILS_ENV=development --build-arg BUNDLE_DEPLOYMENT=0 --build-arg WORKDIR_PATH=/app -t my-app .
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
-ARG RUBY_VERSION=3.2.2
+ARG RUBY_VERSION=3.3.13
 ARG RAILS_ENV=production
 ARG BUNDLE_DEPLOYMENT=1
 ARG BUNDLE_WITHOUT=development
 ARG WORKDIR_PATH=/rails
 ARG RAILS_MASTER_KEY
 
-FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
+# Keep Debian pinned: gcc, python3 and nodejs used for submissions come from the base OS
+FROM docker.io/library/ruby:$RUBY_VERSION-slim-bookworm AS base
 
 # Rails app lives here (use /app for dev, /rails for prod)
 ARG WORKDIR_PATH
@@ -253,7 +254,7 @@ FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git pkg-config && \
+    apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install application gems

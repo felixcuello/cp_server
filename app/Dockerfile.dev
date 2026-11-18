@@ -1,7 +1,8 @@
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
-ARG RUBY_VERSION=3.2.2
+ARG RUBY_VERSION=3.3.13
 ARG RAILS_MASTER_KEY
-FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
+# Keep Debian pinned: gcc, python3 and nodejs used for submissions come from the base OS
+FROM docker.io/library/ruby:$RUBY_VERSION-slim-bookworm AS base
 
 WORKDIR /app
 
@@ -243,7 +244,7 @@ FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git pkg-config && \
+    apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install application gems

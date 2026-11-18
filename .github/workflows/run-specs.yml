@@ -29,7 +29,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1'  # Specify your Ruby version, or use a .ruby-version file
+          ruby-version: '3.3.13'  # Specify your Ruby version, or use a .ruby-version file
           bundler-cache: true
 
       - name: Install MySQL client

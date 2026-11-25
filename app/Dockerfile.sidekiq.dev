@@ -147,13 +147,22 @@ RUN cp /usr/bin/gcc /chroot/usr/bin/ && \
     ldd /usr/bin/g++ | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /chroot/usr/lib/ 2>/dev/null || true
 
 # Copy essential libraries
-RUN cp -r /lib/x86_64-linux-gnu/* /chroot/lib/ 2>/dev/null || true && \
-    cp -r /usr/lib/x86_64-linux-gnu/* /chroot/usr/lib/ 2>/dev/null || true && \
-    cp -r /lib64/* /chroot/lib64/ 2>/dev/null || true
+# Architecture-aware: x86_64-linux-gnu on amd64, aarch64-linux-gnu on arm64
+RUN ARCH_TRIPLET="$(gcc -dumpmachine)" && \
+    echo "Copying libraries for ${ARCH_TRIPLET}" && \
+    { cp -r /lib/${ARCH_TRIPLET}/* /chroot/lib/ 2>/dev/null || true; } && \
+    { cp -r /usr/lib/${ARCH_TRIPLET}/* /chroot/usr/lib/ 2>/dev/null || true; } && \
+    { cp -r /lib64/* /chroot/lib64/ 2>/dev/null || true; }
 
-# Fix the dynamic linker symlink to use relative path
-RUN rm -f /chroot/lib64/ld-linux-x86-64.so.2 && \
-    ln -s ../lib/ld-linux-x86-64.so.2 /chroot/lib64/ld-linux-x86-64.so.2
+# Install the dynamic linker at the path binaries expect inside the chroot
+# (/lib64/ld-linux-x86-64.so.2 on amd64, /lib/ld-linux-aarch64.so.1 on arm64).
+# Copy the real file (cp -L) so no absolute symlink points outside the chroot.
+RUN LOADER="$(ldd /bin/sh | awk '$1 ~ /ld-linux/ {print $1}')" && \
+    echo "Dynamic linker: ${LOADER}" && \
+    test -n "${LOADER}" && \
+    mkdir -p "/chroot$(dirname "${LOADER}")" && \
+    rm -f "/chroot${LOADER}" && \
+    cp -L "${LOADER}" "/chroot${LOADER}"
 
 # Create a nobody user in chroot (for running untrusted code)
 RUN echo "nobody:x:65534:65534:Nobody:/:/bin/false" > /chroot/etc/passwd

@@ -220,8 +220,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_21_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "contest_id"
-    t.boolean "sandbox", default: false, null: false
-    t.text "sandbox_input"
     t.text "user_output", size: :medium
     t.index ["contest_id"], name: "index_submissions_on_contest_id"
     t.index ["problem_id"], name: "index_submissions_on_problem_id"

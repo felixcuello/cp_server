@@ -5,14 +5,15 @@
 # For development: docker build --build-arg RAILS_ENV=development --build-arg BUNDLE_DEPLOYMENT=0 --build-arg WORKDIR_PATH=/app -t my-app .
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
-ARG RUBY_VERSION=3.2.2
+ARG RUBY_VERSION=3.3.13
 ARG RAILS_ENV=production
 ARG BUNDLE_DEPLOYMENT=1
 ARG BUNDLE_WITHOUT=development
 ARG WORKDIR_PATH=/rails
 ARG RAILS_MASTER_KEY
 
-FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
+# Keep Debian pinned: gcc, python3 and nodejs used for submissions come from the base OS
+FROM docker.io/library/ruby:$RUBY_VERSION-slim-bookworm AS base
 
 # Rails app lives here (use /app for dev, /rails for prod)
 ARG WORKDIR_PATH
@@ -192,16 +193,20 @@ RUN cp /usr/bin/gcc /chroot/usr/bin/ && \
     ldd /usr/bin/g++ | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /chroot/usr/lib/ 2>/dev/null || true
 
 # Copy essential libraries
-RUN cp -r /lib/x86_64-linux-gnu/* /chroot/lib/ 2>/dev/null || true && \
-    cp -r /usr/lib/x86_64-linux-gnu/* /chroot/usr/lib/ 2>/dev/null || true && \
-    cp -r /lib64/* /chroot/lib64/ 2>/dev/null || true
+# Architecture-aware: x86_64-linux-gnu on amd64, aarch64-linux-gnu on arm64
+RUN ARCH_TRIPLET="$(gcc -dumpmachine)" && \
+    echo "Copying libraries for ${ARCH_TRIPLET}" && \
+    { cp -r /lib/${ARCH_TRIPLET}/* /chroot/lib/ 2>/dev/null || true; } && \
+    { cp -r /usr/lib/${ARCH_TRIPLET}/* /chroot/usr/lib/ 2>/dev/null || true; } && \
+    { cp -r /lib64/* /chroot/lib64/ 2>/dev/null || true; }
 
 # Copy pthread and rt so C89 threaded binaries can run inside nsjail
-RUN for lib in \
-      /lib/x86_64-linux-gnu/libpthread.so* \
-      /lib/x86_64-linux-gnu/librt.so* \
-      /usr/lib/x86_64-linux-gnu/libpthread.so* \
-      /usr/lib/x86_64-linux-gnu/librt.so* \
+RUN ARCH_TRIPLET="$(gcc -dumpmachine)" && \
+    for lib in \
+      /lib/${ARCH_TRIPLET}/libpthread.so* \
+      /lib/${ARCH_TRIPLET}/librt.so* \
+      /usr/lib/${ARCH_TRIPLET}/libpthread.so* \
+      /usr/lib/${ARCH_TRIPLET}/librt.so* \
       /lib64/libpthread.so* \
       /lib64/librt.so*; do \
       if [ -e "$lib" ]; then \
@@ -211,9 +216,15 @@ RUN for lib in \
       fi; \
     done
 
-# Fix the dynamic linker symlink to use relative path
-RUN rm -f /chroot/lib64/ld-linux-x86-64.so.2 && \
-    ln -s ../lib/ld-linux-x86-64.so.2 /chroot/lib64/ld-linux-x86-64.so.2
+# Install the dynamic linker at the path binaries expect inside the chroot
+# (/lib64/ld-linux-x86-64.so.2 on amd64, /lib/ld-linux-aarch64.so.1 on arm64).
+# Copy the real file (cp -L) so no absolute symlink points outside the chroot.
+RUN LOADER="$(ldd /bin/sh | awk '$1 ~ /ld-linux/ {print $1}')" && \
+    echo "Dynamic linker: ${LOADER}" && \
+    test -n "${LOADER}" && \
+    mkdir -p "/chroot$(dirname "${LOADER}")" && \
+    rm -f "/chroot${LOADER}" && \
+    cp -L "${LOADER}" "/chroot${LOADER}"
 
 # Create a nobody user in chroot (for running untrusted code)
 RUN echo "nobody:x:65534:65534:Nobody:/:/bin/false" > /chroot/etc/passwd
@@ -253,7 +264,7 @@ FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git pkg-config && \
+    apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install application gems

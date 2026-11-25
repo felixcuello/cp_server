@@ -25,7 +25,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1'  # Using the same version as in run-specs.yml
+          ruby-version: '3.3.13'  # Using the same version as in run-specs.yml
           bundler-cache: true
 
       - name: Install MySQL client

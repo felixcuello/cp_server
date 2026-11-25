@@ -4,7 +4,6 @@ services:
     privileged: true
     security_opt:
       - seccomp:unconfined
-    platform: linux/amd64
     env_file: .env
     build:
       context: ./app/
@@ -22,7 +21,6 @@ services:
     privileged: true
     security_opt:
       - seccomp:unconfined
-    platform: linux/amd64
     env_file: .env
     build:
       context: ./app/
